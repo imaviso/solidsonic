@@ -66,6 +66,7 @@ function PlaylistDetailPage() {
 					<TableHeader>
 						<TableRow>
 							<TableHead class="w-[50px]">#</TableHead>
+							<TableHead class="w-[48px]"></TableHead>
 							<TableHead>Title</TableHead>
 							<TableHead>Artist</TableHead>
 							<TableHead>Album</TableHead>
@@ -82,8 +83,15 @@ function PlaylistDetailPage() {
 									onClick={() => handlePlaySong(song, i())}
 								>
 									<TableCell class="font-medium text-muted-foreground group-hover:text-foreground">
-										<span class="group-hover:hidden">{i() + 1}</span>
+										<span class="group-hover:hidden text-xs">{i() + 1}</span>
 										<IconPlayerPlayFilled class="size-3 hidden group-hover:block text-primary" />
+									</TableCell>
+									<TableCell>
+										<CoverArt
+											id={song.coverArt}
+											size={80}
+											class="size-10 rounded shadow-sm"
+										/>
 									</TableCell>
 									<TableCell class="font-medium">
 										<span

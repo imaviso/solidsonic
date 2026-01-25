@@ -6,6 +6,7 @@ import {
 import { useQuery } from "@tanstack/solid-query";
 import { createFileRoute } from "@tanstack/solid-router";
 import { For, Show } from "solid-js";
+import CoverArt from "~/components/CoverArt";
 import { Button } from "~/components/ui/button";
 import {
 	Table,
@@ -72,6 +73,7 @@ function FavoritesPage() {
 					<TableHeader>
 						<TableRow>
 							<TableHead class="w-[50px]">#</TableHead>
+							<TableHead class="w-[48px]"></TableHead>
 							<TableHead>Title</TableHead>
 							<TableHead>Artist</TableHead>
 							<TableHead>Album</TableHead>
@@ -86,7 +88,7 @@ function FavoritesPage() {
 							fallback={
 								<TableRow>
 									<TableCell
-										colSpan={5}
+										colSpan={6}
 										class="text-center h-24 text-muted-foreground"
 									>
 										No favorite songs yet. Star some songs to see them here!
@@ -101,8 +103,15 @@ function FavoritesPage() {
 										onClick={() => handlePlaySong(song, i())}
 									>
 										<TableCell class="font-medium text-muted-foreground group-hover:text-foreground">
-											<span class="group-hover:hidden">{i() + 1}</span>
+											<span class="group-hover:hidden text-xs">{i() + 1}</span>
 											<IconPlayerPlayFilled class="size-3 hidden group-hover:block text-primary" />
+										</TableCell>
+										<TableCell>
+											<CoverArt
+												id={song.coverArt}
+												size={80}
+												class="size-10 rounded shadow-sm"
+											/>
 										</TableCell>
 										<TableCell class="font-medium">
 											<span

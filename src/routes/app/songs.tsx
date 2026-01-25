@@ -3,6 +3,7 @@ import { useInfiniteQuery } from "@tanstack/solid-query";
 import { createFileRoute } from "@tanstack/solid-router";
 import { createVirtualizer } from "@tanstack/solid-virtual";
 import { createEffect, createMemo, For, Show } from "solid-js";
+import CoverArt from "~/components/CoverArt";
 import { Button } from "~/components/ui/button";
 import { getRandomSongs } from "~/lib/api";
 import { usePlayer } from "~/lib/player";
@@ -38,7 +39,7 @@ function SongsPage() {
 			return allSongs().length;
 		},
 		getScrollElement: () => scrollContainerRef ?? null,
-		estimateSize: () => 48, // Row height
+		estimateSize: () => 60, // Row height
 		overscan: 10,
 	});
 
@@ -89,8 +90,9 @@ function SongsPage() {
 
 			<div ref={scrollContainerRef} class="flex-1 overflow-auto">
 				{/* Header */}
-				<div class="grid grid-cols-[50px_1fr_1fr_1fr_80px] gap-2 px-4 py-2 text-sm font-medium text-muted-foreground border-b sticky top-0 bg-background z-10">
+				<div class="grid grid-cols-[40px_48px_1fr_1fr_1fr_80px] gap-4 px-4 py-2 text-sm font-medium text-muted-foreground border-b sticky top-0 bg-background z-10">
 					<div>#</div>
+					<div></div>
 					<div>Title</div>
 					<div>Artist</div>
 					<div>Album</div>
@@ -122,7 +124,7 @@ function SongsPage() {
 										height: `${virtualRow.size}px`,
 										transform: `translateY(${virtualRow.start}px)`,
 									}}
-									class="grid grid-cols-[50px_1fr_1fr_1fr_80px] gap-2 px-4 items-center group cursor-pointer hover:bg-muted/50 border-0 bg-transparent text-left"
+									class="grid grid-cols-[40px_48px_1fr_1fr_1fr_80px] gap-4 px-4 items-center group cursor-pointer hover:bg-muted/50 border-0 bg-transparent text-left"
 									onClick={() => handlePlaySong(virtualRow.index)}
 									onKeyDown={(e) => {
 										if (e.key === "Enter" || e.key === " ") {
@@ -131,11 +133,16 @@ function SongsPage() {
 									}}
 								>
 									<div class="font-medium text-muted-foreground group-hover:text-foreground">
-										<span class="group-hover:hidden">
+										<span class="group-hover:hidden text-xs">
 											{virtualRow.index + 1}
 										</span>
 										<IconPlayerPlayFilled class="size-3 hidden group-hover:block text-primary" />
 									</div>
+									<CoverArt
+										id={song.coverArt}
+										size={80}
+										class="size-10 rounded shadow-sm"
+									/>
 									<div class="font-medium truncate">
 										<span
 											class={
