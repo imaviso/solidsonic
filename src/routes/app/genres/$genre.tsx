@@ -1,7 +1,8 @@
-import { IconPlayerPlay } from "@tabler/icons-solidjs";
+import { IconClock, IconPlayerPlayFilled } from "@tabler/icons-solidjs";
 import { useQuery } from "@tanstack/solid-query";
 import { createFileRoute } from "@tanstack/solid-router";
 import { For, Show } from "solid-js";
+import CoverArt from "~/components/CoverArt";
 import { Button } from "~/components/ui/button";
 import {
 	Table,
@@ -27,7 +28,7 @@ function formatDuration(seconds?: number) {
 
 function GenreDetailPage() {
 	const params = Route.useParams();
-	const { playSong: play } = usePlayer();
+	const { playSong: play, currentTrack } = usePlayer();
 
 	const songs = useQuery(() => ({
 		queryKey: ["genre", params().genre],
@@ -48,40 +49,49 @@ function GenreDetailPage() {
 					<TableHeader>
 						<TableRow>
 							<TableHead class="w-[50px]">#</TableHead>
+							<TableHead class="w-[48px]"></TableHead>
 							<TableHead>Title</TableHead>
 							<TableHead>Artist</TableHead>
 							<TableHead>Album</TableHead>
-							<TableHead class="text-right">Duration</TableHead>
-							<TableHead class="w-[50px]"></TableHead>
+							<TableHead class="text-right">
+								<IconClock class="size-4 ml-auto" />
+							</TableHead>
 						</TableRow>
 					</TableHeader>
 					<TableBody>
 						<For each={songs.data}>
 							{(song, i) => (
-								<TableRow class="group">
-									<TableCell class="font-medium text-muted-foreground">
-										{i() + 1}
-									</TableCell>
-									<TableCell class="font-medium">{song.title}</TableCell>
-									<TableCell>{song.artist}</TableCell>
-									<TableCell>{song.album}</TableCell>
-									<TableCell class="text-right font-mono text-xs">
-										{formatDuration(song.duration)}
+								<TableRow
+									class="group cursor-pointer hover:bg-muted/50"
+									onClick={() => {
+										const songList = songs.data;
+										if (songList) {
+											play(song, songList, i());
+										}
+									}}
+								>
+									<TableCell class="font-medium text-muted-foreground group-hover:text-foreground">
+										<span class="group-hover:hidden text-xs">{i() + 1}</span>
+										<IconPlayerPlayFilled class="size-3 hidden group-hover:block text-primary" />
 									</TableCell>
 									<TableCell>
-										<Button
-											variant="ghost"
-											size="icon"
-											class="opacity-0 group-hover:opacity-100 h-8 w-8"
-											onClick={() => {
-												const songList = songs.data;
-												if (songList) {
-													play(song, songList, i());
-												}
-											}}
+										<CoverArt
+											id={song.coverArt}
+											size={80}
+											class="size-10 rounded shadow-sm"
+										/>
+									</TableCell>
+									<TableCell class="font-medium">
+										<span
+											class={currentTrack?.id === song.id ? "text-primary" : ""}
 										>
-											<IconPlayerPlay class="size-4" />
-										</Button>
+											{song.title}
+										</span>
+									</TableCell>
+									<TableCell>{song.artist}</TableCell>
+									<TableCell>{song.album}</TableCell>
+									<TableCell class="text-right font-mono text-xs text-muted-foreground">
+										{formatDuration(song.duration)}
 									</TableCell>
 								</TableRow>
 							)}
