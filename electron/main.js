@@ -1,10 +1,11 @@
 import { execSync } from "node:child_process";
 import { existsSync } from "node:fs";
 import { rm } from "node:fs/promises";
+import { readFile, writeFile, mkdir, unlink } from "node:fs/promises";
 import path from "node:path";
 import process, { pid } from "node:process";
 import { fileURLToPath } from "node:url";
-import { app, BrowserWindow, dialog, ipcMain, shell } from "electron";
+import { app, BrowserWindow, dialog, ipcMain, safeStorage, shell } from "electron";
 import MpvAPI from "node-mpv";
 import { destroyMpris, initializeMpris } from "./mpris.js";
 
@@ -41,6 +42,9 @@ const socketPath = isWindows
 let mpvInstance = null;
 let mpvPath = null; // Will be detected or set by user
 let currentVolume = 100;
+
+// Secure Storage Paths
+const AUTH_FILE_PATH = path.join(app.getPath("userData"), "auth-v2.bin");
 
 // Common paths where MPV might be installed
 const MPV_SEARCH_PATHS = isWindows
@@ -304,6 +308,60 @@ const cleanupMpv = async (force = false) => {
 // ============================================================================
 // IPC Handlers
 // ============================================================================
+
+function setupAuthIpcHandlers() {
+	ipcMain.handle("auth:save", async (_, credentials) => {
+		try {
+			const json = JSON.stringify(credentials);
+			if (safeStorage.isEncryptionAvailable()) {
+				const encrypted = safeStorage.encryptString(json);
+				await mkdir(path.dirname(AUTH_FILE_PATH), { recursive: true });
+				await writeFile(AUTH_FILE_PATH, encrypted);
+				return true;
+			}
+			// Fallback if encryption is not available (should be rare on desktop)
+			await writeFile(AUTH_FILE_PATH, Buffer.from(json, "utf-8"));
+			return true;
+		} catch (error) {
+			console.error("Failed to save auth:", error);
+			return false;
+		}
+	});
+
+	ipcMain.handle("auth:get", async () => {
+		try {
+			if (!existsSync(AUTH_FILE_PATH)) return null;
+			const encrypted = await readFile(AUTH_FILE_PATH);
+			let json;
+			if (safeStorage.isEncryptionAvailable()) {
+				try {
+					json = safeStorage.decryptString(encrypted);
+				} catch {
+					// Might be unencrypted from a fallback
+					json = encrypted.toString("utf-8");
+				}
+			} else {
+				json = encrypted.toString("utf-8");
+			}
+			return JSON.parse(json);
+		} catch (error) {
+			console.error("Failed to get auth:", error);
+			return null;
+		}
+	});
+
+	ipcMain.handle("auth:clear", async () => {
+		try {
+			if (existsSync(AUTH_FILE_PATH)) {
+				await unlink(AUTH_FILE_PATH);
+			}
+			return true;
+		} catch (error) {
+			console.error("Failed to clear auth:", error);
+			return false;
+		}
+	});
+}
 
 function setupMpvIpcHandlers() {
 	// Check if MPV is available
@@ -754,6 +812,7 @@ process.on("unhandledRejection", async (reason) => {
 // Start the app
 app.whenReady().then(async () => {
 	setupMpvIpcHandlers();
+	setupAuthIpcHandlers();
 	createWindow();
 
 	// Initialize MPRIS for Linux desktop integration

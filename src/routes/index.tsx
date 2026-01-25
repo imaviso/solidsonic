@@ -245,10 +245,8 @@ function LoginPage() {
 										disabled={isSubmitting()}
 									>
 										<Show when={isSubmitting()} fallback="Connect">
-											<>
-												<IconLoader2 class="w-4 h-4 animate-spin mr-2" />
-												Connecting...
-											</>
+											<IconLoader2 class="w-4 h-4 animate-spin mr-2" />
+											Connecting...
 										</Show>
 									</Button>
 								)}

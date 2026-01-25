@@ -2,7 +2,6 @@ import {
 	IconArrowsShuffle,
 	IconChevronDown,
 	IconList,
-	IconMusic,
 	IconPlayerPauseFilled,
 	IconPlayerPlayFilled,
 	IconPlayerSkipBackFilled,
@@ -72,7 +71,7 @@ const LyricsView: Component = () => {
 				if (structured && structured.length > 0) {
 					return { type: "synced", data: structured[0] } as const;
 				}
-			} catch (e) {
+			} catch (_e) {
 				// ignore
 			}
 
@@ -85,7 +84,7 @@ const LyricsView: Component = () => {
 				if (plain) {
 					return { type: "plain", data: plain } as const;
 				}
-			} catch (e) {
+			} catch (_e) {
 				// ignore
 			}
 			return null;

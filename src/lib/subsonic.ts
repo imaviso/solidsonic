@@ -214,54 +214,98 @@ async function md5(message: string): Promise<string> {
 	return hex(state);
 }
 
-// Cache for auth params to prevent spamming new tokens/salts (which breaks browser caching for images)
-let currentAuthCache: {
+// Cache for auth tokens to prevent spamming new tokens/salts
+let authCache: {
 	username: string;
 	password: string;
 	serverUrl: string;
-	params: URLSearchParams;
+	token: string;
+	salt: string;
 } | null = null;
 
-// Build authentication parameters for Subsonic API
-export async function getAuthParams(
-	credentials?: SubsonicCredentials | null,
-): Promise<URLSearchParams> {
-	const creds = credentials ?? getCredentials();
-	if (!creds) {
-		throw new Error("Not authenticated");
-	}
-
-	// Return cached params if credentials haven't changed
+async function getAuthTokens(
+	credentials: SubsonicCredentials,
+): Promise<{ token: string; salt: string }> {
+	// Return cached tokens if credentials haven't changed
 	if (
-		currentAuthCache &&
-		currentAuthCache.username === creds.username &&
-		currentAuthCache.password === creds.password &&
-		currentAuthCache.serverUrl === creds.serverUrl
+		authCache &&
+		authCache.username === credentials.username &&
+		authCache.password === credentials.password &&
+		authCache.serverUrl === credentials.serverUrl
 	) {
-		return new URLSearchParams(currentAuthCache.params);
+		return { token: authCache.token, salt: authCache.salt };
 	}
 
 	const salt = generateSalt();
-	const token = await md5(creds.password + salt);
+	const token = await md5(credentials.password + salt);
+
+	// Update cache
+	authCache = {
+		username: credentials.username,
+		password: credentials.password,
+		serverUrl: credentials.serverUrl,
+		token,
+		salt,
+	};
+
+	return { token, salt };
+}
+
+export async function createApiRequest(
+	endpoint: string,
+	additionalParams?: Record<string, string | string[]>,
+	credentialsOverride?: SubsonicCredentials,
+): Promise<{ url: string; headers: HeadersInit }> {
+	const credentials = credentialsOverride ?? getCredentials();
+	if (!credentials) {
+		throw new Error("Not authenticated");
+	}
+
+	const { token, salt } = await getAuthTokens(credentials);
 
 	const params = new URLSearchParams({
-		u: creds.username,
-		t: token,
-		s: salt,
 		v: "1.16.1", // Subsonic API version
 		c: "solidsonic", // Client identifier
 		f: "json", // Response format
 	});
 
-	// Update cache
-	currentAuthCache = {
-		username: creds.username,
-		password: creds.password,
-		serverUrl: creds.serverUrl,
-		params,
+	if (additionalParams) {
+		for (const [key, value] of Object.entries(additionalParams)) {
+			if (Array.isArray(value)) {
+				for (const v of value) {
+					params.append(key, v);
+				}
+			} else {
+				params.set(key, value);
+			}
+		}
+	}
+
+	const headers: HeadersInit = {
+		"X-Subsonic-Username": credentials.username,
+		"X-Subsonic-Token": token,
+		"X-Subsonic-Salt": salt,
 	};
 
-	return params;
+	const baseUrl = getBaseUrl(credentials.serverUrl);
+	const url = `${baseUrl}/rest/${endpoint}?${params.toString()}`;
+
+	return { url, headers };
+}
+
+export async function fetchSubsonic(
+	endpoint: string,
+	params?: Record<string, string | string[]>,
+	init?: RequestInit,
+): Promise<Response> {
+	const { url, headers } = await createApiRequest(endpoint, params);
+	return fetch(url, {
+		...init,
+		headers: {
+			...headers,
+			...init?.headers,
+		},
+	});
 }
 
 // Get the base URL for API requests
@@ -270,8 +314,9 @@ function getBaseUrl(serverUrl: string): string {
 	return serverUrl;
 }
 
-// Build a full API URL
-export async function buildApiUrl(
+// Build a full API URL for media resources (images, streams, downloads)
+// These require query parameters because headers cannot be set for HTML elements
+export async function buildMediaUrl(
 	endpoint: string,
 	additionalParams?: Record<string, string>,
 ): Promise<string> {
@@ -280,7 +325,16 @@ export async function buildApiUrl(
 		throw new Error("Not authenticated");
 	}
 
-	const params = await getAuthParams(credentials);
+	const { token, salt } = await getAuthTokens(credentials);
+
+	const params = new URLSearchParams({
+		u: credentials.username,
+		t: token,
+		s: salt,
+		v: "1.16.1",
+		c: "solidsonic",
+		f: "json",
+	});
 
 	if (additionalParams) {
 		for (const [key, value] of Object.entries(additionalParams)) {
@@ -297,11 +351,13 @@ export async function ping(
 	credentials: SubsonicCredentials,
 ): Promise<{ success: boolean; error?: string }> {
 	try {
-		const params = await getAuthParams(credentials);
-		const baseUrl = getBaseUrl(credentials.serverUrl);
-		const url = `${baseUrl}/rest/ping?${params.toString()}`;
+		const { url, headers } = await createApiRequest(
+			"ping",
+			undefined,
+			credentials,
+		);
 
-		const response = await fetch(url);
+		const response = await fetch(url, { headers });
 		const data = await response.json();
 
 		if (data["subsonic-response"]?.status === "ok") {

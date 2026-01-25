@@ -1,4 +1,4 @@
-import { buildApiUrl } from "./subsonic";
+import { buildMediaUrl, fetchSubsonic } from "./subsonic";
 
 // Subsonic API Types
 export interface Album {
@@ -76,13 +76,12 @@ export async function getAlbumList(
 	size = 50,
 	offset = 0,
 ): Promise<Album[]> {
-	const url = await buildApiUrl("getAlbumList2", {
+	const response = await fetchSubsonic("getAlbumList2", {
 		type,
 		size: size.toString(),
 		offset: offset.toString(),
 	});
 
-	const response = await fetch(url);
 	const data: SubsonicResponse<{ albumList2?: { album?: Album[] } }> =
 		await response.json();
 
@@ -99,9 +98,8 @@ export async function getAlbum(id: string): Promise<{
 	album: Album;
 	songs: Song[];
 }> {
-	const url = await buildApiUrl("getAlbum", { id });
+	const response = await fetchSubsonic("getAlbum", { id });
 
-	const response = await fetch(url);
 	const data: SubsonicResponse<{ album?: Album & { song?: Song[] } }> =
 		await response.json();
 
@@ -124,9 +122,8 @@ export async function getAlbum(id: string): Promise<{
 }
 
 export async function getArtists(): Promise<Artist[]> {
-	const url = await buildApiUrl("getArtists");
+	const response = await fetchSubsonic("getArtists");
 
-	const response = await fetch(url);
 	const data: SubsonicResponse<{
 		artists?: { index?: Array<{ artist?: Artist[] }> };
 	}> = await response.json();
@@ -142,11 +139,10 @@ export async function getArtists(): Promise<Artist[]> {
 }
 
 export async function getRandomSongs(size = 50): Promise<Song[]> {
-	const url = await buildApiUrl("getRandomSongs", {
+	const response = await fetchSubsonic("getRandomSongs", {
 		size: size.toString(),
 	});
 
-	const response = await fetch(url);
 	const data: SubsonicResponse<{ randomSongs?: { song?: Song[] } }> =
 		await response.json();
 
@@ -163,9 +159,8 @@ export async function getArtist(id: string): Promise<{
 	artist: Artist;
 	albums: Album[];
 }> {
-	const url = await buildApiUrl("getArtist", { id });
+	const response = await fetchSubsonic("getArtist", { id });
 
-	const response = await fetch(url);
 	const data: SubsonicResponse<{ artist?: Artist & { album?: Album[] } }> =
 		await response.json();
 
@@ -194,14 +189,13 @@ export interface SearchResult {
 }
 
 export async function search(query: string): Promise<SearchResult> {
-	const url = await buildApiUrl("search3", {
+	const response = await fetchSubsonic("search3", {
 		query,
 		artistCount: "20",
 		albumCount: "20",
 		songCount: "20",
 	});
 
-	const response = await fetch(url);
 	const data: SubsonicResponse<{
 		searchResult3?: {
 			artist?: Artist[];
@@ -232,9 +226,8 @@ export interface StarredResult {
 }
 
 export async function getStarred(): Promise<StarredResult> {
-	const url = await buildApiUrl("getStarred2");
+	const response = await fetchSubsonic("getStarred2");
 
-	const response = await fetch(url);
 	const data: SubsonicResponse<{
 		starred2?: {
 			artist?: Artist[];
@@ -266,21 +259,22 @@ export async function getCoverArtUrl(
 	size?: number,
 ): Promise<string> {
 	const cacheKey = `${coverArtId}-${size ?? "default"}`;
-	if (coverArtUrlCache.has(cacheKey)) {
-		return coverArtUrlCache.get(cacheKey)!;
+	const cached = coverArtUrlCache.get(cacheKey);
+	if (cached) {
+		return cached;
 	}
 
 	const params: Record<string, string> = { id: coverArtId };
 	if (size) {
 		params.size = size.toString();
 	}
-	const url = await buildApiUrl("getCoverArt", params);
+	const url = await buildMediaUrl("getCoverArt", params);
 	coverArtUrlCache.set(cacheKey, url);
 	return url;
 }
 
 export async function getStreamUrl(songId: string): Promise<string> {
-	return buildApiUrl("stream", { id: songId });
+	return buildMediaUrl("stream", { id: songId });
 }
 
 // Star/Unstar items
@@ -294,8 +288,7 @@ export async function star(options: {
 	if (options.albumId) params.albumId = options.albumId;
 	if (options.artistId) params.artistId = options.artistId;
 
-	const url = await buildApiUrl("star", params);
-	const response = await fetch(url);
+	const response = await fetchSubsonic("star", params);
 	const data: SubsonicResponse<Record<string, never>> = await response.json();
 
 	if (data["subsonic-response"].status !== "ok") {
@@ -315,8 +308,7 @@ export async function unstar(options: {
 	if (options.albumId) params.albumId = options.albumId;
 	if (options.artistId) params.artistId = options.artistId;
 
-	const url = await buildApiUrl("unstar", params);
-	const response = await fetch(url);
+	const response = await fetchSubsonic("unstar", params);
 	const data: SubsonicResponse<Record<string, never>> = await response.json();
 
 	if (data["subsonic-response"].status !== "ok") {
@@ -338,8 +330,7 @@ export async function scrobble(
 		params.submission = options.submission.toString();
 	}
 
-	const url = await buildApiUrl("scrobble", params);
-	const response = await fetch(url);
+	const response = await fetchSubsonic("scrobble", params);
 	const data: SubsonicResponse<Record<string, never>> = await response.json();
 
 	if (data["subsonic-response"].status !== "ok") {
@@ -368,9 +359,8 @@ export async function getLyrics(
 	artist: string,
 	title: string,
 ): Promise<Lyrics | null> {
-	const url = await buildApiUrl("getLyrics", { artist, title });
+	const response = await fetchSubsonic("getLyrics", { artist, title });
 
-	const response = await fetch(url);
 	const data: SubsonicResponse<{
 		lyrics?: Lyrics;
 	}> = await response.json();
@@ -386,12 +376,11 @@ export async function getSimilarSongs2(
 	id: string,
 	count = 50,
 ): Promise<Song[]> {
-	const url = await buildApiUrl("getSimilarSongs2", {
+	const response = await fetchSubsonic("getSimilarSongs2", {
 		id,
 		count: count.toString(),
 	});
 
-	const response = await fetch(url);
 	const data: SubsonicResponse<{
 		similarSongs2?: { song?: Song[] };
 	}> = await response.json();
@@ -407,12 +396,11 @@ export async function getSimilarArtists(
 	id: string,
 	count = 20,
 ): Promise<Artist[]> {
-	const url = await buildApiUrl("getSimilarArtists2", {
+	const response = await fetchSubsonic("getSimilarArtists2", {
 		id,
 		count: count.toString(),
 	});
 
-	const response = await fetch(url);
 	const data: SubsonicResponse<{
 		similarArtists2?: { artist?: Artist[] };
 	}> = await response.json();
@@ -425,9 +413,8 @@ export async function getSimilarArtists(
 }
 
 export async function getArtistAlbums(artistId: string): Promise<Album[]> {
-	const url = await buildApiUrl("getArtist", { id: artistId });
+	const response = await fetchSubsonic("getArtist", { id: artistId });
 
-	const response = await fetch(url);
 	const data: SubsonicResponse<{
 		artist?: Artist & { album?: Album[] };
 	}> = await response.json();
@@ -440,9 +427,8 @@ export async function getArtistAlbums(artistId: string): Promise<Album[]> {
 }
 
 export async function getGenres(): Promise<Genre[]> {
-	const url = await buildApiUrl("getGenres");
+	const response = await fetchSubsonic("getGenres");
 
-	const response = await fetch(url);
 	const data: SubsonicResponse<{
 		genres?: { genre?: Genre[] };
 	}> = await response.json();
@@ -461,13 +447,12 @@ export async function getSongsByGenre(
 	count = 50,
 	offset = 0,
 ): Promise<Song[]> {
-	const url = await buildApiUrl("getSongsByGenre", {
+	const response = await fetchSubsonic("getSongsByGenre", {
 		genre,
 		count: count.toString(),
 		offset: offset.toString(),
 	});
 
-	const response = await fetch(url);
 	const data: SubsonicResponse<{
 		songsByGenre?: { song?: Song[] };
 	}> = await response.json();
@@ -504,9 +489,8 @@ export interface PlaylistWithSongs extends Playlist {
 }
 
 export async function getPlaylists(): Promise<Playlist[]> {
-	const url = await buildApiUrl("getPlaylists");
+	const response = await fetchSubsonic("getPlaylists");
 
-	const response = await fetch(url);
 	const data: SubsonicResponse<{
 		playlists?: { playlist?: Playlist[] };
 	}> = await response.json();
@@ -521,9 +505,8 @@ export async function getPlaylists(): Promise<Playlist[]> {
 }
 
 export async function getPlaylist(id: string): Promise<PlaylistWithSongs> {
-	const url = await buildApiUrl("getPlaylist", { id });
+	const response = await fetchSubsonic("getPlaylist", { id });
 
-	const response = await fetch(url);
 	const data: SubsonicResponse<{
 		playlist?: PlaylistWithSongs;
 	}> = await response.json();
@@ -546,19 +529,11 @@ export async function createPlaylist(options: {
 	name: string;
 	songId?: string[];
 }): Promise<PlaylistWithSongs> {
-	const params: Record<string, string> = { name: options.name };
+	const response = await fetchSubsonic("createPlaylist", {
+		name: options.name,
+		songId: options.songId ?? [],
+	});
 
-	const url = await buildApiUrl("createPlaylist", params);
-
-	// Add song IDs as multiple parameters
-	const urlObj = new URL(url);
-	if (options.songId) {
-		for (const id of options.songId) {
-			urlObj.searchParams.append("songId", id);
-		}
-	}
-
-	const response = await fetch(urlObj.toString());
 	const data: SubsonicResponse<{
 		playlist?: PlaylistWithSongs;
 	}> = await response.json();
@@ -587,27 +562,17 @@ export async function updatePlaylist(options: {
 	songIdToAdd?: string[];
 	songIndexToRemove?: number[];
 }): Promise<void> {
-	const params: Record<string, string> = { playlistId: options.playlistId };
+	const params: Record<string, string | string[]> = {
+		playlistId: options.playlistId,
+	};
 	if (options.name) params.name = options.name;
 	if (options.comment !== undefined) params.comment = options.comment;
 	if (options.public !== undefined) params.public = options.public.toString();
+	if (options.songIdToAdd) params.songIdToAdd = options.songIdToAdd;
+	if (options.songIndexToRemove)
+		params.songIndexToRemove = options.songIndexToRemove.map(String);
 
-	const url = await buildApiUrl("updatePlaylist", params);
-
-	// Add arrays as multiple parameters
-	const urlObj = new URL(url);
-	if (options.songIdToAdd) {
-		for (const id of options.songIdToAdd) {
-			urlObj.searchParams.append("songIdToAdd", id);
-		}
-	}
-	if (options.songIndexToRemove) {
-		for (const idx of options.songIndexToRemove) {
-			urlObj.searchParams.append("songIndexToRemove", idx.toString());
-		}
-	}
-
-	const response = await fetch(urlObj.toString());
+	const response = await fetchSubsonic("updatePlaylist", params);
 	const data: SubsonicResponse<Record<string, never>> = await response.json();
 
 	if (data["subsonic-response"].status !== "ok") {
@@ -618,9 +583,8 @@ export async function updatePlaylist(options: {
 }
 
 export async function deletePlaylist(id: string): Promise<void> {
-	const url = await buildApiUrl("deletePlaylist", { id });
+	const response = await fetchSubsonic("deletePlaylist", { id });
 
-	const response = await fetch(url);
 	const data: SubsonicResponse<Record<string, never>> = await response.json();
 
 	if (data["subsonic-response"].status !== "ok") {
@@ -644,9 +608,8 @@ export interface PlayQueue {
 }
 
 export async function getPlayQueue(): Promise<PlayQueue | null> {
-	const url = await buildApiUrl("getPlayQueue");
+	const response = await fetchSubsonic("getPlayQueue");
 
-	const response = await fetch(url);
 	const data: SubsonicResponse<{
 		playQueue?: PlayQueue;
 	}> = await response.json();
@@ -663,20 +626,15 @@ export async function savePlayQueue(options: {
 	current?: string; // ID of the currently playing song
 	position?: number; // Position in milliseconds
 }): Promise<void> {
-	const params: Record<string, string> = {};
+	const params: Record<string, string | string[]> = {};
 	if (options.current) params.current = options.current;
 	if (options.position !== undefined)
 		params.position = options.position.toString();
 
-	const url = await buildApiUrl("savePlayQueue", params);
+	// Add song IDs
+	params.id = options.id;
 
-	// Add song IDs as multiple parameters
-	const urlObj = new URL(url);
-	for (const id of options.id) {
-		urlObj.searchParams.append("id", id);
-	}
-
-	const response = await fetch(urlObj.toString());
+	const response = await fetchSubsonic("savePlayQueue", params);
 	const data: SubsonicResponse<Record<string, never>> = await response.json();
 
 	if (data["subsonic-response"].status !== "ok") {
@@ -691,9 +649,8 @@ export async function savePlayQueue(options: {
 // ============================================================================
 
 export async function getSong(id: string): Promise<Song> {
-	const url = await buildApiUrl("getSong", { id });
+	const response = await fetchSubsonic("getSong", { id });
 
-	const response = await fetch(url);
 	const data: SubsonicResponse<{
 		song?: Song;
 	}> = await response.json();
@@ -716,12 +673,11 @@ export async function getTopSongs(
 	artistName: string,
 	count = 50,
 ): Promise<Song[]> {
-	const url = await buildApiUrl("getTopSongs", {
+	const response = await fetchSubsonic("getTopSongs", {
 		artist: artistName,
 		count: count.toString(),
 	});
 
-	const response = await fetch(url);
 	const data: SubsonicResponse<{
 		topSongs?: { song?: Song[] };
 	}> = await response.json();
@@ -734,12 +690,11 @@ export async function getTopSongs(
 }
 
 export async function getSimilarSongs(id: string, count = 50): Promise<Song[]> {
-	const url = await buildApiUrl("getSimilarSongs", {
+	const response = await fetchSubsonic("getSimilarSongs", {
 		id,
 		count: count.toString(),
 	});
 
-	const response = await fetch(url);
 	const data: SubsonicResponse<{
 		similarSongs?: { song?: Song[] };
 	}> = await response.json();
@@ -759,12 +714,11 @@ export async function setRating(
 	id: string,
 	rating: 0 | 1 | 2 | 3 | 4 | 5,
 ): Promise<void> {
-	const url = await buildApiUrl("setRating", {
+	const response = await fetchSubsonic("setRating", {
 		id,
 		rating: rating.toString(),
 	});
 
-	const response = await fetch(url);
 	const data: SubsonicResponse<Record<string, never>> = await response.json();
 
 	if (data["subsonic-response"].status !== "ok") {
@@ -786,9 +740,8 @@ export interface NowPlayingEntry extends Song {
 }
 
 export async function getNowPlaying(): Promise<NowPlayingEntry[]> {
-	const url = await buildApiUrl("getNowPlaying");
+	const response = await fetchSubsonic("getNowPlaying");
 
-	const response = await fetch(url);
 	const data: SubsonicResponse<{
 		nowPlaying?: { entry?: NowPlayingEntry[] };
 	}> = await response.json();
@@ -819,9 +772,8 @@ export interface StructuredLyrics {
 export async function getLyricsBySongId(
 	id: string,
 ): Promise<StructuredLyrics[]> {
-	const url = await buildApiUrl("getLyricsBySongId", { id });
+	const response = await fetchSubsonic("getLyricsBySongId", { id });
 
-	const response = await fetch(url);
 	const data: SubsonicResponse<{
 		lyricsList?: { structuredLyrics?: StructuredLyrics[] };
 	}> = await response.json();
@@ -838,7 +790,7 @@ export async function getLyricsBySongId(
 // ============================================================================
 
 export async function getDownloadUrl(id: string): Promise<string> {
-	return buildApiUrl("download", { id });
+	return buildMediaUrl("download", { id });
 }
 
 // ============================================================================
@@ -853,9 +805,8 @@ export interface ScanStatus {
 }
 
 export async function getScanStatus(): Promise<ScanStatus> {
-	const url = await buildApiUrl("getScanStatus");
+	const response = await fetchSubsonic("getScanStatus");
 
-	const response = await fetch(url);
 	const data: SubsonicResponse<{
 		scanStatus?: ScanStatus;
 	}> = await response.json();

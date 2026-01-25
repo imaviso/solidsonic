@@ -73,7 +73,7 @@ function ArtistsPage() {
 			</Show>
 
 			<div
-				ref={scrollContainerRef!}
+				ref={scrollContainerRef}
 				class="flex-1 overflow-y-auto min-h-0"
 				onScroll={() => {}} // Virtualizer handles scroll reading
 			>

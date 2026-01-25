@@ -112,7 +112,8 @@ function SongsPage() {
 							if (!song) return null;
 
 							return (
-								<div
+								<button
+									type="button"
 									style={{
 										position: "absolute",
 										top: 0,
@@ -121,9 +122,7 @@ function SongsPage() {
 										height: `${virtualRow.size}px`,
 										transform: `translateY(${virtualRow.start}px)`,
 									}}
-									role="button"
-									tabIndex={0}
-									class="grid grid-cols-[50px_1fr_1fr_1fr_80px] gap-2 px-4 items-center group cursor-pointer hover:bg-muted/50"
+									class="grid grid-cols-[50px_1fr_1fr_1fr_80px] gap-2 px-4 items-center group cursor-pointer hover:bg-muted/50 border-0 bg-transparent text-left"
 									onClick={() => handlePlaySong(virtualRow.index)}
 									onKeyDown={(e) => {
 										if (e.key === "Enter" || e.key === " ") {
@@ -155,7 +154,7 @@ function SongsPage() {
 									<div class="text-right font-mono text-xs text-muted-foreground">
 										{formatDuration(song.duration)}
 									</div>
-								</div>
+								</button>
 							);
 						}}
 					</For>

@@ -11,7 +11,7 @@ import {
 	TableHeader,
 	TableRow,
 } from "~/components/ui/table";
-import { getAlbum } from "~/lib/api";
+import { getAlbum, type Song } from "~/lib/api";
 import { usePlayer } from "~/lib/player";
 
 export const Route = createFileRoute("/app/albums/$id")({
@@ -34,7 +34,7 @@ function AlbumDetailPage() {
 		queryFn: () => getAlbum(params().id),
 	}));
 
-	const handlePlaySong = (song: any, index: number) => {
+	const handlePlaySong = (song: Song, index: number) => {
 		// Logic to play song and set queue to album
 		const songs = album.data?.songs || [];
 		play(song, songs, index);

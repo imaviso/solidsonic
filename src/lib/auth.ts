@@ -9,27 +9,70 @@ export interface SubsonicCredentials {
 interface AuthState {
 	credentials: SubsonicCredentials | null;
 	isAuthenticated: boolean;
+	isLoaded: boolean;
 }
 
 const AUTH_STORAGE_KEY = "solidsonic-auth";
 
-function getStoredCredentials(): SubsonicCredentials | null {
-	try {
-		const stored = localStorage.getItem(AUTH_STORAGE_KEY);
-		if (stored) {
-			return JSON.parse(stored);
-		}
-	} catch {
-		// Invalid stored data
+// Create a Solid Store
+const [authState, setAuthState] = createStore<AuthState>({
+	credentials: null,
+	isAuthenticated: false,
+	isLoaded: false,
+});
+
+let authLoadPromise: Promise<void> | null = null;
+
+// Load credentials asynchronously from secure storage
+async function loadCredentials() {
+	let credentials = null;
+
+	// Try secure storage first
+	if (window.electronAPI?.auth) {
+		credentials = await window.electronAPI.auth.get();
 	}
-	return null;
+
+	// Fallback/Migration from localStorage
+	if (!credentials) {
+		try {
+			const stored = localStorage.getItem(AUTH_STORAGE_KEY);
+			if (stored) {
+				credentials = JSON.parse(stored);
+				// If we have electronAPI, migrate it
+				if (window.electronAPI?.auth && credentials) {
+					await window.electronAPI.auth.save(credentials);
+					localStorage.removeItem(AUTH_STORAGE_KEY);
+				}
+			}
+		} catch {
+			// Invalid stored data
+		}
+	}
+
+	if (credentials) {
+		setAuthState({
+			credentials,
+			isAuthenticated: true,
+			isLoaded: true,
+		});
+	} else {
+		setAuthState("isLoaded", true);
+	}
 }
 
-// Create a Solid Store instead of a plain object + listeners
-const [authState, setAuthState] = createStore<AuthState>({
-	credentials: getStoredCredentials(),
-	isAuthenticated: getStoredCredentials() !== null,
-});
+export function ensureAuthLoaded() {
+	if (!authLoadPromise) {
+		authLoadPromise = loadCredentials();
+	}
+	return authLoadPromise;
+}
+
+// Initial load trigger
+ensureAuthLoaded();
+
+export function isAuthLoaded() {
+	return authState.isLoaded;
+}
 
 export function login(credentials: SubsonicCredentials) {
 	// Normalize server URL (remove trailing slash)
@@ -38,7 +81,14 @@ export function login(credentials: SubsonicCredentials) {
 		serverUrl: credentials.serverUrl.replace(/\/+$/, ""),
 	};
 
-	localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(normalizedCredentials));
+	if (window.electronAPI?.auth) {
+		window.electronAPI.auth.save(normalizedCredentials);
+	} else {
+		localStorage.setItem(
+			AUTH_STORAGE_KEY,
+			JSON.stringify(normalizedCredentials),
+		);
+	}
 
 	// Update store
 	setAuthState({
@@ -48,7 +98,11 @@ export function login(credentials: SubsonicCredentials) {
 }
 
 export function logout() {
-	localStorage.removeItem(AUTH_STORAGE_KEY);
+	if (window.electronAPI?.auth) {
+		window.electronAPI.auth.clear();
+	} else {
+		localStorage.removeItem(AUTH_STORAGE_KEY);
+	}
 
 	// Update store
 	setAuthState({

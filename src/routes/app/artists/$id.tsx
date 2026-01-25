@@ -12,7 +12,7 @@ export const Route = createFileRoute("/app/artists/$id")({
 
 function ArtistDetailPage() {
 	const params = Route.useParams();
-	const { playSong: play, currentTrack } = usePlayer();
+	usePlayer();
 
 	const artist = useQuery(() => ({
 		queryKey: ["artist", params().id],

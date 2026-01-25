@@ -15,7 +15,7 @@ import {
 	TableHeader,
 	TableRow,
 } from "~/components/ui/table";
-import { getStarred } from "~/lib/api";
+import { getStarred, type Song } from "~/lib/api";
 import { usePlayer } from "~/lib/player";
 
 export const Route = createFileRoute("/app/favorites")({
@@ -37,7 +37,7 @@ function FavoritesPage() {
 		queryFn: getStarred,
 	}));
 
-	const handlePlaySong = (song: any, index: number) => {
+	const handlePlaySong = (song: Song, index: number) => {
 		// Logic to play song and set queue
 		const songList = starred.data?.songs || [];
 		play(song, songList, index);

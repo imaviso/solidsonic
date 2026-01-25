@@ -5,6 +5,19 @@ declare global {
 		electronAPI?: {
 			platform: string;
 			isElectron: boolean;
+			auth?: {
+				save: (credentials: {
+					serverUrl: string;
+					username: string;
+					password: string;
+				}) => Promise<boolean>;
+				get: () => Promise<{
+					serverUrl: string;
+					username: string;
+					password: string;
+				} | null>;
+				clear: () => Promise<boolean>;
+			};
 			mpv?: {
 				// Availability and configuration
 				isAvailable: (customPath?: string) => Promise<boolean>;

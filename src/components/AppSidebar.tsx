@@ -6,7 +6,6 @@ import {
 	IconMusic,
 	IconPlaylist,
 	IconSettings,
-	IconStarFilled,
 } from "@tabler/icons-solidjs";
 import { useQuery } from "@tanstack/solid-query";
 import { Link, useLocation } from "@tanstack/solid-router";

@@ -1,4 +1,4 @@
-import { createEffect, createSignal, onCleanup } from "solid-js";
+import { createSignal } from "solid-js";
 
 export type Theme = "light" | "dark" | "system";
 

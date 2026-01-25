@@ -6,6 +6,13 @@ contextBridge.exposeInMainWorld("electronAPI", {
 	platform: process.platform,
 	isElectron: true,
 
+	// Secure Auth Storage
+	auth: {
+		save: (credentials) => ipcRenderer.invoke("auth:save", credentials),
+		get: () => ipcRenderer.invoke("auth:get"),
+		clear: () => ipcRenderer.invoke("auth:clear"),
+	},
+
 	// MPV audio backend
 	mpv: {
 		// Availability and configuration

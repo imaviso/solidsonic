@@ -3,7 +3,6 @@ import { useQuery } from "@tanstack/solid-query";
 import { createFileRoute } from "@tanstack/solid-router";
 import { For, Show } from "solid-js";
 import CoverArt from "~/components/CoverArt";
-import { Button } from "~/components/ui/button";
 import {
 	Table,
 	TableBody,
@@ -12,7 +11,7 @@ import {
 	TableHeader,
 	TableRow,
 } from "~/components/ui/table";
-import { getPlaylist } from "~/lib/api";
+import { getPlaylist, type Song } from "~/lib/api";
 import { usePlayer } from "~/lib/player";
 
 export const Route = createFileRoute("/app/playlists/$id")({
@@ -28,14 +27,14 @@ function formatDuration(seconds?: number) {
 
 function PlaylistDetailPage() {
 	const params = Route.useParams();
-	const { playSong: play, queue, currentTrack } = usePlayer();
+	const { playSong: play, currentTrack } = usePlayer();
 
 	const playlist = useQuery(() => ({
 		queryKey: ["playlist", params().id],
 		queryFn: () => getPlaylist(params().id),
 	}));
 
-	const handlePlaySong = (song: any, index: number) => {
+	const handlePlaySong = (song: Song, index: number) => {
 		// Logic to play song and set queue to playlist
 		const songs = playlist.data?.entry || [];
 		play(song, songs, index);

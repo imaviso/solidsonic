@@ -1,5 +1,4 @@
 import { createFileRoute } from "@tanstack/solid-router";
-import { createSignal } from "solid-js";
 import {
 	Card,
 	CardContent,
@@ -15,12 +14,6 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "~/components/ui/select";
-import {
-	Switch,
-	SwitchControl,
-	SwitchLabel,
-	SwitchThumb,
-} from "~/components/ui/switch";
 import { useSettings } from "~/lib/settings";
 
 export const Route = createFileRoute("/app/settings")({
@@ -28,12 +21,7 @@ export const Route = createFileRoute("/app/settings")({
 });
 
 function SettingsPage() {
-	const {
-		settings,
-		setAudioBackend,
-		setDynamicPlayerBackground,
-		isMpvAvailable,
-	} = useSettings();
+	const { settings, setAudioBackend } = useSettings();
 
 	return (
 		<div class="container max-w-2xl py-8 space-y-8">
@@ -83,32 +71,6 @@ function SettingsPage() {
 								</SelectTrigger>
 								<SelectContent />
 							</Select>
-						</div>
-					</CardContent>
-				</Card>
-
-				<Card>
-					<CardHeader>
-						<CardTitle>Appearance</CardTitle>
-						<CardDescription>Customize the look and feel</CardDescription>
-					</CardHeader>
-					<CardContent class="space-y-6">
-						<div class="flex items-center justify-between">
-							<div class="space-y-0.5">
-								<Label>Dynamic Background</Label>
-								<p class="text-sm text-muted-foreground">
-									Change player background based on album art
-								</p>
-							</div>
-							<Switch
-								checked={settings.dynamicPlayerBackground}
-								onChange={setDynamicPlayerBackground}
-							>
-								<SwitchControl>
-									<SwitchThumb />
-								</SwitchControl>
-								<SwitchLabel class="sr-only">Dynamic Background</SwitchLabel>
-							</Switch>
 						</div>
 					</CardContent>
 				</Card>

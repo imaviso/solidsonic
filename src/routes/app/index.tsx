@@ -17,6 +17,7 @@ import {
 	getAlbumList,
 	getGenres,
 	getStarred,
+	type Song,
 } from "~/lib/api";
 import { usePlayer } from "~/lib/player";
 
@@ -138,7 +139,7 @@ function StarredSongsSection() {
 		queryFn: getStarred,
 	}));
 
-	const handlePlaySong = (song: any, index: number) => {
+	const handlePlaySong = (song: Song, index: number) => {
 		const songList = starred.data?.songs || [];
 		play(song, songList, index);
 	};
