@@ -2,6 +2,7 @@ import { createFileRoute, Outlet, redirect } from "@tanstack/solid-router";
 import AppSidebar from "~/components/AppSidebar";
 import ModeToggle from "~/components/ModeToggle";
 import Player from "~/components/Player";
+import { SearchCommand } from "~/components/SearchCommand";
 import {
 	Breadcrumb,
 	BreadcrumbItem,
@@ -46,7 +47,8 @@ function AppLayout() {
 							</BreadcrumbItem>
 						</BreadcrumbList>
 					</Breadcrumb>
-					<div class="ml-auto">
+					<div class="ml-auto flex items-center gap-2">
+						<SearchCommand />
 						<ModeToggle />
 					</div>
 				</header>
