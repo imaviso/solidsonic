@@ -219,7 +219,13 @@ const QueueView: Component = () => {
 	});
 
 	return (
-		<div class="h-full w-full overflow-y-auto p-4 space-y-1">
+		<div
+			class="h-full w-full overflow-y-auto p-4 space-y-1 no-scrollbar"
+			style={{
+				"mask-image":
+					"linear-gradient(to bottom, transparent 0%, black 5%, black 95%, transparent 100%)",
+			}}
+		>
 			<For each={player.queue}>
 				{(song, i) => (
 					<div
