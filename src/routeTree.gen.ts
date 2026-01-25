@@ -14,7 +14,6 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppIndexRouteImport } from './routes/app/index'
 import { Route as AppSongsRouteImport } from './routes/app/songs'
 import { Route as AppSettingsRouteImport } from './routes/app/settings'
-import { Route as AppFavoritesRouteImport } from './routes/app/favorites'
 import { Route as AppPlaylistsIndexRouteImport } from './routes/app/playlists/index'
 import { Route as AppGenresIndexRouteImport } from './routes/app/genres/index'
 import { Route as AppArtistsIndexRouteImport } from './routes/app/artists/index'
@@ -47,11 +46,6 @@ const AppSongsRoute = AppSongsRouteImport.update({
 const AppSettingsRoute = AppSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
-  getParentRoute: () => AppRouteRoute,
-} as any)
-const AppFavoritesRoute = AppFavoritesRouteImport.update({
-  id: '/favorites',
-  path: '/favorites',
   getParentRoute: () => AppRouteRoute,
 } as any)
 const AppPlaylistsIndexRoute = AppPlaylistsIndexRouteImport.update({
@@ -98,7 +92,6 @@ const AppAlbumsIdRoute = AppAlbumsIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/app': typeof AppRouteRouteWithChildren
-  '/app/favorites': typeof AppFavoritesRoute
   '/app/settings': typeof AppSettingsRoute
   '/app/songs': typeof AppSongsRoute
   '/app/': typeof AppIndexRoute
@@ -113,7 +106,6 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/app/favorites': typeof AppFavoritesRoute
   '/app/settings': typeof AppSettingsRoute
   '/app/songs': typeof AppSongsRoute
   '/app': typeof AppIndexRoute
@@ -130,7 +122,6 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/app': typeof AppRouteRouteWithChildren
-  '/app/favorites': typeof AppFavoritesRoute
   '/app/settings': typeof AppSettingsRoute
   '/app/songs': typeof AppSongsRoute
   '/app/': typeof AppIndexRoute
@@ -148,7 +139,6 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/app'
-    | '/app/favorites'
     | '/app/settings'
     | '/app/songs'
     | '/app/'
@@ -163,7 +153,6 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/app/favorites'
     | '/app/settings'
     | '/app/songs'
     | '/app'
@@ -179,7 +168,6 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/app'
-    | '/app/favorites'
     | '/app/settings'
     | '/app/songs'
     | '/app/'
@@ -233,13 +221,6 @@ declare module '@tanstack/solid-router' {
       path: '/settings'
       fullPath: '/app/settings'
       preLoaderRoute: typeof AppSettingsRouteImport
-      parentRoute: typeof AppRouteRoute
-    }
-    '/app/favorites': {
-      id: '/app/favorites'
-      path: '/favorites'
-      fullPath: '/app/favorites'
-      preLoaderRoute: typeof AppFavoritesRouteImport
       parentRoute: typeof AppRouteRoute
     }
     '/app/playlists/': {
@@ -302,7 +283,6 @@ declare module '@tanstack/solid-router' {
 }
 
 interface AppRouteRouteChildren {
-  AppFavoritesRoute: typeof AppFavoritesRoute
   AppSettingsRoute: typeof AppSettingsRoute
   AppSongsRoute: typeof AppSongsRoute
   AppIndexRoute: typeof AppIndexRoute
@@ -317,7 +297,6 @@ interface AppRouteRouteChildren {
 }
 
 const AppRouteRouteChildren: AppRouteRouteChildren = {
-  AppFavoritesRoute: AppFavoritesRoute,
   AppSettingsRoute: AppSettingsRoute,
   AppSongsRoute: AppSongsRoute,
   AppIndexRoute: AppIndexRoute,
