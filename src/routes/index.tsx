@@ -7,7 +7,7 @@ import {
 } from "@tabler/icons-solidjs";
 import { createForm } from "@tanstack/solid-form";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/solid-router";
-import { createSignal, Show } from "solid-js";
+import { batch, createSignal, Show } from "solid-js";
 import * as v from "valibot";
 
 import { Button } from "~/components/ui/button";
@@ -80,8 +80,10 @@ function LoginPage() {
 			const pingResult = await ping(credentials);
 
 			if (pingResult.success) {
-				authLogin(credentials);
-				navigate({ to: "/app" });
+				batch(() => {
+					authLogin(credentials);
+					navigate({ to: "/app" });
+				});
 			} else {
 				setServerError(pingResult.error || "Failed to connect to server");
 			}

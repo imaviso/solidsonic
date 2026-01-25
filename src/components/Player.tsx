@@ -138,7 +138,7 @@ const Player: Component = () => {
 					<div class="relative">
 						<div class="flex aspect-square size-12 items-center justify-center rounded-md bg-muted overflow-hidden transition-transform group-hover:scale-105">
 							<Show
-								when={player.currentTrack}
+								when={!!player.currentTrack}
 								fallback={<IconMusic class="size-6 text-muted-foreground" />}
 							>
 								<CoverArt
@@ -154,14 +154,10 @@ const Player: Component = () => {
 					</div>
 					<div class="min-w-0 flex-1">
 						<p class="truncate text-sm font-medium group-hover:underline">
-							<Show when={player.currentTrack} fallback="Not Playing">
-								{player.currentTrack?.title}
-							</Show>
+							{player.currentTrack?.title ?? "Not Playing"}
 						</p>
 						<p class="truncate text-xs text-muted-foreground">
-							<Show when={player.currentTrack} fallback="Select a song to play">
-								{player.currentTrack?.artist}
-							</Show>
+							{player.currentTrack?.artist ?? "Select a song to play"}
 						</p>
 					</div>
 				</button>

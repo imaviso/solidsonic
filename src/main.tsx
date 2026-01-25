@@ -7,6 +7,7 @@ import {
 } from "@tanstack/solid-router";
 import { render } from "solid-js/web";
 import { createIDBPersister } from "./lib/persistence";
+import "~/lib/settings"; // Initialize settings (theme, etc.)
 import { routeTree } from "./routeTree.gen";
 import "@fontsource-variable/geist";
 import "./styles.css";
@@ -30,8 +31,9 @@ const router = createRouter({
 	routeTree,
 	history: hashHistory,
 	defaultPreload: "intent",
-	scrollRestoration: false,
-	defaultViewTransition: true,
+	scrollRestoration: true,
+	defaultStructuralSharing: true,
+	defaultViewTransition: false,
 	defaultPreloadStaleTime: 0,
 	context: {
 		queryClient,

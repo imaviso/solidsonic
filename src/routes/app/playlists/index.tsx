@@ -16,7 +16,7 @@ function PlaylistsPage() {
 	}));
 
 	return (
-		<div class="flex flex-col gap-6">
+		<div class="flex flex-col gap-6 h-full overflow-y-auto">
 			<div>
 				<h2 class="text-3xl font-bold tracking-tight">Playlists</h2>
 				<p class="text-muted-foreground">Your curated collections</p>

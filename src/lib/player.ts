@@ -170,7 +170,8 @@ function getBackendEventHandlers(): AudioBackendEvents {
 			if (
 				currentTrack &&
 				currentTrack.id !== scrobbledTrackId &&
-				duration > 0
+				duration > 0 &&
+				getSettings().scrobblingEnabled
 			) {
 				const scrobbleThreshold = Math.min(240, duration * 0.5);
 				if (time >= scrobbleThreshold) {
@@ -240,7 +241,10 @@ async function handleAutoNext() {
 		updateMediaSession(nextTrack);
 
 		// Report "now playing"
-		if (nowPlayingReported !== nextTrack.id) {
+		if (
+			nowPlayingReported !== nextTrack.id &&
+			getSettings().scrobblingEnabled
+		) {
 			nowPlayingReported = nextTrack.id;
 			scrobble(nextTrack.id, { submission: false }).catch((err) => {
 				console.error("Failed to report now playing:", err);
@@ -561,7 +565,7 @@ export async function playSong(
 		updateMediaSession(song);
 
 		// Report "now playing" if not already reported for this song
-		if (nowPlayingReported !== song.id) {
+		if (nowPlayingReported !== song.id && getSettings().scrobblingEnabled) {
 			nowPlayingReported = song.id;
 			scrobble(song.id, { submission: false }).catch((err) => {
 				console.error("Failed to report now playing:", err);
@@ -765,6 +769,44 @@ export function removeFromQueue(
 	});
 
 	return { song: removedSong, index };
+}
+
+export function moveInQueue(fromIndex: number, toIndex: number) {
+	const { queue, queueIndex } = playerState;
+
+	if (
+		fromIndex < 0 ||
+		fromIndex >= queue.length ||
+		toIndex < 0 ||
+		toIndex >= queue.length ||
+		fromIndex === toIndex
+	) {
+		return;
+	}
+
+	const newQueue = [...queue];
+	const [movedItem] = newQueue.splice(fromIndex, 1);
+	newQueue.splice(toIndex, 0, movedItem);
+
+	// We also need to update the originalQueue to maintain consistency if shuffle is off,
+	// or if we want the "original" order to reflect manual changes.
+	// For now, let's assume manual reordering affects the current playback order (queue).
+	// If shuffle is ON, reordering the *shuffled* queue is what the user expects.
+	// Updating originalQueue is tricky if shuffled. Let's just update `queue`.
+
+	let newQueueIndex = queueIndex;
+	if (queueIndex === fromIndex) {
+		newQueueIndex = toIndex;
+	} else if (queueIndex > fromIndex && queueIndex <= toIndex) {
+		newQueueIndex--;
+	} else if (queueIndex < fromIndex && queueIndex >= toIndex) {
+		newQueueIndex++;
+	}
+
+	updateState({
+		queue: newQueue,
+		queueIndex: newQueueIndex,
+	});
 }
 
 // Re-insert a song at a specific index in the queue (for undo)
@@ -1022,6 +1064,7 @@ export function usePlayer() {
 		addToQueue,
 		playNextInQueue,
 		removeFromQueue,
+		moveInQueue,
 		insertIntoQueue,
 		clearQueue,
 		restoreQueueState,

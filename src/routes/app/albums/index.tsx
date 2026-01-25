@@ -1,5 +1,13 @@
+import {
+	IconList,
+	IconPlayerPlay,
+	IconPlaylistAdd,
+	IconStar,
+	IconStarFilled,
+	IconUser,
+} from "@tabler/icons-solidjs";
 import { useInfiniteQuery } from "@tanstack/solid-query";
-import { createFileRoute, Link } from "@tanstack/solid-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/solid-router";
 import { createVirtualizer } from "@tanstack/solid-virtual";
 import {
 	createEffect,
@@ -10,10 +18,28 @@ import {
 	onMount,
 	Show,
 } from "solid-js";
+import { createStore } from "solid-js/store";
+import { AddToPlaylistDialog } from "~/components/AddToPlaylistDialog";
 import CoverArt from "~/components/CoverArt";
-import { getAlbumList } from "~/lib/api";
+import {
+	ContextMenu,
+	ContextMenuContent,
+	ContextMenuItem,
+	ContextMenuSeparator,
+	ContextMenuTrigger,
+} from "~/components/ui/context-menu";
+import {
+	albumListQueryOptions,
+	getAlbum,
+	getAlbumList,
+	star,
+	unstar,
+} from "~/lib/api";
+import { usePlayer } from "~/lib/player";
 
 export const Route = createFileRoute("/app/albums/")({
+	loader: ({ context: { queryClient } }) =>
+		queryClient.ensureQueryData(albumListQueryOptions("newest", 50, 0)),
 	component: AlbumsPage,
 });
 
@@ -24,6 +50,16 @@ function AlbumsPage() {
 	let scrollContainerRef: HTMLDivElement | undefined;
 	const [columns, setColumns] = createSignal(5);
 	const [containerWidth, setContainerWidth] = createSignal(1000);
+	const [playlistDialogState, setPlaylistDialogState] = createStore<{
+		open: boolean;
+		songIds: string[];
+	}>({
+		open: false,
+		songIds: [],
+	});
+
+	const player = usePlayer();
+	const navigate = useNavigate();
 
 	// Stable Infinite Query
 	const albums = useInfiniteQuery(() => ({
@@ -159,28 +195,115 @@ function AlbumsPage() {
 											}}
 										>
 											{rowAlbums.map((album) => (
-												<Link
-													to="/app/albums/$id"
-													params={{ id: album.id }}
-													class="block group"
-												>
-													<div class="flex flex-col">
-														<div class="aspect-square w-full relative overflow-hidden rounded-md shadow-sm bg-muted">
-															<CoverArt
-																id={album.coverArt}
-																class="h-full w-full object-cover"
-															/>
-														</div>
-														<div class="pt-2">
-															<h3 class="font-medium text-sm truncate group-hover:underline">
-																{album.name}
-															</h3>
-															<p class="text-xs text-muted-foreground truncate">
-																{album.artist}
-															</p>
-														</div>
-													</div>
-												</Link>
+												<ContextMenu>
+													<ContextMenuTrigger>
+														<Link
+															to="/app/albums/$id"
+															params={{ id: album.id }}
+															class="block group h-full"
+														>
+															<div class="flex flex-col">
+																<div class="aspect-square w-full relative overflow-hidden rounded-md shadow-sm bg-muted">
+																	<CoverArt
+																		id={album.coverArt}
+																		class="h-full w-full object-cover"
+																	/>
+																</div>
+																<div class="pt-2">
+																	<h3 class="font-medium text-sm truncate group-hover:underline">
+																		{album.name}
+																	</h3>
+																	<p class="text-xs text-muted-foreground truncate">
+																		{album.artist}
+																	</p>
+																</div>
+															</div>
+														</Link>
+													</ContextMenuTrigger>
+													<ContextMenuContent>
+														<ContextMenuItem
+															onSelect={async () => {
+																try {
+																	const data = await getAlbum(album.id);
+																	player.playAlbum(data.songs);
+																} catch (e) {
+																	console.error("Failed to play album", e);
+																}
+															}}
+														>
+															<IconPlayerPlay class="mr-2 size-4" />
+															Play
+														</ContextMenuItem>
+														<ContextMenuItem
+															onSelect={async () => {
+																try {
+																	const data = await getAlbum(album.id);
+																	player.addToQueue(data.songs);
+																} catch (e) {
+																	console.error(
+																		"Failed to add album to queue",
+																		e,
+																	);
+																}
+															}}
+														>
+															<IconList class="mr-2 size-4" />
+															Add to Queue
+														</ContextMenuItem>
+														<ContextMenuItem
+															onSelect={async () => {
+																try {
+																	const data = await getAlbum(album.id);
+																	setPlaylistDialogState({
+																		open: true,
+																		songIds: data.songs.map((s) => s.id),
+																	});
+																} catch (e) {
+																	console.error(
+																		"Failed to prepare playlist add",
+																		e,
+																	);
+																}
+															}}
+														>
+															<IconPlaylistAdd class="mr-2 size-4" />
+															Add to Playlist...
+														</ContextMenuItem>
+														<ContextMenuSeparator />
+														<ContextMenuItem
+															onSelect={() => {
+																if (album.artistId) {
+																	navigate({
+																		to: "/app/artists/$id",
+																		params: { id: album.artistId },
+																	});
+																}
+															}}
+															disabled={!album.artistId}
+														>
+															<IconUser class="mr-2 size-4" />
+															Go to Artist
+														</ContextMenuItem>
+														<ContextMenuSeparator />
+														<ContextMenuItem
+															onSelect={() => {
+																if (album.starred) {
+																	unstar({ albumId: album.id });
+																} else {
+																	star({ albumId: album.id });
+																}
+															}}
+														>
+															<Show
+																when={album.starred}
+																fallback={<IconStar class="mr-2 size-4" />}
+															>
+																<IconStarFilled class="mr-2 size-4 text-yellow-500" />
+															</Show>
+															{album.starred ? "Unstar" : "Star"}
+														</ContextMenuItem>
+													</ContextMenuContent>
+												</ContextMenu>
 											))}
 										</div>
 									</div>
@@ -200,6 +323,12 @@ function AlbumsPage() {
 					</div>
 				</Show>
 			</div>
+
+			<AddToPlaylistDialog
+				open={playlistDialogState.open}
+				onOpenChange={(open) => setPlaylistDialogState("open", open)}
+				songIds={playlistDialogState.songIds}
+			/>
 		</div>
 	);
 }

@@ -1,5 +1,7 @@
 import {
+	IconArrowDown,
 	IconArrowsShuffle,
+	IconArrowUp,
 	IconChevronDown,
 	IconList,
 	IconPlayerPauseFilled,
@@ -9,6 +11,7 @@ import {
 	IconQuote,
 	IconRepeat,
 	IconRepeatOnce,
+	IconTrash,
 	IconVolume,
 	IconVolume2,
 	IconVolume3,
@@ -33,6 +36,11 @@ import {
 	SliderThumb,
 	SliderTrack,
 } from "~/components/ui/slider";
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from "~/components/ui/tooltip";
 import {
 	getLyrics,
 	getLyricsBySongId,
@@ -135,18 +143,18 @@ const LyricsView: Component = () => {
 	return (
 		<div
 			ref={scrollRef}
-			class="h-full w-full overflow-y-auto no-scrollbar flex flex-col items-center py-[50%] space-y-6 text-center"
+			class="h-full w-full overflow-y-auto no-scrollbar flex flex-col items-center py-[50%] space-y-8 text-center"
 			style={{
 				"mask-image":
-					"linear-gradient(to bottom, transparent 0%, black 25%, black 75%, transparent 100%)",
+					"linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%)",
 			}}
 			onScroll={handleScroll}
 		>
 			<Show when={lyricsQuery.isLoading}>
-				<div class="animate-pulse flex flex-col gap-4 items-center">
-					<div class="h-6 w-48 bg-muted/20 rounded" />
-					<div class="h-6 w-64 bg-muted/20 rounded" />
-					<div class="h-6 w-56 bg-muted/20 rounded" />
+				<div class="animate-pulse flex flex-col gap-6 items-center opacity-50">
+					<div class="h-8 w-64 bg-muted/40 rounded-full" />
+					<div class="h-8 w-96 bg-muted/40 rounded-full" />
+					<div class="h-8 w-80 bg-muted/40 rounded-full" />
 				</div>
 			</Show>
 
@@ -154,8 +162,9 @@ const LyricsView: Component = () => {
 				when={lyricsQuery.data}
 				fallback={
 					!lyricsQuery.isLoading && (
-						<div class="text-muted-foreground/50 text-2xl font-semibold">
-							No lyrics available
+						<div class="flex flex-col items-center justify-center gap-4 text-muted-foreground/50">
+							<IconQuote class="size-12 opacity-50" />
+							<div class="text-2xl font-semibold">No lyrics available</div>
 						</div>
 					)
 				}
@@ -164,7 +173,7 @@ const LyricsView: Component = () => {
 					<Show
 						when={lyrics().type === "synced"}
 						fallback={
-							<div class="whitespace-pre-wrap text-2xl md:text-3xl font-bold leading-relaxed text-foreground/80">
+							<div class="whitespace-pre-wrap text-xl md:text-2xl lg:text-3xl font-bold leading-loose text-foreground/90 max-w-3xl px-8">
 								{(lyrics().data as Lyrics).value ||
 									(lyrics().data as Lyrics).lyrics
 										?.map((l) => l.value)
@@ -177,10 +186,10 @@ const LyricsView: Component = () => {
 								<button
 									type="button"
 									class={cn(
-										"text-2xl md:text-4xl font-bold transition-all duration-500 cursor-pointer px-4 outline-none focus-visible:ring-2 focus-visible:ring-ring rounded w-full text-center bg-transparent border-0",
+										"text-2xl md:text-3xl lg:text-5xl font-bold transition-all duration-700 cursor-pointer px-8 py-2 outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-lg w-full text-center bg-transparent border-0 select-none",
 										i() === currentLineIndex()
-											? "text-primary scale-105 opacity-100 blur-0"
-											: "text-muted-foreground/60 scale-100 opacity-50 blur-[1px] hover:opacity-80",
+											? "text-primary scale-100 opacity-100 blur-0"
+											: "text-muted-foreground/40 scale-95 opacity-40 blur-[2px] hover:opacity-70 hover:blur-0",
 									)}
 									onClick={() => {
 										if (line.start) {
@@ -201,7 +210,7 @@ const LyricsView: Component = () => {
 
 const QueueView: Component = () => {
 	const player = usePlayer();
-	let activeRef: HTMLButtonElement | undefined;
+	let activeRef: HTMLDivElement | undefined;
 
 	onMount(() => {
 		if (activeRef) {
@@ -210,49 +219,110 @@ const QueueView: Component = () => {
 	});
 
 	return (
-		<div class="h-full w-full overflow-y-auto p-4 space-y-2">
+		<div class="h-full w-full overflow-y-auto p-4 space-y-1">
 			<For each={player.queue}>
 				{(song, i) => (
-					<button
-						type="button"
+					<div
 						ref={(el) => {
 							if (i() === player.queueIndex) activeRef = el;
 						}}
 						class={cn(
-							"flex items-center gap-3 p-2 rounded-lg transition-colors cursor-pointer group outline-none focus-visible:ring-2 focus-visible:ring-ring w-full text-left bg-transparent border-0",
-							i() === player.queueIndex ? "bg-primary/20" : "hover:bg-muted/30",
+							"group flex items-center gap-3 p-2 rounded-lg transition-colors hover:bg-muted/50",
+							i() === player.queueIndex && "bg-muted/30",
 						)}
-						onClick={() => player.playSong(song, player.queue, i())}
 					>
-						<div class="relative size-10 flex-none rounded overflow-hidden">
-							<CoverArt id={song.coverArt} class="w-full h-full object-cover" />
-							<Show when={i() === player.queueIndex}>
-								<div class="absolute inset-0 bg-black/40 flex items-center justify-center">
-									<div class="playing-indicator space-x-[2px] flex items-end h-3">
-										<div class="w-[2px] bg-primary animate-music-bar-1 h-full" />
-										<div class="w-[2px] bg-primary animate-music-bar-2 h-full" />
-										<div class="w-[2px] bg-primary animate-music-bar-3 h-full" />
+						<button
+							type="button"
+							class="flex-1 flex items-center gap-3 text-left min-w-0 bg-transparent border-0 cursor-pointer outline-none"
+							onClick={() => player.playSong(song, player.queue, i())}
+						>
+							<div class="relative size-12 flex-none rounded overflow-hidden shadow-sm">
+								<CoverArt
+									id={song.coverArt}
+									class="w-full h-full object-cover"
+								/>
+								<Show when={i() === player.queueIndex}>
+									<div class="absolute inset-0 bg-black/40 flex items-center justify-center">
+										<div class="playing-indicator space-x-[2px] flex items-end h-4">
+											<div class="w-[3px] bg-primary animate-music-bar-1 h-full" />
+											<div class="w-[3px] bg-primary animate-music-bar-2 h-full" />
+											<div class="w-[3px] bg-primary animate-music-bar-3 h-full" />
+										</div>
 									</div>
+								</Show>
+							</div>
+							<div class="flex-1 min-w-0">
+								<div
+									class={cn(
+										"font-medium truncate text-base",
+										i() === player.queueIndex && "text-primary",
+									)}
+								>
+									{song.title}
 								</div>
-							</Show>
-						</div>
-						<div class="flex-1 min-w-0">
-							<div
-								class={cn(
-									"font-medium truncate",
-									i() === player.queueIndex && "text-primary",
-								)}
-							>
-								{song.title}
+								<div class="text-sm text-muted-foreground truncate">
+									{song.artist}
+								</div>
 							</div>
-							<div class="text-xs text-muted-foreground truncate">
-								{song.artist}
+						</button>
+
+						<div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity focus-within:opacity-100">
+							<div class="text-xs text-muted-foreground font-mono mr-2">
+								{formatTime(song.duration || 0)}
 							</div>
+							<Tooltip>
+								<TooltipTrigger>
+									<Button
+										variant="ghost"
+										size="icon"
+										class="size-8 text-muted-foreground hover:text-foreground"
+										onClick={(e) => {
+											e.stopPropagation();
+											player.moveInQueue(i(), i() - 1);
+										}}
+										disabled={i() === 0}
+									>
+										<IconArrowUp class="size-4" />
+									</Button>
+								</TooltipTrigger>
+								<TooltipContent>Move Up</TooltipContent>
+							</Tooltip>
+							<Tooltip>
+								<TooltipTrigger>
+									<Button
+										variant="ghost"
+										size="icon"
+										class="size-8 text-muted-foreground hover:text-foreground"
+										onClick={(e) => {
+											e.stopPropagation();
+											player.moveInQueue(i(), i() + 1);
+										}}
+										disabled={i() === player.queue.length - 1}
+									>
+										<IconArrowDown class="size-4" />
+									</Button>
+								</TooltipTrigger>
+								<TooltipContent>Move Down</TooltipContent>
+							</Tooltip>
+							<Tooltip>
+								<TooltipTrigger>
+									<Button
+										variant="ghost"
+										size="icon"
+										class="size-8 text-destructive/70 hover:text-destructive hover:bg-destructive/10"
+										onClick={(e) => {
+											e.stopPropagation();
+											player.removeFromQueue(i());
+										}}
+										disabled={i() === player.queueIndex}
+									>
+										<IconTrash class="size-4" />
+									</Button>
+								</TooltipTrigger>
+								<TooltipContent>Remove</TooltipContent>
+							</Tooltip>
 						</div>
-						<div class="text-xs text-muted-foreground font-mono">
-							{formatTime(song.duration || 0)}
-						</div>
-					</button>
+					</div>
 				)}
 			</For>
 		</div>
@@ -302,7 +372,7 @@ const FullScreenPlayer: Component<FullScreenPlayerProps> = (props) => {
 			>
 				{/* Dynamic Background */}
 				<div class="absolute inset-0 z-0 overflow-hidden opacity-30 pointer-events-none transition-opacity duration-1000">
-					<Show when={player.currentTrack}>
+					<Show when={!!player.currentTrack}>
 						<CoverArt
 							id={player.currentTrack?.coverArt}
 							class="w-full h-full object-cover blur-3xl scale-150 animate-pulse-slow"
@@ -312,7 +382,7 @@ const FullScreenPlayer: Component<FullScreenPlayerProps> = (props) => {
 				</div>
 
 				{/* Content Container */}
-				<div class="relative z-10 flex flex-col h-full max-w-7xl mx-auto p-6 md:p-10">
+				<div class="relative z-10 flex flex-col h-full max-w-7xl mx-auto p-6 lg:p-10">
 					{/* Header */}
 					<div class="flex items-center justify-between flex-none">
 						<Button
@@ -353,15 +423,18 @@ const FullScreenPlayer: Component<FullScreenPlayerProps> = (props) => {
 					</div>
 
 					{/* Main Content Area */}
-					<div class="flex-1 flex flex-col md:flex-row items-center justify-center gap-10 md:gap-20 min-h-0 py-8">
+					<div class="flex-1 flex flex-col lg:landscape:flex-row items-center justify-center gap-10 lg:gap-20 min-h-0 py-8">
 						{/* Left Side: Artwork / Content */}
 						<div
 							class={cn(
-								"relative w-full max-w-[500px] h-[300px] md:h-[500px] transition-all duration-500 flex items-center justify-center overflow-hidden rounded-2xl",
+								"relative w-full max-w-[500px] md:max-w-[600px] lg:landscape:max-w-[500px] portrait:max-w-[80vw]",
+								"h-[300px] md:h-[450px] lg:h-[500px] portrait:h-[60vh] portrait:max-h-[800px]",
+								"transition-all duration-500 flex items-center justify-center overflow-hidden rounded-2xl",
 								view() === "artwork" ? "scale-100" : "scale-100",
 							)}
 						>
 							{/* Artwork View */}
+
 							<div
 								class={cn(
 									"absolute inset-0 transition-all duration-500 flex items-center justify-center",
@@ -406,9 +479,9 @@ const FullScreenPlayer: Component<FullScreenPlayerProps> = (props) => {
 						</div>
 
 						{/* Right Side: Controls (Desktop) or Below (Mobile) */}
-						<div class="flex flex-col w-full max-w-md gap-6 md:gap-8">
+						<div class="flex flex-col w-full max-w-md md:max-w-2xl lg:landscape:max-w-md gap-6 lg:gap-8">
 							{/* Track Info */}
-							<div class="space-y-1 text-center md:text-left">
+							<div class="space-y-1 text-center lg:landscape:text-left">
 								<h2 class="text-2xl md:text-3xl font-bold leading-tight line-clamp-2">
 									{player.currentTrack?.title ?? "Not Playing"}
 								</h2>
@@ -442,7 +515,7 @@ const FullScreenPlayer: Component<FullScreenPlayerProps> = (props) => {
 							</div>
 
 							{/* Playback Controls */}
-							<div class="flex items-center justify-center md:justify-between gap-6">
+							<div class="flex items-center justify-center lg:landscape:justify-between gap-6">
 								<Button
 									variant="ghost"
 									size="icon"

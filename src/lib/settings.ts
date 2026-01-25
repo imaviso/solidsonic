@@ -5,11 +5,15 @@ import { createStore } from "solid-js/store";
 // ============================================================================
 
 export type AudioBackendType = "html5" | "mpv";
+export type Theme = "light" | "dark" | "system";
 
 export interface Settings {
 	audioBackend: AudioBackendType;
 	mpvPath?: string; // Custom path to mpv binary (optional)
 	dynamicPlayerBackground: boolean; // Enable dynamic background based on album art
+	theme: Theme;
+	maxBitRate: number; // 0 = unlimited
+	scrobblingEnabled: boolean;
 }
 
 // ============================================================================
@@ -21,6 +25,9 @@ const SETTINGS_STORAGE_KEY = "solidsonic-settings";
 const defaultSettings: Settings = {
 	audioBackend: "html5",
 	dynamicPlayerBackground: false,
+	theme: "system",
+	maxBitRate: 0,
+	scrobblingEnabled: true,
 };
 
 function loadSettings(): Settings {
@@ -100,6 +107,50 @@ export function setDynamicPlayerBackground(enabled: boolean): void {
 	updateSettings({ dynamicPlayerBackground: enabled });
 }
 
+export function setTheme(theme: Theme): void {
+	updateSettings({ theme });
+	applyTheme(theme);
+}
+
+export function setMaxBitRate(bitRate: number): void {
+	updateSettings({ maxBitRate: bitRate });
+}
+
+export function setScrobblingEnabled(enabled: boolean): void {
+	updateSettings({ scrobblingEnabled: enabled });
+}
+
+function applyTheme(theme: Theme) {
+	if (typeof window === "undefined") return;
+
+	const root = document.documentElement;
+	const isDark =
+		theme === "dark" ||
+		(theme === "system" &&
+			window.matchMedia("(prefers-color-scheme: dark)").matches);
+
+	if (isDark) {
+		root.classList.add("dark");
+	} else {
+		root.classList.remove("dark");
+	}
+}
+
+// Initialize theme
+if (typeof window !== "undefined") {
+	const settings = loadSettings();
+	applyTheme(settings.theme);
+
+	// Listen for system changes
+	window
+		.matchMedia("(prefers-color-scheme: dark)")
+		.addEventListener("change", () => {
+			if (getSettings().theme === "system") {
+				applyTheme("system");
+			}
+		});
+}
+
 // ============================================================================
 // Hook
 // ============================================================================
@@ -111,6 +162,9 @@ export function useSettings() {
 		setAudioBackend,
 		setMpvPath,
 		setDynamicPlayerBackground,
+		setTheme,
+		setMaxBitRate,
+		setScrobblingEnabled,
 		isElectron: isElectron(),
 		isMpvAvailable: isMpvAvailable(),
 	};

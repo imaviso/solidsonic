@@ -8,10 +8,11 @@ import { cn } from "~/lib/utils"
 import { Dialog, DialogContent } from "~/components/ui/dialog"
 
 const Command: Component<ParentProps<CommandPrimitive.CommandRootProps>> = (props) => {
-  const [local, others] = splitProps(props, ["class"])
+  const [local, others] = splitProps(props, ["class", "shouldFilter"])
 
   return (
     <CommandPrimitive.CommandRoot
+      shouldFilter={local.shouldFilter ?? true}
       class={cn(
         "flex size-full flex-col overflow-hidden rounded-md bg-popover text-popover-foreground blur-none",
         local.class
@@ -21,13 +22,13 @@ const Command: Component<ParentProps<CommandPrimitive.CommandRootProps>> = (prop
   )
 }
 
-const CommandDialog: Component<ParentProps<DialogRootProps>> = (props) => {
-  const [local, others] = splitProps(props, ["children"])
+const CommandDialog: Component<ParentProps<DialogRootProps & { shouldFilter?: boolean }>> = (props) => {
+  const [local, others] = splitProps(props, ["children", "shouldFilter"])
 
   return (
     <Dialog {...others}>
       <DialogContent class="overflow-hidden p-0">
-        <Command class="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-input-wrapper]_svg]:size-5 [&_[cmdk-input]]:h-12 [&_[cmdk-item]]:px-2 [&_[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:size-5">
+        <Command shouldFilter={local.shouldFilter} class="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-input-wrapper]_svg]:size-5 [&_[cmdk-input]]:h-12 [&_[cmdk-item]]:px-2 [&_[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:size-5">
           {local.children}
         </Command>
       </DialogContent>

@@ -2,11 +2,15 @@ import { useQuery } from "@tanstack/solid-query";
 import { createFileRoute, Link } from "@tanstack/solid-router";
 import { For, Show } from "solid-js";
 import CoverArt from "~/components/CoverArt";
+import { ErrorComponent } from "~/components/ErrorComponent";
 import { Card, CardContent } from "~/components/ui/card";
-import { getArtist } from "~/lib/api";
+import { artistQueryOptions } from "~/lib/api";
 import { usePlayer } from "~/lib/player";
 
 export const Route = createFileRoute("/app/artists/$id")({
+	loader: ({ context: { queryClient }, params }) =>
+		queryClient.ensureQueryData(artistQueryOptions(params.id)),
+	errorComponent: ErrorComponent,
 	component: ArtistDetailPage,
 });
 
@@ -14,13 +18,10 @@ function ArtistDetailPage() {
 	const params = Route.useParams();
 	usePlayer();
 
-	const artist = useQuery(() => ({
-		queryKey: ["artist", params().id],
-		queryFn: () => getArtist(params().id),
-	}));
+	const artist = useQuery(() => artistQueryOptions(params().id));
 
 	return (
-		<div class="flex flex-col gap-6">
+		<div class="flex flex-col gap-6 h-full overflow-y-auto">
 			<Show
 				when={!artist.isLoading && artist.data}
 				fallback={<div>Loading...</div>}

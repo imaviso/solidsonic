@@ -1,6 +1,9 @@
+import { queryOptions } from "@tanstack/solid-query";
+import { getSettings } from "~/lib/settings";
 import { buildMediaUrl, fetchSubsonic } from "./subsonic";
 
 // Subsonic API Types
+// ... (keep existing interfaces)
 export interface Album {
 	id: string;
 	name: string;
@@ -69,7 +72,72 @@ export type AlbumListType =
 	| "byYear"
 	| "byGenre";
 
+// Helper to ensure we always have an array, as Subsonic API can sometimes
+// return a single object instead of an array if there's only one result.
+function ensureArray<T>(item: T | T[] | undefined | null): T[] {
+	if (!item) return [];
+	return Array.isArray(item) ? item : [item];
+}
+
 // API Functions
+
+export const albumListQueryOptions = (
+	type: AlbumListType = "newest",
+	size = 50,
+	offset = 0,
+) =>
+	queryOptions({
+		queryKey: ["albums", type, size, offset],
+		queryFn: () => getAlbumList(type, size, offset),
+	});
+
+export const albumQueryOptions = (id: string) =>
+	queryOptions({
+		queryKey: ["album", id],
+		queryFn: () => getAlbum(id),
+	});
+
+export const artistListQueryOptions = () =>
+	queryOptions({
+		queryKey: ["artists"],
+		queryFn: getArtists,
+	});
+
+export const artistQueryOptions = (id: string) =>
+	queryOptions({
+		queryKey: ["artist", id],
+		queryFn: () => getArtist(id),
+	});
+
+export const playlistListQueryOptions = () =>
+	queryOptions({
+		queryKey: ["playlists"],
+		queryFn: getPlaylists,
+	});
+
+export const playlistQueryOptions = (id: string) =>
+	queryOptions({
+		queryKey: ["playlist", id],
+		queryFn: () => getPlaylist(id),
+	});
+
+export const genreListQueryOptions = () =>
+	queryOptions({
+		queryKey: ["genres"],
+		queryFn: getGenres,
+	});
+
+export const genreSongsQueryOptions = (genre: string, count = 50, offset = 0) =>
+	queryOptions({
+		queryKey: ["genreSongs", genre, count, offset],
+		queryFn: () => getSongsByGenre(genre, count, offset),
+	});
+
+export const randomSongsQueryOptions = (size = 50) =>
+	queryOptions({
+		queryKey: ["randomSongs", size],
+		queryFn: () => getRandomSongs(size),
+	});
 
 export async function getAlbumList(
 	type: AlbumListType = "newest",
@@ -82,7 +150,7 @@ export async function getAlbumList(
 		offset: offset.toString(),
 	});
 
-	const data: SubsonicResponse<{ albumList2?: { album?: Album[] } }> =
+	const data: SubsonicResponse<{ albumList2?: { album?: Album[] | Album } }> =
 		await response.json();
 
 	if (data["subsonic-response"].status !== "ok") {
@@ -91,7 +159,7 @@ export async function getAlbumList(
 		);
 	}
 
-	return data["subsonic-response"].albumList2?.album ?? [];
+	return ensureArray(data["subsonic-response"].albumList2?.album);
 }
 
 export async function getAlbum(id: string): Promise<{
@@ -100,7 +168,7 @@ export async function getAlbum(id: string): Promise<{
 }> {
 	const response = await fetchSubsonic("getAlbum", { id });
 
-	const data: SubsonicResponse<{ album?: Album & { song?: Song[] } }> =
+	const data: SubsonicResponse<{ album?: Album & { song?: Song[] | Song } }> =
 		await response.json();
 
 	if (data["subsonic-response"].status !== "ok") {
@@ -117,7 +185,7 @@ export async function getAlbum(id: string): Promise<{
 	const { song, ...album } = albumData;
 	return {
 		album,
-		songs: song ?? [],
+		songs: ensureArray(song),
 	};
 }
 
@@ -143,7 +211,7 @@ export async function getRandomSongs(size = 50): Promise<Song[]> {
 		size: size.toString(),
 	});
 
-	const data: SubsonicResponse<{ randomSongs?: { song?: Song[] } }> =
+	const data: SubsonicResponse<{ randomSongs?: { song?: Song[] | Song } }> =
 		await response.json();
 
 	if (data["subsonic-response"].status !== "ok") {
@@ -152,7 +220,7 @@ export async function getRandomSongs(size = 50): Promise<Song[]> {
 		);
 	}
 
-	return data["subsonic-response"].randomSongs?.song ?? [];
+	return ensureArray(data["subsonic-response"].randomSongs?.song);
 }
 
 export async function getArtist(id: string): Promise<{
@@ -161,8 +229,9 @@ export async function getArtist(id: string): Promise<{
 }> {
 	const response = await fetchSubsonic("getArtist", { id });
 
-	const data: SubsonicResponse<{ artist?: Artist & { album?: Album[] } }> =
-		await response.json();
+	const data: SubsonicResponse<{
+		artist?: Artist & { album?: Album[] | Album };
+	}> = await response.json();
 
 	if (data["subsonic-response"].status !== "ok") {
 		throw new Error(
@@ -178,7 +247,7 @@ export async function getArtist(id: string): Promise<{
 	const { album, ...artist } = artistData;
 	return {
 		artist,
-		albums: album ?? [],
+		albums: ensureArray(album),
 	};
 }
 
@@ -198,9 +267,9 @@ export async function search(query: string): Promise<SearchResult> {
 
 	const data: SubsonicResponse<{
 		searchResult3?: {
-			artist?: Artist[];
-			album?: Album[];
-			song?: Song[];
+			artist?: Artist[] | Artist;
+			album?: Album[] | Album;
+			song?: Song[] | Song;
 		};
 	}> = await response.json();
 
@@ -212,9 +281,9 @@ export async function search(query: string): Promise<SearchResult> {
 
 	const result = data["subsonic-response"].searchResult3;
 	return {
-		artists: result?.artist ?? [],
-		albums: result?.album ?? [],
-		songs: result?.song ?? [],
+		artists: ensureArray(result?.artist),
+		albums: ensureArray(result?.album),
+		songs: ensureArray(result?.song),
 	};
 }
 
@@ -230,9 +299,9 @@ export async function getStarred(): Promise<StarredResult> {
 
 	const data: SubsonicResponse<{
 		starred2?: {
-			artist?: Artist[];
-			album?: Album[];
-			song?: Song[];
+			artist?: Artist[] | Artist;
+			album?: Album[] | Album;
+			song?: Song[] | Song;
 		};
 	}> = await response.json();
 
@@ -244,9 +313,9 @@ export async function getStarred(): Promise<StarredResult> {
 
 	const result = data["subsonic-response"].starred2;
 	return {
-		artists: result?.artist ?? [],
-		albums: result?.album ?? [],
-		songs: result?.song ?? [],
+		artists: ensureArray(result?.artist),
+		albums: ensureArray(result?.album),
+		songs: ensureArray(result?.song),
 	};
 }
 
@@ -274,7 +343,14 @@ export async function getCoverArtUrl(
 }
 
 export async function getStreamUrl(songId: string): Promise<string> {
-	return buildMediaUrl("stream", { id: songId });
+	const settings = getSettings();
+	const params: Record<string, string> = { id: songId };
+
+	if (settings.maxBitRate > 0) {
+		params.maxBitRate = settings.maxBitRate.toString();
+	}
+
+	return buildMediaUrl("stream", params);
 }
 
 // Star/Unstar items
@@ -382,14 +458,14 @@ export async function getSimilarSongs2(
 	});
 
 	const data: SubsonicResponse<{
-		similarSongs2?: { song?: Song[] };
+		similarSongs2?: { song?: Song[] | Song };
 	}> = await response.json();
 
 	if (data["subsonic-response"].status !== "ok") {
 		return [];
 	}
 
-	return data["subsonic-response"].similarSongs2?.song ?? [];
+	return ensureArray(data["subsonic-response"].similarSongs2?.song);
 }
 
 export async function getSimilarArtists(
@@ -402,35 +478,35 @@ export async function getSimilarArtists(
 	});
 
 	const data: SubsonicResponse<{
-		similarArtists2?: { artist?: Artist[] };
+		similarArtists2?: { artist?: Artist[] | Artist };
 	}> = await response.json();
 
 	if (data["subsonic-response"].status !== "ok") {
 		return [];
 	}
 
-	return data["subsonic-response"].similarArtists2?.artist ?? [];
+	return ensureArray(data["subsonic-response"].similarArtists2?.artist);
 }
 
 export async function getArtistAlbums(artistId: string): Promise<Album[]> {
 	const response = await fetchSubsonic("getArtist", { id: artistId });
 
 	const data: SubsonicResponse<{
-		artist?: Artist & { album?: Album[] };
+		artist?: Artist & { album?: Album[] | Album };
 	}> = await response.json();
 
 	if (data["subsonic-response"].status !== "ok") {
 		return [];
 	}
 
-	return data["subsonic-response"].artist?.album ?? [];
+	return ensureArray(data["subsonic-response"].artist?.album);
 }
 
 export async function getGenres(): Promise<Genre[]> {
 	const response = await fetchSubsonic("getGenres");
 
 	const data: SubsonicResponse<{
-		genres?: { genre?: Genre[] };
+		genres?: { genre?: Genre[] | Genre };
 	}> = await response.json();
 
 	if (data["subsonic-response"].status !== "ok") {
@@ -439,7 +515,7 @@ export async function getGenres(): Promise<Genre[]> {
 		);
 	}
 
-	return data["subsonic-response"].genres?.genre ?? [];
+	return ensureArray(data["subsonic-response"].genres?.genre);
 }
 
 export async function getSongsByGenre(
@@ -454,7 +530,7 @@ export async function getSongsByGenre(
 	});
 
 	const data: SubsonicResponse<{
-		songsByGenre?: { song?: Song[] };
+		songsByGenre?: { song?: Song[] | Song };
 	}> = await response.json();
 
 	if (data["subsonic-response"].status !== "ok") {
@@ -464,7 +540,7 @@ export async function getSongsByGenre(
 		);
 	}
 
-	return data["subsonic-response"].songsByGenre?.song ?? [];
+	return ensureArray(data["subsonic-response"].songsByGenre?.song);
 }
 
 // ============================================================================
@@ -492,7 +568,7 @@ export async function getPlaylists(): Promise<Playlist[]> {
 	const response = await fetchSubsonic("getPlaylists");
 
 	const data: SubsonicResponse<{
-		playlists?: { playlist?: Playlist[] };
+		playlists?: { playlist?: Playlist[] | Playlist };
 	}> = await response.json();
 
 	if (data["subsonic-response"].status !== "ok") {
@@ -501,14 +577,14 @@ export async function getPlaylists(): Promise<Playlist[]> {
 		);
 	}
 
-	return data["subsonic-response"].playlists?.playlist ?? [];
+	return ensureArray(data["subsonic-response"].playlists?.playlist);
 }
 
 export async function getPlaylist(id: string): Promise<PlaylistWithSongs> {
 	const response = await fetchSubsonic("getPlaylist", { id });
 
 	const data: SubsonicResponse<{
-		playlist?: PlaylistWithSongs;
+		playlist?: Playlist & { entry?: Song[] | Song };
 	}> = await response.json();
 
 	if (data["subsonic-response"].status !== "ok") {
@@ -522,7 +598,10 @@ export async function getPlaylist(id: string): Promise<PlaylistWithSongs> {
 		throw new Error("Playlist not found");
 	}
 
-	return playlist;
+	return {
+		...playlist,
+		entry: ensureArray(playlist.entry),
+	};
 }
 
 export async function createPlaylist(options: {
@@ -611,14 +690,20 @@ export async function getPlayQueue(): Promise<PlayQueue | null> {
 	const response = await fetchSubsonic("getPlayQueue");
 
 	const data: SubsonicResponse<{
-		playQueue?: PlayQueue;
+		playQueue?: Omit<PlayQueue, "entry"> & { entry?: Song[] | Song };
 	}> = await response.json();
 
 	if (data["subsonic-response"].status !== "ok") {
 		return null;
 	}
 
-	return data["subsonic-response"].playQueue ?? null;
+	const queue = data["subsonic-response"].playQueue;
+	if (!queue) return null;
+
+	return {
+		...queue,
+		entry: ensureArray(queue.entry),
+	};
 }
 
 export async function savePlayQueue(options: {
@@ -679,14 +764,14 @@ export async function getTopSongs(
 	});
 
 	const data: SubsonicResponse<{
-		topSongs?: { song?: Song[] };
+		topSongs?: { song?: Song[] | Song };
 	}> = await response.json();
 
 	if (data["subsonic-response"].status !== "ok") {
 		return [];
 	}
 
-	return data["subsonic-response"].topSongs?.song ?? [];
+	return ensureArray(data["subsonic-response"].topSongs?.song);
 }
 
 export async function getSimilarSongs(id: string, count = 50): Promise<Song[]> {
@@ -696,14 +781,14 @@ export async function getSimilarSongs(id: string, count = 50): Promise<Song[]> {
 	});
 
 	const data: SubsonicResponse<{
-		similarSongs?: { song?: Song[] };
+		similarSongs?: { song?: Song[] | Song };
 	}> = await response.json();
 
 	if (data["subsonic-response"].status !== "ok") {
 		return [];
 	}
 
-	return data["subsonic-response"].similarSongs?.song ?? [];
+	return ensureArray(data["subsonic-response"].similarSongs?.song);
 }
 
 // ============================================================================
@@ -743,14 +828,14 @@ export async function getNowPlaying(): Promise<NowPlayingEntry[]> {
 	const response = await fetchSubsonic("getNowPlaying");
 
 	const data: SubsonicResponse<{
-		nowPlaying?: { entry?: NowPlayingEntry[] };
+		nowPlaying?: { entry?: NowPlayingEntry[] | NowPlayingEntry };
 	}> = await response.json();
 
 	if (data["subsonic-response"].status !== "ok") {
 		return [];
 	}
 
-	return data["subsonic-response"].nowPlaying?.entry ?? [];
+	return ensureArray(data["subsonic-response"].nowPlaying?.entry);
 }
 
 // ============================================================================

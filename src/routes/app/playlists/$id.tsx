@@ -41,7 +41,7 @@ function PlaylistDetailPage() {
 	};
 
 	return (
-		<div class="flex flex-col gap-6">
+		<div class="flex flex-col gap-6 h-full overflow-y-auto">
 			<Show
 				when={!playlist.isLoading && playlist.data}
 				fallback={<div>Loading...</div>}

@@ -1,11 +1,31 @@
-import { IconClock, IconPlayerPlayFilled } from "@tabler/icons-solidjs";
+import {
+	IconClock,
+	IconDisc,
+	IconList,
+	IconPlayerPlay,
+	IconPlayerPlayFilled,
+	IconPlayerSkipForward,
+	IconPlaylistAdd,
+	IconStar,
+	IconStarFilled,
+	IconUser,
+} from "@tabler/icons-solidjs";
 import { useInfiniteQuery } from "@tanstack/solid-query";
-import { createFileRoute } from "@tanstack/solid-router";
+import { createFileRoute, useNavigate } from "@tanstack/solid-router";
 import { createVirtualizer } from "@tanstack/solid-virtual";
 import { createEffect, createMemo, For, Show } from "solid-js";
+import { createStore } from "solid-js/store";
+import { AddToPlaylistDialog } from "~/components/AddToPlaylistDialog";
 import CoverArt from "~/components/CoverArt";
 import { Button } from "~/components/ui/button";
-import { getRandomSongs } from "~/lib/api";
+import {
+	ContextMenu,
+	ContextMenuContent,
+	ContextMenuItem,
+	ContextMenuSeparator,
+	ContextMenuTrigger,
+} from "~/components/ui/context-menu";
+import { getRandomSongs, star, unstar } from "~/lib/api";
 import { usePlayer } from "~/lib/player";
 
 export const Route = createFileRoute("/app/songs")({
@@ -21,7 +41,15 @@ function formatDuration(seconds?: number) {
 
 function SongsPage() {
 	const player = usePlayer();
+	const navigate = useNavigate();
 	let scrollContainerRef: HTMLDivElement | undefined;
+	const [playlistDialogState, setPlaylistDialogState] = createStore<{
+		open: boolean;
+		songIds: string[];
+	}>({
+		open: false,
+		songIds: [],
+	});
 
 	const songs = useInfiniteQuery(() => ({
 		queryKey: ["songs", "random"],
@@ -114,54 +142,137 @@ function SongsPage() {
 							if (!song) return null;
 
 							return (
-								<button
-									type="button"
-									style={{
-										position: "absolute",
-										top: 0,
-										left: 0,
-										width: "100%",
-										height: `${virtualRow.size}px`,
-										transform: `translateY(${virtualRow.start}px)`,
-									}}
-									class="grid grid-cols-[40px_48px_1fr_1fr_1fr_80px] gap-4 px-4 items-center group cursor-pointer hover:bg-muted/50 border-0 bg-transparent text-left"
-									onClick={() => handlePlaySong(virtualRow.index)}
-									onKeyDown={(e) => {
-										if (e.key === "Enter" || e.key === " ") {
-											handlePlaySong(virtualRow.index);
-										}
-									}}
-								>
-									<div class="font-medium text-muted-foreground group-hover:text-foreground">
-										<span class="group-hover:hidden text-xs">
-											{virtualRow.index + 1}
-										</span>
-										<IconPlayerPlayFilled class="size-3 hidden group-hover:block text-primary" />
-									</div>
-									<CoverArt
-										id={song.coverArt}
-										size={80}
-										class="size-10 rounded shadow-sm"
-									/>
-									<div class="font-medium truncate">
-										<span
-											class={
-												player.currentTrack?.id === song.id
-													? "text-primary"
-													: ""
-											}
+								<ContextMenu>
+									<ContextMenuTrigger
+										style={{
+											position: "absolute",
+											top: 0,
+											left: 0,
+											width: "100%",
+											height: `${virtualRow.size}px`,
+											transform: `translateY(${virtualRow.start}px)`,
+										}}
+									>
+										<button
+											type="button"
+											class="w-full h-full grid grid-cols-[40px_48px_1fr_1fr_1fr_80px] gap-4 px-4 items-center group cursor-pointer hover:bg-muted/50 border-0 bg-transparent text-left"
+											onClick={() => handlePlaySong(virtualRow.index)}
+											onKeyDown={(e) => {
+												if (e.key === "Enter" || e.key === " ") {
+													handlePlaySong(virtualRow.index);
+												}
+											}}
 										>
-											{song.title}
-										</span>
-									</div>
-									<div class="truncate text-muted-foreground">
-										{song.artist}
-									</div>
-									<div class="truncate text-muted-foreground">{song.album}</div>
-									<div class="text-right font-mono text-xs text-muted-foreground">
-										{formatDuration(song.duration)}
-									</div>
-								</button>
+											<div class="font-medium text-muted-foreground group-hover:text-foreground">
+												<span class="group-hover:hidden text-xs">
+													{virtualRow.index + 1}
+												</span>
+												<IconPlayerPlayFilled class="size-3 hidden group-hover:block text-primary" />
+											</div>
+											<CoverArt
+												id={song.coverArt}
+												size={80}
+												class="size-10 rounded shadow-sm"
+											/>
+											<div class="font-medium truncate">
+												<span
+													class={
+														player.currentTrack?.id === song.id
+															? "text-primary"
+															: ""
+													}
+												>
+													{song.title}
+												</span>
+											</div>
+											<div class="truncate text-muted-foreground">
+												{song.artist}
+											</div>
+											<div class="truncate text-muted-foreground">
+												{song.album}
+											</div>
+											<div class="text-right font-mono text-xs text-muted-foreground">
+												{formatDuration(song.duration)}
+											</div>
+										</button>
+									</ContextMenuTrigger>
+									<ContextMenuContent>
+										<ContextMenuItem
+											onSelect={() => handlePlaySong(virtualRow.index)}
+										>
+											<IconPlayerPlay class="mr-2 size-4" />
+											Play
+										</ContextMenuItem>
+										<ContextMenuItem
+											onSelect={() => player.playNextInQueue(song)}
+										>
+											<IconPlayerSkipForward class="mr-2 size-4" />
+											Play Next
+										</ContextMenuItem>
+										<ContextMenuItem onSelect={() => player.addToQueue([song])}>
+											<IconList class="mr-2 size-4" />
+											Add to Queue
+										</ContextMenuItem>
+										<ContextMenuItem
+											onSelect={() => {
+												setPlaylistDialogState({
+													open: true,
+													songIds: [song.id],
+												});
+											}}
+										>
+											<IconPlaylistAdd class="mr-2 size-4" />
+											Add to Playlist...
+										</ContextMenuItem>
+										<ContextMenuSeparator />
+										<ContextMenuItem
+											onSelect={() => {
+												if (song.artistId) {
+													navigate({
+														to: "/app/artists/$id",
+														params: { id: song.artistId },
+													});
+												}
+											}}
+											disabled={!song.artistId}
+										>
+											<IconUser class="mr-2 size-4" />
+											Go to Artist
+										</ContextMenuItem>
+										<ContextMenuItem
+											onSelect={() => {
+												if (song.albumId) {
+													navigate({
+														to: "/app/albums/$id",
+														params: { id: song.albumId },
+													});
+												}
+											}}
+											disabled={!song.albumId}
+										>
+											<IconDisc class="mr-2 size-4" />
+											Go to Album
+										</ContextMenuItem>
+										<ContextMenuSeparator />
+										<ContextMenuItem
+											onSelect={() => {
+												if (song.starred) {
+													unstar({ id: song.id });
+												} else {
+													star({ id: song.id });
+												}
+											}}
+										>
+											<Show
+												when={song.starred}
+												fallback={<IconStar class="mr-2 size-4" />}
+											>
+												<IconStarFilled class="mr-2 size-4 text-yellow-500" />
+											</Show>
+											{song.starred ? "Unstar" : "Star"}
+										</ContextMenuItem>
+									</ContextMenuContent>
+								</ContextMenu>
 							);
 						}}
 					</For>
@@ -177,6 +288,12 @@ function SongsPage() {
 					</div>
 				</Show>
 			</div>
+
+			<AddToPlaylistDialog
+				open={playlistDialogState.open}
+				onOpenChange={(open) => setPlaylistDialogState("open", open)}
+				songIds={playlistDialogState.songIds}
+			/>
 		</div>
 	);
 }

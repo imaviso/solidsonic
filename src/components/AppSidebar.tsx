@@ -23,16 +23,13 @@ import {
 	SidebarMenuItem,
 	SidebarRail,
 } from "~/components/ui/sidebar";
-import { getPlaylists } from "~/lib/api";
+import { playlistListQueryOptions } from "~/lib/api";
 
 const AppSidebar: Component = () => {
 	const location = useLocation();
 
 	// Use query for playlists to cache and manage state better
-	const playlistsQuery = useQuery(() => ({
-		queryKey: ["playlists"],
-		queryFn: getPlaylists,
-	}));
+	const playlistsQuery = useQuery(() => playlistListQueryOptions());
 
 	const navMain = [
 		{
