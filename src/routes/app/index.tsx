@@ -163,13 +163,18 @@ function StarredSongsSection() {
 						{(song, i) => (
 							<button
 								type="button"
-								class="grid grid-cols-[30px_1fr_1fr_60px] gap-2 px-3 py-2 items-center rounded-md hover:bg-muted/50 group cursor-pointer text-sm w-full text-left"
+								class="grid grid-cols-[30px_40px_1fr_1fr_60px] gap-3 px-3 py-2 items-center rounded-md hover:bg-muted/50 group cursor-pointer text-sm w-full text-left"
 								onClick={() => handlePlaySong(song, i())}
 							>
 								<div class="text-muted-foreground text-xs group-hover:text-primary flex justify-center">
 									<span class="group-hover:hidden">{i() + 1}</span>
 									<IconPlayerPlayFilled class="size-3 hidden group-hover:block" />
 								</div>
+								<CoverArt
+									id={song.coverArt}
+									size={80}
+									class="size-10 rounded shadow-sm"
+								/>
 								<div class="font-medium truncate">
 									<span
 										class={currentTrack?.id === song.id ? "text-primary" : ""}
