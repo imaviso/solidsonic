@@ -9,7 +9,6 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as LayoutRouteImport } from './routes/_layout'
 import { Route as AppRouteRouteImport } from './routes/app/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppIndexRouteImport } from './routes/app/index'
@@ -25,10 +24,6 @@ import { Route as AppGenresGenreRouteImport } from './routes/app/genres/$genre'
 import { Route as AppArtistsIdRouteImport } from './routes/app/artists/$id'
 import { Route as AppAlbumsIdRouteImport } from './routes/app/albums/$id'
 
-const LayoutRoute = LayoutRouteImport.update({
-  id: '/_layout',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AppRouteRoute = AppRouteRouteImport.update({
   id: '/app',
   path: '/app',
@@ -111,10 +106,10 @@ export interface FileRoutesByFullPath {
   '/app/artists/$id': typeof AppArtistsIdRoute
   '/app/genres/$genre': typeof AppGenresGenreRoute
   '/app/playlists/$id': typeof AppPlaylistsIdRoute
-  '/app/albums': typeof AppAlbumsIndexRoute
-  '/app/artists': typeof AppArtistsIndexRoute
-  '/app/genres': typeof AppGenresIndexRoute
-  '/app/playlists': typeof AppPlaylistsIndexRoute
+  '/app/albums/': typeof AppAlbumsIndexRoute
+  '/app/artists/': typeof AppArtistsIndexRoute
+  '/app/genres/': typeof AppGenresIndexRoute
+  '/app/playlists/': typeof AppPlaylistsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -135,7 +130,6 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/app': typeof AppRouteRouteWithChildren
-  '/_layout': typeof LayoutRoute
   '/app/favorites': typeof AppFavoritesRoute
   '/app/settings': typeof AppSettingsRoute
   '/app/songs': typeof AppSongsRoute
@@ -162,10 +156,10 @@ export interface FileRouteTypes {
     | '/app/artists/$id'
     | '/app/genres/$genre'
     | '/app/playlists/$id'
-    | '/app/albums'
-    | '/app/artists'
-    | '/app/genres'
-    | '/app/playlists'
+    | '/app/albums/'
+    | '/app/artists/'
+    | '/app/genres/'
+    | '/app/playlists/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -185,7 +179,6 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/app'
-    | '/_layout'
     | '/app/favorites'
     | '/app/settings'
     | '/app/songs'
@@ -203,18 +196,10 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AppRouteRoute: typeof AppRouteRouteWithChildren
-  LayoutRoute: typeof LayoutRoute
 }
 
 declare module '@tanstack/solid-router' {
   interface FileRoutesByPath {
-    '/_layout': {
-      id: '/_layout'
-      path: ''
-      fullPath: ''
-      preLoaderRoute: typeof LayoutRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/app': {
       id: '/app'
       path: '/app'
@@ -260,28 +245,28 @@ declare module '@tanstack/solid-router' {
     '/app/playlists/': {
       id: '/app/playlists/'
       path: '/playlists'
-      fullPath: '/app/playlists'
+      fullPath: '/app/playlists/'
       preLoaderRoute: typeof AppPlaylistsIndexRouteImport
       parentRoute: typeof AppRouteRoute
     }
     '/app/genres/': {
       id: '/app/genres/'
       path: '/genres'
-      fullPath: '/app/genres'
+      fullPath: '/app/genres/'
       preLoaderRoute: typeof AppGenresIndexRouteImport
       parentRoute: typeof AppRouteRoute
     }
     '/app/artists/': {
       id: '/app/artists/'
       path: '/artists'
-      fullPath: '/app/artists'
+      fullPath: '/app/artists/'
       preLoaderRoute: typeof AppArtistsIndexRouteImport
       parentRoute: typeof AppRouteRoute
     }
     '/app/albums/': {
       id: '/app/albums/'
       path: '/albums'
-      fullPath: '/app/albums'
+      fullPath: '/app/albums/'
       preLoaderRoute: typeof AppAlbumsIndexRouteImport
       parentRoute: typeof AppRouteRoute
     }
@@ -353,7 +338,6 @@ const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AppRouteRoute: AppRouteRouteWithChildren,
-  LayoutRoute: LayoutRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
