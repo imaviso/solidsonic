@@ -1,0 +1,111 @@
+{
+	"name": "solidsonic",
+	"version": "0.1.0",
+	"description": "Solidsonic - A music player for Subsonic/OpenSubsonic servers",
+	"private": true,
+	"type": "module",
+	"main": "electron/main.js",
+	"author": {
+		"name": "imaviso",
+		"email": "mail@imaviso.com"
+	},
+	"license": "MIT",
+	"scripts": {
+		"dev": "vite --port 3000",
+		"build": "vite build && tsc --noEmit",
+		"preview": "vite preview",
+		"test": "vitest run",
+		"format": "biome format",
+		"lint": "biome lint",
+		"check": "biome check",
+		"electron": "electron .",
+		"electron:dev": "concurrently -k \"bun run dev\" \"wait-on http://localhost:3000 && electron .\"",
+		"electron:build": "bun run build && electron-builder",
+		"electron:build:win": "bun run build && electron-builder --win",
+		"electron:build:mac": "bun run build && electron-builder --mac",
+		"electron:build:linux": "bun run build && electron-builder --linux"
+	},
+	"build": {
+		"appId": "com.imaviso.solidsonic",
+		"productName": "SolidSonic",
+		"directories": {
+			"output": "release"
+		},
+		"files": [
+			"dist/**/*",
+			"electron/**/*"
+		],
+		"mac": {
+			"target": [
+				"dmg",
+				"zip"
+			],
+			"icon": "public/extension_icon.png",
+			"category": "public.app-category.music"
+		},
+		"win": {
+			"target": [
+				"nsis",
+				"portable"
+			],
+			"icon": "public/extension_icon.png"
+		},
+		"linux": {
+			"target": [
+				"AppImage"
+			],
+			"icon": "public/extension_icon.png",
+			"category": "Audio"
+		},
+		"nsis": {
+			"oneClick": false,
+			"allowToChangeInstallationDirectory": true
+		}
+	},
+	"dependencies": {
+		"@ark-ui/solid": "^5.30.0",
+		"@corvu/drawer": "^0.2.4",
+		"@corvu/otp-field": "^0.1.4",
+		"@corvu/resizable": "^0.2.5",
+		"@fontsource-variable/geist": "^5.2.8",
+		"@kobalte/core": "^0.13.11",
+		"@tabler/icons-solidjs": "^3.36.1",
+		"@tailwindcss/postcss": "^4.1.13",
+		"@tanstack/router-plugin": "^1.131.35",
+		"@tanstack/solid-form": "^1.27.7",
+		"@tanstack/solid-query": "^5.90.21",
+		"@tanstack/solid-query-persist-client": "^5.90.23",
+		"@tanstack/solid-router": "^1.131.35",
+		"@tanstack/solid-router-devtools": "^1.131.35",
+		"@tanstack/solid-table": "^8.21.3",
+		"@tanstack/solid-virtual": "^3.13.18",
+		"autoprefixer": "^10.4.23",
+		"chart.js": "^4.5.1",
+		"class-variance-authority": "^0.7.1",
+		"clsx": "^2.1.1",
+		"cmdk-solid": "^1.1.2",
+		"date-fns": "^4.1.0",
+		"embla-carousel-solid": "^8.6.0",
+		"idb-keyval": "^6.2.2",
+		"mpris-service": "^2.1.2",
+		"node-mpv": "github:jeffvli/Node-MPV#32b4d64395289ad710c41d481d2707a7acfc228f",
+		"postcss": "^8.5.6",
+		"solid-js": "^1.9.9",
+		"solid-sonner": "^0.2.8",
+		"tailwind-merge": "^3.4.0",
+		"tailwindcss": "3",
+		"tailwindcss-animate": "^1.0.7",
+		"valibot": "^1.2.0"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "2.3.11",
+		"@types/node": "^25.0.10",
+		"concurrently": "^9.2.1",
+		"electron": "^40.0.0",
+		"electron-builder": "^26.4.0",
+		"typescript": "^5.9.2",
+		"vite": "^7.1.10",
+		"vite-plugin-solid": "^2.11.9",
+		"wait-on": "^9.0.3"
+	}
+}

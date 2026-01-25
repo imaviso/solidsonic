@@ -1,0 +1,17 @@
+{
+	"compilerOptions": {
+		"jsx": "preserve",
+		"jsxImportSource": "solid-js",
+		"lib": ["DOM", "DOM.Iterable", "ES2022"],
+		"module": "ESNext",
+		"moduleResolution": "bundler",
+		"esModuleInterop": true,
+		"isolatedModules": true,
+		"skipLibCheck": true,
+		"strict": true,
+		"baseUrl": ".",
+		"paths": {
+			"~/*": ["./src/*"]
+		}
+	}
+}
