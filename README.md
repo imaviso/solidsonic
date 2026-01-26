@@ -23,6 +23,28 @@ SolidSonic is a modern, high-performance desktop music player for Subsonic and O
 - **Linting/Formatting**: [Biome](https://biomejs.dev/)
 - **Build Tool**: [Vite](https://vitejs.dev/)
 
+## ❄️ Nix Support
+
+This project includes a [Nix Flake](https://nixos.wiki/wiki/Flakes) for reproducible development environments and packaging.
+
+### Development Shell
+
+If you have Nix installed with flakes enabled, you can enter a pre-configured development environment with all dependencies (Node.js, Bun, MPV, Electron, etc.) ready to go:
+
+```bash
+nix develop
+```
+
+### Packaging
+
+To build the SolidSonic package using Nix:
+
+```bash
+nix build
+```
+
+The resulting binary will be available in `./result/bin/solidsonic`.
+
 ## 🛠️ Getting Started
 
 ### Prerequisites
