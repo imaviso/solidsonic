@@ -1,11 +1,16 @@
 # SolidSonic
 
-SolidSonic is a modern, high-performance desktop music player for Subsonic and OpenSubsonic-compatible servers. Built with **SolidJS** and **Electron**, it offers a snappy, reactive user experience combined with the power of the **MPV** audio backend.
+SolidSonic is a modern, high-performance desktop music player for Subsonic and OpenSubsonic-compatible servers. Built with **SolidJS** and **Electron**, it offers a snappy, reactive user experience combined with flexible audio backends.
+
+![Home Screen](./assets/home.png)
+![Player View](./assets/player.png)
 
 ## ✨ Features
 
 - **Subsonic/OpenSubsonic Integration**: Full support for your favorite music server backends.
-- **High-Performance Audio**: Utilizes `node-mpv` for robust and high-quality audio playback.
+- **Flexible Audio Backends**: 
+  - **HTML5 Audio**: Standard web-based playback.
+  - **MPV (Experimental)**: Robust playback via `node-mpv` for advanced formats and high quality.
 - **Reactive UI**: A sleek, modern interface built with SolidJS and Tailwind CSS.
 - **MPRIS Support**: Seamless integration with Linux desktop media controls.
 - **Advanced State Management**: Powered by TanStack Query for efficient data fetching and caching.
@@ -19,7 +24,7 @@ SolidSonic is a modern, high-performance desktop music player for Subsonic and O
 - **Routing**: [TanStack Router](https://tanstack.com/router)
 - **Data Fetching**: [TanStack Query](https://tanstack.com/query)
 - **Styling**: [Tailwind CSS](https://tailwindcss.com/)
-- **Audio Backend**: [MPV](https://mpv.io/) (via `node-mpv`)
+- **Audio Backends**: HTML5 Audio & [MPV](https://mpv.io/) (via `node-mpv`)
 - **Linting/Formatting**: [Biome](https://biomejs.dev/)
 - **Build Tool**: [Vite](https://vitejs.dev/)
 
