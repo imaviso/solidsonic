@@ -25,7 +25,7 @@ import {
 	CommandList,
 	CommandSeparator,
 } from "~/components/ui/command";
-import { type SearchResult, search } from "~/lib/api";
+import { type SearchResult, type Song, search } from "~/lib/api";
 import { usePlayer } from "~/lib/player";
 
 type RecentSearchItem = {
@@ -36,7 +36,7 @@ type RecentSearchItem = {
 	coverArt?: string;
 	timestamp: number;
 	// Store extra data needed for navigation/playback
-	data?: any;
+	data?: Song;
 };
 
 const RECENT_SEARCHES_KEY = "solidsonic_recent_searches";
@@ -128,7 +128,7 @@ export function SearchCommand() {
 		title: string,
 		subtitle?: string,
 		coverArt?: string,
-		data?: any,
+		data?: Song,
 	) => {
 		const updated = addRecentSearch({
 			type,
@@ -146,7 +146,7 @@ export function SearchCommand() {
 			navigate({ to: "/app/artists/$id", params: { id } });
 		} else if (type === "album") {
 			navigate({ to: "/app/albums/$id", params: { id } });
-		} else if (type === "song") {
+		} else if (type === "song" && data) {
 			// For songs, we play them
 			// Ideally we would play from the search context, but just playing the single song is okay for now
 			// or we can pass the search result list if available

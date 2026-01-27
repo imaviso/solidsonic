@@ -1,7 +1,9 @@
-import { IconPlaylist } from "@tabler/icons-solidjs";
-import { useQuery } from "@tanstack/solid-query";
+import { IconPlaylist, IconPlus } from "@tabler/icons-solidjs";
+import { useQuery, useQueryClient } from "@tanstack/solid-query";
 import { createFileRoute, Link } from "@tanstack/solid-router";
-import { For, Show } from "solid-js";
+import { createSignal, For, Show } from "solid-js";
+import { PlaylistDialog } from "~/components/PlaylistDialog";
+import { Button } from "~/components/ui/button";
 import { Card, CardContent } from "~/components/ui/card";
 import { getPlaylists } from "~/lib/api";
 
@@ -10,6 +12,9 @@ export const Route = createFileRoute("/app/playlists/")({
 });
 
 function PlaylistsPage() {
+	const queryClient = useQueryClient();
+	const [isCreateDialogOpen, setIsCreateDialogOpen] = createSignal(false);
+
 	const playlists = useQuery(() => ({
 		queryKey: ["playlists"],
 		queryFn: getPlaylists,
@@ -17,10 +22,25 @@ function PlaylistsPage() {
 
 	return (
 		<div class="flex flex-col gap-6 h-full overflow-y-auto">
-			<div>
-				<h2 class="text-3xl font-bold tracking-tight">Playlists</h2>
-				<p class="text-muted-foreground">Your curated collections</p>
+			<div class="flex items-center justify-between">
+				<div>
+					<h2 class="text-3xl font-bold tracking-tight">Playlists</h2>
+					<p class="text-muted-foreground">Your curated collections</p>
+				</div>
+				<Button onClick={() => setIsCreateDialogOpen(true)}>
+					<IconPlus class="size-4 mr-2" />
+					Create Playlist
+				</Button>
 			</div>
+
+			<PlaylistDialog
+				open={isCreateDialogOpen()}
+				onOpenChange={setIsCreateDialogOpen}
+				mode="create"
+				onSuccess={() => {
+					queryClient.invalidateQueries({ queryKey: ["playlists"] });
+				}}
+			/>
 
 			<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
 				<Show

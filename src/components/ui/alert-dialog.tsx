@@ -1,8 +1,9 @@
 import * as AlertDialogPrimitive from "@kobalte/core/alert-dialog";
 import type { PolymorphicProps } from "@kobalte/core/polymorphic";
-import type { JSX, ValidComponent } from "solid-js";
+import type { ComponentProps, JSX, ValidComponent } from "solid-js";
 import { splitProps } from "solid-js";
 
+import { Button, type ButtonProps } from "~/components/ui/button";
 import { cn } from "~/lib/utils";
 
 const AlertDialog = AlertDialogPrimitive.Root;
@@ -112,12 +113,69 @@ const AlertDialogDescription = <T extends ValidComponent = "p">(
 	);
 };
 
+const AlertDialogHeader = <T extends ValidComponent = "div">(
+	props: PolymorphicProps<T, ComponentProps<T> & { class?: string }>,
+) => {
+	const [local, others] = splitProps(props as any, ["class"]);
+	return (
+		<div
+			class={cn(
+				"flex flex-col space-y-2 text-center sm:text-left",
+				local.class,
+			)}
+			{...others}
+		/>
+	);
+};
+
+const AlertDialogFooter = <T extends ValidComponent = "div">(
+	props: PolymorphicProps<T, ComponentProps<T> & { class?: string }>,
+) => {
+	const [local, others] = splitProps(props as any, ["class"]);
+	return (
+		<div
+			class={cn(
+				"flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2",
+				local.class,
+			)}
+			{...others}
+		/>
+	);
+};
+
+const AlertDialogAction = <T extends ValidComponent = "button">(
+	props: PolymorphicProps<T, ButtonProps<T>>,
+) => {
+	const [local, others] = splitProps(props as ButtonProps, ["class"]);
+	return <Button class={cn(local.class)} {...others} />;
+};
+
+const AlertDialogCancel = <T extends ValidComponent = "button">(
+	props: PolymorphicProps<T, ButtonProps<T>>,
+) => {
+	const [local, others] = splitProps(props as ButtonProps, [
+		"class",
+		"variant",
+	]);
+	return (
+		<Button
+			variant={local.variant || "outline"}
+			class={cn("mt-2 sm:mt-0", local.class)}
+			{...others}
+		/>
+	);
+};
+
 export {
 	AlertDialog,
 	AlertDialogPortal,
 	AlertDialogOverlay,
 	AlertDialogTrigger,
 	AlertDialogContent,
+	AlertDialogHeader,
+	AlertDialogFooter,
 	AlertDialogTitle,
 	AlertDialogDescription,
+	AlertDialogAction,
+	AlertDialogCancel,
 };

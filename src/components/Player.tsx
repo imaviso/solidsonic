@@ -28,7 +28,7 @@ import {
 	SliderTrack,
 } from "~/components/ui/slider";
 import { usePlayer } from "~/lib/player";
-import { cn } from "~/lib/utils";
+import { cn, handleVolumeScroll } from "~/lib/utils";
 import FullScreenPlayer from "./FullScreenPlayer";
 
 function formatTime(seconds: number) {
@@ -242,16 +242,8 @@ const Player: Component = () => {
 				<div
 					class="flex w-1/3 justify-end items-center gap-2"
 					onWheel={(e) => {
-						// Prevent page scroll
 						e.preventDefault();
-						// Determine scroll direction: negative deltaY is scrolling up (increasing volume)
-						const direction = e.deltaY < 0 ? 1 : -1;
-						const step = 0.05; // 5% volume change per scroll tick
-						const newVolume = Math.min(
-							1,
-							Math.max(0, player.volume + direction * step),
-						);
-						player.setVolume(newVolume);
+						handleVolumeScroll(e, player.volume, player.setVolume);
 					}}
 				>
 					<Button

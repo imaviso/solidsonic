@@ -48,7 +48,7 @@ import {
 	type StructuredLyrics,
 } from "~/lib/api";
 import { usePlayer } from "~/lib/player";
-import { cn } from "~/lib/utils";
+import { cn, handleVolumeScroll } from "~/lib/utils";
 
 interface FullScreenPlayerProps {
 	isOpen: boolean;
@@ -77,7 +77,12 @@ const LyricsView: Component = () => {
 			try {
 				const structured = await getLyricsBySongId(player.currentTrack.id);
 				if (structured && structured.length > 0) {
-					return { type: "synced", data: structured[0] } as const;
+					// Only treat as "synced" if the flag is true
+					if (structured[0].synced) {
+						return { type: "synced", data: structured[0] } as const;
+					}
+					// Otherwise, render these lines as static text
+					return { type: "unsynced", data: structured[0] } as const;
 				}
 			} catch (_e) {
 				// ignore
@@ -174,10 +179,14 @@ const LyricsView: Component = () => {
 						when={lyrics().type === "synced"}
 						fallback={
 							<div class="whitespace-pre-wrap text-xl md:text-2xl lg:text-3xl font-bold leading-loose text-foreground/90 max-w-3xl px-8">
-								{(lyrics().data as Lyrics).value ||
-									(lyrics().data as Lyrics).lyrics
-										?.map((l) => l.value)
-										.join("\n")}
+								{lyrics().type === "unsynced"
+									? (lyrics().data as StructuredLyrics).line
+											.map((l) => l.value)
+											.join("\n")
+									: (lyrics().data as Lyrics).value ||
+										(lyrics().data as Lyrics).lyrics
+											?.map((l) => l.value)
+											.join("\n")}
 							</div>
 						}
 					>
@@ -364,6 +373,10 @@ const FullScreenPlayer: Component<FullScreenPlayerProps> = (props) => {
 	const handleSeekChange = (value: number[]) => {
 		setIsSeeking(true);
 		setSeekValue(value[0]);
+	};
+
+	const handleVolumeWheel = (e: WheelEvent) => {
+		handleVolumeScroll(e, player.volume, player.setVolume);
 	};
 
 	return (
@@ -585,7 +598,10 @@ const FullScreenPlayer: Component<FullScreenPlayerProps> = (props) => {
 
 							{/* Bottom Actions (Volume/Queue) */}
 							<div class="flex items-center justify-between pt-4">
-								<div class="flex items-center gap-3 w-full max-w-[140px]">
+								<div
+									class="flex items-center gap-3 w-full max-w-[140px]"
+									onWheel={handleVolumeWheel}
+								>
 									<Button
 										variant="ghost"
 										size="icon"
