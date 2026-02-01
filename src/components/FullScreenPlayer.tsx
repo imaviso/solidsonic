@@ -17,6 +17,7 @@ import {
 	IconVolume3,
 } from "@tabler/icons-solidjs";
 import { createQuery } from "@tanstack/solid-query";
+import { Link } from "@tanstack/solid-router";
 import {
 	type Component,
 	createEffect,
@@ -246,10 +247,17 @@ const QueueView: Component = () => {
 							i() === player.queueIndex && "bg-muted/30",
 						)}
 					>
-						<button
-							type="button"
-							class="flex-1 flex items-center gap-3 text-left min-w-0 bg-transparent border-0 cursor-pointer outline-none"
+						{/* biome-ignore lint/a11y: content contains interactive elements */}
+						<div
+							role="button"
+							tabIndex={0}
+							class="flex-1 flex items-center gap-3 text-left min-w-0 cursor-pointer outline-none"
 							onClick={() => player.playSong(song, player.queue, i())}
+							onKeyDown={(e) => {
+								if (e.key === "Enter" || e.key === " ") {
+									player.playSong(song, player.queue, i());
+								}
+							}}
 						>
 							<div class="relative size-12 flex-none rounded overflow-hidden shadow-sm">
 								<CoverArt
@@ -276,10 +284,22 @@ const QueueView: Component = () => {
 									{song.title}
 								</div>
 								<div class="text-sm text-muted-foreground truncate">
-									{song.artist}
+									<Show
+										when={song.artistId}
+										fallback={song.artist ?? "Unknown Artist"}
+									>
+										<Link
+											to="/app/artists/$id"
+											params={{ id: song.artistId ?? "" }}
+											class="hover:underline hover:text-foreground relative z-10"
+											onClick={(e) => e.stopPropagation()}
+										>
+											{song.artist}
+										</Link>
+									</Show>
 								</div>
 							</div>
-						</button>
+						</div>
 
 						<div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity focus-within:opacity-100">
 							<div class="text-xs text-muted-foreground font-mono mr-2">
@@ -505,10 +525,34 @@ const FullScreenPlayer: Component<FullScreenPlayerProps> = (props) => {
 									{player.currentTrack?.title ?? "Not Playing"}
 								</h2>
 								<h3 class="text-lg md:text-xl text-muted-foreground font-medium line-clamp-1">
-									{player.currentTrack?.artist ?? "Select a song"}
+									<Show
+										when={player.currentTrack?.artistId}
+										fallback={player.currentTrack?.artist ?? "Select a song"}
+									>
+										<Link
+											to="/app/artists/$id"
+											params={{ id: player.currentTrack?.artistId ?? "" }}
+											class="hover:underline hover:text-foreground"
+											onClick={() => props.onClose()}
+										>
+											{player.currentTrack?.artist}
+										</Link>
+									</Show>
 								</h3>
 								<p class="text-sm text-muted-foreground/60 line-clamp-1">
-									{player.currentTrack?.album}
+									<Show
+										when={player.currentTrack?.albumId}
+										fallback={player.currentTrack?.album}
+									>
+										<Link
+											to="/app/albums/$id"
+											params={{ id: player.currentTrack?.albumId ?? "" }}
+											class="hover:underline hover:text-foreground"
+											onClick={() => props.onClose()}
+										>
+											{player.currentTrack?.album}
+										</Link>
+									</Show>
 								</p>
 							</div>
 

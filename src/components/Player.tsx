@@ -11,6 +11,7 @@ import {
 	IconVolume2,
 	IconVolume3,
 } from "@tabler/icons-solidjs";
+import { Link } from "@tanstack/solid-router";
 import {
 	type Component,
 	createEffect,
@@ -130,10 +131,17 @@ const Player: Component = () => {
 			/>
 			<div class="flex h-20 shrink-0 items-center border-t bg-background px-4">
 				{/* Track Info */}
-				<button
-					type="button"
+				{/* biome-ignore lint/a11y: content contains interactive elements (links) */}
+				<div
+					role="button"
+					tabIndex={0}
 					class="flex w-1/3 items-center gap-4 group cursor-pointer text-left focus:outline-none"
 					onClick={() => setIsFullScreen(true)}
+					onKeyDown={(e) => {
+						if (e.key === "Enter" || e.key === " ") {
+							setIsFullScreen(true);
+						}
+					}}
 				>
 					<div class="relative">
 						<div class="flex aspect-square size-12 items-center justify-center rounded-md bg-muted overflow-hidden transition-transform group-hover:scale-105">
@@ -157,10 +165,24 @@ const Player: Component = () => {
 							{player.currentTrack?.title ?? "Not Playing"}
 						</p>
 						<p class="truncate text-xs text-muted-foreground">
-							{player.currentTrack?.artist ?? "Select a song to play"}
+							<Show
+								when={player.currentTrack?.artistId}
+								fallback={
+									player.currentTrack?.artist ?? "Select a song to play"
+								}
+							>
+								<Link
+									to="/app/artists/$id"
+									params={{ id: player.currentTrack?.artistId ?? "" }}
+									class="hover:underline hover:text-foreground relative z-10"
+									onClick={(e) => e.stopPropagation()}
+								>
+									{player.currentTrack?.artist}
+								</Link>
+							</Show>
 						</p>
 					</div>
-				</button>
+				</div>
 
 				{/* Controls */}
 				<div class="flex flex-1 flex-col items-center justify-center gap-2">

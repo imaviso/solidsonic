@@ -698,6 +698,7 @@ function createWindow() {
 		trafficLightPosition: { x: 16, y: 16 },
 		backgroundColor: "#0a0a0a",
 		show: false,
+		autoHideMenuBar: true, // Auto-hide menu bar (press Alt to show)
 	});
 
 	// Show window when ready to prevent visual flash
