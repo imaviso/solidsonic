@@ -4,12 +4,15 @@ import { For, Show } from "solid-js";
 import CoverArt from "~/components/CoverArt";
 import { ErrorComponent } from "~/components/ErrorComponent";
 import { Card, CardContent } from "~/components/ui/card";
-import { artistQueryOptions } from "~/lib/api";
+import { artistInfo2QueryOptions, artistQueryOptions } from "~/lib/api";
 import { usePlayer } from "~/lib/player";
 
 export const Route = createFileRoute("/app/artists/$id")({
 	loader: ({ context: { queryClient }, params }) =>
-		queryClient.ensureQueryData(artistQueryOptions(params.id)),
+		Promise.all([
+			queryClient.ensureQueryData(artistQueryOptions(params.id)),
+			queryClient.ensureQueryData(artistInfo2QueryOptions(params.id)),
+		]),
 	errorComponent: ErrorComponent,
 	component: ArtistDetailPage,
 });
@@ -19,6 +22,7 @@ function ArtistDetailPage() {
 	usePlayer();
 
 	const artist = useQuery(() => artistQueryOptions(params().id));
+	const artistInfo = useQuery(() => artistInfo2QueryOptions(params().id));
 
 	return (
 		<div class="flex flex-col gap-6 h-full overflow-y-auto">
@@ -26,9 +30,21 @@ function ArtistDetailPage() {
 				when={!artist.isLoading && artist.data}
 				fallback={<div>Loading...</div>}
 			>
+				{/* Header with artist info */}
 				<div class="flex items-end gap-6 pb-6 border-b">
 					<div class="size-32 bg-muted rounded-full shadow-sm flex items-center justify-center overflow-hidden">
-						<CoverArt id={artist.data?.artist.coverArt} class="size-full" />
+						<Show
+							when={artistInfo.data?.info.largeImageUrl}
+							fallback={
+								<CoverArt id={artist.data?.artist.coverArt} class="size-full" />
+							}
+						>
+							<img
+								src={artistInfo.data?.info.largeImageUrl}
+								alt={artist.data?.artist.name}
+								class="size-full object-cover"
+							/>
+						</Show>
 					</div>
 					<div class="flex flex-col gap-2">
 						<span class="text-sm font-medium text-muted-foreground uppercase">
@@ -41,6 +57,47 @@ function ArtistDetailPage() {
 					</div>
 				</div>
 
+				{/* Biography */}
+				<Show when={artistInfo.data?.info.biography}>
+					<div class="space-y-2">
+						<h2 class="text-2xl font-bold">About</h2>
+						<p class="text-muted-foreground leading-relaxed">
+							{artistInfo.data?.info.biography}
+						</p>
+					</div>
+				</Show>
+
+				{/* Similar Artists */}
+				<Show when={artistInfo.data?.similarArtists.length}>
+					<div class="space-y-4">
+						<h2 class="text-2xl font-bold">Similar Artists</h2>
+						<div class="flex gap-4 overflow-x-auto pb-2">
+							<For each={artistInfo.data?.similarArtists}>
+								{(similarArtist) => (
+									<Link
+										to="/app/artists/$id"
+										params={{ id: similarArtist.id }}
+										class="flex-shrink-0 group"
+									>
+										<div class="w-24 text-center">
+											<div class="size-24 bg-muted rounded-full shadow-sm flex items-center justify-center overflow-hidden mb-2">
+												<CoverArt
+													id={similarArtist.coverArt}
+													class="size-full"
+												/>
+											</div>
+											<p class="text-sm font-medium truncate group-hover:underline">
+												{similarArtist.name}
+											</p>
+										</div>
+									</Link>
+								)}
+							</For>
+						</div>
+					</div>
+				</Show>
+
+				{/* Albums */}
 				<div>
 					<h2 class="text-2xl font-bold mb-4">Albums</h2>
 					<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">

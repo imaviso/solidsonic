@@ -26,6 +26,15 @@ export interface Artist {
 	starred?: string; // ISO date string if starred
 }
 
+export interface ArtistInfo2 {
+	biography?: string;
+	musicBrainzId?: string;
+	smallImageUrl?: string;
+	mediumImageUrl?: string;
+	largeImageUrl?: string;
+	// Similar artists are returned separately and handled by the API function
+}
+
 export interface Song {
 	id: string;
 	title: string;
@@ -107,6 +116,12 @@ export const artistQueryOptions = (id: string) =>
 	queryOptions({
 		queryKey: ["artist", id],
 		queryFn: () => getArtist(id),
+	});
+
+export const artistInfo2QueryOptions = (id: string, count = 20) =>
+	queryOptions({
+		queryKey: ["artistInfo2", id, count],
+		queryFn: () => getArtistInfo2(id, count),
 	});
 
 export const playlistListQueryOptions = () =>
@@ -248,6 +263,42 @@ export async function getArtist(id: string): Promise<{
 	return {
 		artist,
 		albums: ensureArray(album),
+	};
+}
+
+export async function getArtistInfo2(
+	id: string,
+	count = 20,
+	includeNotPresent = false,
+): Promise<{
+	info: ArtistInfo2;
+	similarArtists: Artist[];
+}> {
+	const response = await fetchSubsonic("getArtistInfo2", {
+		id,
+		count: count.toString(),
+		includeNotPresent: includeNotPresent.toString(),
+	});
+
+	const data: SubsonicResponse<{
+		artistInfo2?: ArtistInfo2 & { similarArtist?: Artist[] | Artist };
+	}> = await response.json();
+
+	if (data["subsonic-response"].status !== "ok") {
+		throw new Error(
+			data["subsonic-response"].error?.message || "Failed to fetch artist info",
+		);
+	}
+
+	const infoData = data["subsonic-response"].artistInfo2;
+	if (!infoData) {
+		throw new Error("Artist info not found");
+	}
+
+	const { similarArtist, ...info } = infoData;
+	return {
+		info,
+		similarArtists: ensureArray(similarArtist),
 	};
 }
 
