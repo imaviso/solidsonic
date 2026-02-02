@@ -24,6 +24,10 @@ export interface Artist {
 	coverArt?: string;
 	albumCount?: number;
 	starred?: string; // ISO date string if starred
+	// Image URLs from getArtistInfo2 (external sources like Last.fm)
+	smallImageUrl?: string;
+	mediumImageUrl?: string;
+	largeImageUrl?: string;
 }
 
 export interface ArtistInfo2 {

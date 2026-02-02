@@ -1,11 +1,14 @@
 import { useQuery } from "@tanstack/solid-query";
 import { createFileRoute, Link } from "@tanstack/solid-router";
-import { For, Show } from "solid-js";
+import { createSignal, For, Show } from "solid-js";
 import CoverArt from "~/components/CoverArt";
 import { ErrorComponent } from "~/components/ErrorComponent";
+import { Button } from "~/components/ui/button";
 import { Card, CardContent } from "~/components/ui/card";
 import { artistInfo2QueryOptions, artistQueryOptions } from "~/lib/api";
 import { usePlayer } from "~/lib/player";
+
+const MAX_BIO_LENGTH = 400;
 
 export const Route = createFileRoute("/app/artists/$id")({
 	loader: ({ context: { queryClient }, params }) =>
@@ -20,9 +23,19 @@ export const Route = createFileRoute("/app/artists/$id")({
 function ArtistDetailPage() {
 	const params = Route.useParams();
 	usePlayer();
+	const [isBioExpanded, setIsBioExpanded] = createSignal(false);
 
 	const artist = useQuery(() => artistQueryOptions(params().id));
 	const artistInfo = useQuery(() => artistInfo2QueryOptions(params().id));
+
+	const biography = () => artistInfo.data?.info.biography ?? "";
+	const shouldTruncate = () => biography().length > MAX_BIO_LENGTH;
+	const displayBio = () => {
+		if (!shouldTruncate() || isBioExpanded()) {
+			return biography();
+		}
+		return `${biography().slice(0, MAX_BIO_LENGTH).trim()}...`;
+	};
 
 	return (
 		<div class="flex flex-col gap-6 h-full overflow-y-auto">
@@ -58,12 +71,20 @@ function ArtistDetailPage() {
 				</div>
 
 				{/* Biography */}
-				<Show when={artistInfo.data?.info.biography}>
+				<Show when={biography()}>
 					<div class="space-y-2">
 						<h2 class="text-2xl font-bold">About</h2>
-						<p class="text-muted-foreground leading-relaxed">
-							{artistInfo.data?.info.biography}
-						</p>
+						<p class="text-muted-foreground leading-relaxed">{displayBio()}</p>
+						<Show when={shouldTruncate()}>
+							<Button
+								variant="link"
+								size="sm"
+								class="p-0 h-auto text-primary"
+								onClick={() => setIsBioExpanded(!isBioExpanded())}
+							>
+								{isBioExpanded() ? "Show Less" : "More Info"}
+							</Button>
+						</Show>
 					</div>
 				</Show>
 
@@ -81,10 +102,21 @@ function ArtistDetailPage() {
 									>
 										<div class="w-24 text-center">
 											<div class="size-24 bg-muted rounded-full shadow-sm flex items-center justify-center overflow-hidden mb-2">
-												<CoverArt
-													id={similarArtist.coverArt}
-													class="size-full"
-												/>
+												<Show
+													when={similarArtist.largeImageUrl}
+													fallback={
+														<CoverArt
+															id={similarArtist.coverArt}
+															class="size-full"
+														/>
+													}
+												>
+													<img
+														src={similarArtist.largeImageUrl}
+														alt={similarArtist.name}
+														class="size-full object-cover"
+													/>
+												</Show>
 											</div>
 											<p class="text-sm font-medium truncate group-hover:underline">
 												{similarArtist.name}
