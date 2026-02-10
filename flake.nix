@@ -54,7 +54,7 @@
 
           src = ./.;
 
-          npmDepsHash = "sha256-sU7LIEakPGYvdMpQxWgJwo8/jWcX8VtmyaopG617hJI=";
+          npmDepsHash = "sha256-hVN6Mv7w2UG4f+9W16wTJV5v2cTGGM9C26m2V+e43fA=";
 
           # Handle git dependencies and cache issues
           makeCacheWritable = true;
