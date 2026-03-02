@@ -10,9 +10,11 @@ import {
 	Show,
 } from "solid-js";
 import CoverArt from "~/components/CoverArt";
-import { getArtists } from "~/lib/api";
+import { artistListQueryOptions } from "~/lib/api";
 
 export const Route = createFileRoute("/app/artists/")({
+	loader: ({ context: { queryClient } }) =>
+		queryClient.ensureQueryData(artistListQueryOptions()),
 	component: ArtistsPage,
 });
 
@@ -24,10 +26,7 @@ function ArtistsPage() {
 	let scrollContainerRef!: HTMLDivElement;
 	const [columns, setColumns] = createSignal(5);
 
-	const artists = useQuery(() => ({
-		queryKey: ["artists"],
-		queryFn: getArtists,
-	}));
+	const artists = useQuery(() => artistListQueryOptions());
 
 	const allArtists = createMemo(() => artists.data ?? []);
 	const rowCount = createMemo(() => Math.ceil(allArtists().length / columns()));

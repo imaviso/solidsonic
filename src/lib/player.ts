@@ -11,7 +11,6 @@ import {
 	type AudioBackend,
 	type AudioBackendEvents,
 	Html5AudioBackend,
-	MpvAudioBackend,
 } from "./audio-backend";
 import { getSettings } from "./settings";
 
@@ -20,133 +19,6 @@ import { getSettings } from "./settings";
 // ============================================================================
 
 let currentBackend: AudioBackend | null = null;
-let currentBackendType: "html5" | "mpv" = "html5";
-let mprisCleanupFns: Array<() => void> = [];
-
-// Send MPRIS metadata update
-function updateMprisMetadata(song: Song, coverUrl?: string) {
-	const api = window.electronAPI?.mpv;
-	if (!api || window.electronAPI?.platform !== "linux") return;
-
-	api.setMetadata({
-		title: song.title,
-		artist: song.artist,
-		album: song.album,
-		artUrl: coverUrl,
-		trackId: song.id,
-		length: song.duration,
-	});
-}
-
-// Send MPRIS playback status update
-function updateMprisPlaybackStatus(isPlaying: boolean) {
-	const api = window.electronAPI?.mpv;
-	if (!api || window.electronAPI?.platform !== "linux") return;
-
-	api.setPlaybackStatus(isPlaying ? "Playing" : "Paused");
-}
-
-// Send MPRIS position update
-function updateMprisPosition(time: number) {
-	const api = window.electronAPI?.mpv;
-	if (!api || window.electronAPI?.platform !== "linux") return;
-
-	api.setMprisPosition(time);
-}
-
-// Send MPRIS volume update
-function updateMprisVolume(volume: number) {
-	const api = window.electronAPI?.mpv;
-	if (!api || window.electronAPI?.platform !== "linux") return;
-
-	api.updateVolume(Math.round(volume * 100));
-}
-
-// Set up MPRIS control listeners for Next/Previous (handled at player level)
-// Also sets up play/pause/stop/seek listeners for HTML5 backend
-function setupMprisControlListeners() {
-	const mpv = window.electronAPI?.mpv;
-	if (!mpv || window.electronAPI?.platform !== "linux") return;
-
-	// Clean up any existing listeners
-	for (const cleanup of mprisCleanupFns) {
-		cleanup();
-	}
-	mprisCleanupFns = [];
-
-	// Next/Previous - always needed at player level (requires queue access)
-	if (mpv.onMprisNext) {
-		const cleanup = mpv.onMprisNext(() => {
-			playNext();
-		});
-		mprisCleanupFns.push(cleanup);
-	}
-
-	if (mpv.onMprisPrevious) {
-		const cleanup = mpv.onMprisPrevious(() => {
-			playPrevious();
-		});
-		mprisCleanupFns.push(cleanup);
-	}
-
-	// For HTML5 backend, we also need to handle play/pause/stop/seek at player level
-	// (MPV backend handles these in audio-backend.ts)
-	if (currentBackendType === "html5") {
-		if (mpv.onMprisPlayPause) {
-			const cleanup = mpv.onMprisPlayPause(() => {
-				togglePlayPause();
-			});
-			mprisCleanupFns.push(cleanup);
-		}
-
-		if (mpv.onMprisPlay) {
-			const cleanup = mpv.onMprisPlay(() => {
-				play();
-			});
-			mprisCleanupFns.push(cleanup);
-		}
-
-		if (mpv.onMprisPause) {
-			const cleanup = mpv.onMprisPause(() => {
-				pause();
-			});
-			mprisCleanupFns.push(cleanup);
-		}
-
-		if (mpv.onMprisStop) {
-			const cleanup = mpv.onMprisStop(() => {
-				const backend = getAudioBackend();
-				backend.stop();
-				updateState({ isPlaying: false, currentTime: 0 });
-			});
-			mprisCleanupFns.push(cleanup);
-		}
-
-		if (mpv.onMprisSeek) {
-			const cleanup = mpv.onMprisSeek((offset: number) => {
-				// Seek is relative offset in seconds
-				const newTime = playerState.currentTime + offset;
-				seek(Math.max(0, newTime));
-			});
-			mprisCleanupFns.push(cleanup);
-		}
-
-		if (mpv.onMprisSetPosition) {
-			const cleanup = mpv.onMprisSetPosition((position: number) => {
-				seek(position);
-			});
-			mprisCleanupFns.push(cleanup);
-		}
-
-		if (mpv.onMprisVolume) {
-			const cleanup = mpv.onMprisVolume((volume: number) => {
-				// Volume is 0-100, convert to 0-1
-				setVolume(volume / 100);
-			});
-			mprisCleanupFns.push(cleanup);
-		}
-	}
-}
 
 function getBackendEventHandlers(): AudioBackendEvents {
 	return {
@@ -161,9 +33,6 @@ function getBackendEventHandlers(): AudioBackendEvents {
 					position: time,
 				});
 			}
-
-			// Update MPRIS position (works for both HTML5 and MPV backends)
-			updateMprisPosition(time);
 
 			// Scrobble logic
 			const currentTrack = playerState.currentTrack;
@@ -185,11 +54,6 @@ function getBackendEventHandlers(): AudioBackendEvents {
 		onEnded: () => {
 			playNext();
 		},
-		onAutoNext: () => {
-			// MPV auto-advanced to next track in its playlist
-			// We need to advance our queue state to match
-			handleAutoNext();
-		},
 		onPlaying: () => {
 			updateState({ isPlaying: true, isLoading: false });
 			updateMediaSessionState(true);
@@ -208,156 +72,17 @@ function getBackendEventHandlers(): AudioBackendEvents {
 			console.error("Audio error:", error);
 			updateState({ isLoading: false, isPlaying: false });
 		},
-		onFallback: (shouldFallback: boolean) => {
-			// MPV failed, fall back to HTML5 audio
-			if (shouldFallback && currentBackendType === "mpv") {
-				console.warn("MPV failed, falling back to HTML5 audio");
-				switchToHtml5Fallback();
-			}
-		},
 	};
 }
 
-// Handle MPV auto-advancing to next track
-async function handleAutoNext() {
-	const { queue, queueIndex } = playerState;
-	const nextIndex = queueIndex + 1;
-
-	if (nextIndex < queue.length) {
-		const nextTrack = queue[nextIndex];
-
-		// Reset scrobble state for new song
-		scrobbledTrackId = null;
-
-		// Update state to reflect the new current track
-		updateState({
-			currentTrack: nextTrack,
-			queueIndex: nextIndex,
-			currentTime: 0,
-			isLoading: false,
-		});
-
-		// Update media session
-		updateMediaSession(nextTrack);
-
-		// Report "now playing"
-		if (
-			nowPlayingReported !== nextTrack.id &&
-			getSettings().scrobblingEnabled
-		) {
-			nowPlayingReported = nextTrack.id;
-			scrobble(nextTrack.id, { submission: false }).catch((err) => {
-				console.error("Failed to report now playing:", err);
-			});
-		}
-
-		// Tell MPV to clean up its playlist and queue the next-next track
-		// This handles both removing the finished track and preloading the next one
-		const followingIndex = nextIndex + 1;
-		if (followingIndex < queue.length) {
-			const followingTrack = queue[followingIndex];
-			try {
-				const url = await getStreamUrl(followingTrack.id);
-				window.electronAPI?.mpv?.autoNext(url);
-			} catch {
-				window.electronAPI?.mpv?.autoNext();
-			}
-		} else {
-			window.electronAPI?.mpv?.autoNext();
-		}
-
-		// Trigger queue sync
-		debouncedSaveQueue();
-	}
-}
-
-// Fall back to HTML5 audio when MPV fails
-function switchToHtml5Fallback() {
-	const wasPlaying = playerState.isPlaying;
-	const currentTrack = playerState.currentTrack;
-	const currentTime = playerState.currentTime;
-
-	// Destroy current backend
-	if (currentBackend) {
-		currentBackend.destroy();
-		currentBackend = null;
-	}
-
-	// Create HTML5 backend
-	currentBackend = new Html5AudioBackend();
-	currentBackendType = "html5";
-	currentBackend.setVolume(playerState.volume);
-	currentBackend.setEventHandlers(getBackendEventHandlers());
-
-	// Resume playback if we had a track
-	if (currentTrack && wasPlaying) {
-		playSong(currentTrack, playerState.queue, playerState.queueIndex).then(
-			() => {
-				seek(currentTime);
-			},
-		);
-	}
-}
-
 function getAudioBackend(): AudioBackend {
-	const settings = getSettings();
-	const desiredType = settings.audioBackend;
-
-	// Check if we need to switch backends
-	if (currentBackend && currentBackendType !== desiredType) {
-		currentBackend.destroy();
-		currentBackend = null;
-	}
-
 	if (!currentBackend) {
-		// For MPV, check if it's available (Electron only)
-		if (desiredType === "mpv" && window.electronAPI?.mpv) {
-			currentBackend = new MpvAudioBackend();
-			currentBackendType = "mpv";
-		} else {
-			currentBackend = new Html5AudioBackend();
-			currentBackendType = "html5";
-		}
-
+		currentBackend = new Html5AudioBackend();
 		currentBackend.setVolume(playerState.volume);
 		currentBackend.setEventHandlers(getBackendEventHandlers());
-
-		// Set up MPRIS control listeners (works for both backends on Linux)
-		setupMprisControlListeners();
 	}
 
 	return currentBackend;
-}
-
-// Export function to switch backends at runtime
-export function switchAudioBackend(type: "html5" | "mpv"): void {
-	if (currentBackend && currentBackendType !== type) {
-		const wasPlaying = playerState.isPlaying;
-		const currentTime = playerState.currentTime;
-		const currentTrack = playerState.currentTrack;
-
-		// Stop current backend
-		currentBackend.stop();
-		currentBackend.destroy();
-		currentBackend = null;
-
-		// Create new backend
-		getAudioBackend();
-
-		// Resume playback if we had a track
-		if (currentTrack && wasPlaying) {
-			playSong(currentTrack, playerState.queue, playerState.queueIndex).then(
-				() => {
-					seek(currentTime);
-				},
-			);
-		}
-	}
-}
-
-// Export current backend type for UI
-export function getCurrentBackendType(): "html5" | "mpv" {
-	return currentBackendType;
 }
 
 // Media Session API support
@@ -382,9 +107,8 @@ if (typeof navigator !== "undefined" && "mediaSession" in navigator) {
 }
 
 function updateMediaSession(song: Song) {
-	// Get cover art URL first (needed for both Media Session and MPRIS)
+	// Get cover art URL first for Media Session metadata.
 	getTrackCoverUrl(song.coverArt, 300).then((coverUrl) => {
-		// Update browser Media Session API (if available)
 		if (typeof navigator !== "undefined" && "mediaSession" in navigator) {
 			navigator.mediaSession.metadata = new MediaMetadata({
 				title: song.title,
@@ -401,9 +125,6 @@ function updateMediaSession(song: Song) {
 					: [],
 			});
 		}
-
-		// Update MPRIS metadata (works for both HTML5 and MPV backends)
-		updateMprisMetadata(song, coverUrl || undefined);
 	});
 }
 
@@ -411,9 +132,6 @@ function updateMediaSessionState(isPlaying: boolean) {
 	if (typeof navigator !== "undefined" && "mediaSession" in navigator) {
 		navigator.mediaSession.playbackState = isPlaying ? "playing" : "paused";
 	}
-
-	// Update MPRIS playback status (works for both HTML5 and MPV backends)
-	updateMprisPlaybackStatus(isPlaying);
 }
 
 export type RepeatMode = "off" | "all" | "one";
@@ -551,15 +269,7 @@ export async function playSong(
 
 	try {
 		const streamUrl = await getStreamUrl(song.id);
-
-		// For MPV backend, use setQueue with next track for gapless playback
-		if (backend.name === "mpv" && currentIndex + 1 < newQueue.length) {
-			const nextTrack = newQueue[currentIndex + 1];
-			const nextUrl = await getStreamUrl(nextTrack.id);
-			await backend.setQueue(streamUrl, nextUrl, false);
-		} else {
-			await backend.play(streamUrl);
-		}
+		await backend.play(streamUrl);
 
 		// Update media session metadata
 		updateMediaSession(song);
@@ -663,8 +373,6 @@ export function setVolume(volume: number) {
 	backend.setVolume(clampedVolume);
 	updateState({ volume: clampedVolume });
 	saveVolumeToStorage(clampedVolume);
-	// Update MPRIS volume (works for both HTML5 and MPV backends)
-	updateMprisVolume(clampedVolume);
 }
 
 export function addToQueue(songs: Song[]) {

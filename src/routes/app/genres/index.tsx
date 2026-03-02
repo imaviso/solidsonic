@@ -3,8 +3,8 @@ import {
 	IconPlayerPlay,
 	IconPlaylistAdd,
 } from "@tabler/icons-solidjs";
-import { useQuery } from "@tanstack/solid-query";
-import { createFileRoute, Link, useNavigate } from "@tanstack/solid-router";
+import { useQuery, useQueryClient } from "@tanstack/solid-query";
+import { createFileRoute, Link } from "@tanstack/solid-router";
 import { For, Show } from "solid-js";
 import { createStore } from "solid-js/store";
 import { AddToPlaylistDialog } from "~/components/AddToPlaylistDialog";
@@ -15,20 +15,23 @@ import {
 	ContextMenuItem,
 	ContextMenuTrigger,
 } from "~/components/ui/context-menu";
-import { getGenres, getSongsByGenre } from "~/lib/api";
+import {
+	genreListQueryOptions,
+	genreSongsQueryOptions,
+	getSongsByGenre,
+} from "~/lib/api";
 import { usePlayer } from "~/lib/player";
 
 export const Route = createFileRoute("/app/genres/")({
+	loader: ({ context: { queryClient } }) =>
+		queryClient.ensureQueryData(genreListQueryOptions()),
 	component: GenresPage,
 });
 
 function GenresPage() {
-	const genres = useQuery(() => ({
-		queryKey: ["genres"],
-		queryFn: getGenres,
-	}));
+	const genres = useQuery(() => genreListQueryOptions());
+	const queryClient = useQueryClient();
 	const player = usePlayer();
-	const _navigate = useNavigate();
 	const [playlistDialogState, setPlaylistDialogState] = createStore<{
 		open: boolean;
 		songIds: string[];
@@ -53,6 +56,11 @@ function GenresPage() {
 									<Link
 										to="/app/genres/$genre"
 										params={{ genre: genre.value }}
+										onPointerEnter={() => {
+											void queryClient.prefetchQuery(
+												genreSongsQueryOptions(genre.value, 100, 0),
+											);
+										}}
 										class="block group"
 									>
 										<Card class="h-full hover:bg-muted/50 transition-colors">

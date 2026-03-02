@@ -22,13 +22,8 @@ export const Route = createFileRoute("/app/settings")({
 });
 
 function SettingsPage() {
-	const {
-		settings,
-		setAudioBackend,
-		setTheme,
-		setMaxBitRate,
-		setScrobblingEnabled,
-	} = useSettings();
+	const { settings, setTheme, setMaxBitRate, setScrobblingEnabled } =
+		useSettings();
 
 	return (
 		<div class="container max-w-2xl py-8 space-y-8 h-full overflow-y-auto">
@@ -91,42 +86,6 @@ function SettingsPage() {
 						<CardDescription>Configure how music is played</CardDescription>
 					</CardHeader>
 					<CardContent class="space-y-6">
-						<div class="flex items-center justify-between">
-							<div class="space-y-0.5">
-								<Label>Audio Backend</Label>
-								<p class="text-sm text-muted-foreground">
-									Choose the audio engine. MPV provides better format support
-									(Electron only).
-								</p>
-							</div>
-							<Select
-								value={settings.audioBackend}
-								onChange={(value) =>
-									value && setAudioBackend(value as "html5" | "mpv")
-								}
-								options={["html5", "mpv"]}
-								placeholder="Select backend"
-								itemComponent={(props) => (
-									<SelectItem item={props.item}>
-										{props.item.rawValue === "html5"
-											? "HTML5 Audio"
-											: "MPV (Native)"}
-									</SelectItem>
-								)}
-							>
-								<SelectTrigger class="w-[180px]">
-									<SelectValue<string>>
-										{(state) =>
-											state.selectedOption() === "html5"
-												? "HTML5 Audio"
-												: "MPV (Native)"
-										}
-									</SelectValue>
-								</SelectTrigger>
-								<SelectContent />
-							</Select>
-						</div>
-
 						<div class="flex items-center justify-between">
 							<div class="space-y-0.5">
 								<Label>Max Bitrate</Label>

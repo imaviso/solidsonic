@@ -26,7 +26,10 @@ function ArtistDetailPage() {
 	const [isBioExpanded, setIsBioExpanded] = createSignal(false);
 
 	const artist = useQuery(() => artistQueryOptions(params().id));
-	const artistInfo = useQuery(() => artistInfo2QueryOptions(params().id));
+	const artistInfo = useQuery(() => ({
+		...artistInfo2QueryOptions(params().id),
+		enabled: !!artist.data?.artist.id,
+	}));
 
 	const biography = () => artistInfo.data?.info.biography ?? "";
 	const shouldTruncate = () => biography().length > MAX_BIO_LENGTH;

@@ -9,8 +9,13 @@ import {
 	DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import { useTheme } from "~/lib/theme";
+import { cn } from "~/lib/utils";
 
-const ModeToggle: Component = () => {
+interface ModeToggleProps {
+	triggerClass?: string;
+}
+
+const ModeToggle: Component<ModeToggleProps> = (props) => {
 	const { setTheme } = useTheme();
 
 	return (
@@ -19,7 +24,7 @@ const ModeToggle: Component = () => {
 				as={Button<"button">}
 				variant="ghost"
 				size="icon"
-				class="w-9 px-0"
+				class={cn("size-8 px-0", props.triggerClass)}
 			>
 				<IconSun class="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
 				<IconMoon class="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />

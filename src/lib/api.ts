@@ -1,4 +1,5 @@
-import { queryOptions } from "@tanstack/solid-query";
+import { keepPreviousData, queryOptions } from "@tanstack/solid-query";
+import { queryKeys } from "~/lib/query";
 import { getSettings } from "~/lib/settings";
 import { buildMediaUrl, fetchSubsonic } from "./subsonic";
 
@@ -100,74 +101,92 @@ export const albumListQueryOptions = (
 	offset = 0,
 ) =>
 	queryOptions({
-		queryKey: ["albums", type, size, offset],
-		queryFn: () => getAlbumList(type, size, offset),
+		queryKey: queryKeys.albums.list(type, size, offset),
+		queryFn: ({ signal }) => getAlbumList(type, size, offset, signal),
 	});
 
 export const albumQueryOptions = (id: string) =>
 	queryOptions({
-		queryKey: ["album", id],
-		queryFn: () => getAlbum(id),
+		queryKey: queryKeys.albums.detail(id),
+		queryFn: ({ signal }) => getAlbum(id, signal),
 	});
 
 export const artistListQueryOptions = () =>
 	queryOptions({
-		queryKey: ["artists"],
-		queryFn: getArtists,
+		queryKey: queryKeys.artists.all,
+		queryFn: ({ signal }) => getArtists(signal),
 	});
 
 export const artistQueryOptions = (id: string) =>
 	queryOptions({
-		queryKey: ["artist", id],
-		queryFn: () => getArtist(id),
+		queryKey: queryKeys.artists.detail(id),
+		queryFn: ({ signal }) => getArtist(id, signal),
 	});
 
 export const artistInfo2QueryOptions = (id: string, count = 20) =>
 	queryOptions({
-		queryKey: ["artistInfo2", id, count],
-		queryFn: () => getArtistInfo2(id, count),
+		queryKey: queryKeys.artists.info(id, count),
+		queryFn: ({ signal }) => getArtistInfo2(id, count, false, signal),
 	});
 
 export const playlistListQueryOptions = () =>
 	queryOptions({
-		queryKey: ["playlists"],
-		queryFn: getPlaylists,
+		queryKey: queryKeys.playlists.all,
+		queryFn: ({ signal }) => getPlaylists(signal),
 	});
 
 export const playlistQueryOptions = (id: string) =>
 	queryOptions({
-		queryKey: ["playlist", id],
-		queryFn: () => getPlaylist(id),
+		queryKey: queryKeys.playlists.detail(id),
+		queryFn: ({ signal }) => getPlaylist(id, signal),
 	});
 
 export const genreListQueryOptions = () =>
 	queryOptions({
-		queryKey: ["genres"],
-		queryFn: getGenres,
+		queryKey: queryKeys.genres.all,
+		queryFn: ({ signal }) => getGenres(signal),
 	});
 
 export const genreSongsQueryOptions = (genre: string, count = 50, offset = 0) =>
 	queryOptions({
-		queryKey: ["genreSongs", genre, count, offset],
-		queryFn: () => getSongsByGenre(genre, count, offset),
+		queryKey: queryKeys.genres.songs(genre, count, offset),
+		queryFn: ({ signal }) => getSongsByGenre(genre, count, offset, signal),
+		placeholderData: keepPreviousData,
 	});
 
 export const randomSongsQueryOptions = (size = 50) =>
 	queryOptions({
-		queryKey: ["randomSongs", size],
-		queryFn: () => getRandomSongs(size),
+		queryKey: queryKeys.songs.random(size),
+		queryFn: ({ signal }) => getRandomSongs(size, signal),
+	});
+
+export const starredQueryOptions = () =>
+	queryOptions({
+		queryKey: queryKeys.starred.all,
+		queryFn: ({ signal }) => getStarred(signal),
+	});
+
+export const searchQueryOptions = (query: string) =>
+	queryOptions({
+		queryKey: queryKeys.search.term(query),
+		queryFn: ({ signal }) => search(query, signal),
 	});
 
 export async function getAlbumList(
 	type: AlbumListType = "newest",
 	size = 50,
 	offset = 0,
+	signal?: AbortSignal,
 ): Promise<Album[]> {
-	const response = await fetchSubsonic("getAlbumList2", {
-		type,
-		size: size.toString(),
-		offset: offset.toString(),
-	});
+	const response = await fetchSubsonic(
+		"getAlbumList2",
+		{
+			type,
+			size: size.toString(),
+			offset: offset.toString(),
+		},
+		{ signal },
+	);
 
 	const data: SubsonicResponse<{ albumList2?: { album?: Album[] | Album } }> =
 		await response.json();
@@ -181,11 +200,14 @@ export async function getAlbumList(
 	return ensureArray(data["subsonic-response"].albumList2?.album);
 }
 
-export async function getAlbum(id: string): Promise<{
+export async function getAlbum(
+	id: string,
+	signal?: AbortSignal,
+): Promise<{
 	album: Album;
 	songs: Song[];
 }> {
-	const response = await fetchSubsonic("getAlbum", { id });
+	const response = await fetchSubsonic("getAlbum", { id }, { signal });
 
 	const data: SubsonicResponse<{ album?: Album & { song?: Song[] | Song } }> =
 		await response.json();
@@ -208,8 +230,8 @@ export async function getAlbum(id: string): Promise<{
 	};
 }
 
-export async function getArtists(): Promise<Artist[]> {
-	const response = await fetchSubsonic("getArtists");
+export async function getArtists(signal?: AbortSignal): Promise<Artist[]> {
+	const response = await fetchSubsonic("getArtists", undefined, { signal });
 
 	const data: SubsonicResponse<{
 		artists?: { index?: Array<{ artist?: Artist[] }> };
@@ -225,10 +247,17 @@ export async function getArtists(): Promise<Artist[]> {
 	return indexes.flatMap((index) => index.artist ?? []);
 }
 
-export async function getRandomSongs(size = 50): Promise<Song[]> {
-	const response = await fetchSubsonic("getRandomSongs", {
-		size: size.toString(),
-	});
+export async function getRandomSongs(
+	size = 50,
+	signal?: AbortSignal,
+): Promise<Song[]> {
+	const response = await fetchSubsonic(
+		"getRandomSongs",
+		{
+			size: size.toString(),
+		},
+		{ signal },
+	);
 
 	const data: SubsonicResponse<{ randomSongs?: { song?: Song[] | Song } }> =
 		await response.json();
@@ -242,11 +271,14 @@ export async function getRandomSongs(size = 50): Promise<Song[]> {
 	return ensureArray(data["subsonic-response"].randomSongs?.song);
 }
 
-export async function getArtist(id: string): Promise<{
+export async function getArtist(
+	id: string,
+	signal?: AbortSignal,
+): Promise<{
 	artist: Artist;
 	albums: Album[];
 }> {
-	const response = await fetchSubsonic("getArtist", { id });
+	const response = await fetchSubsonic("getArtist", { id }, { signal });
 
 	const data: SubsonicResponse<{
 		artist?: Artist & { album?: Album[] | Album };
@@ -274,15 +306,20 @@ export async function getArtistInfo2(
 	id: string,
 	count = 20,
 	includeNotPresent = false,
+	signal?: AbortSignal,
 ): Promise<{
 	info: ArtistInfo2;
 	similarArtists: Artist[];
 }> {
-	const response = await fetchSubsonic("getArtistInfo2", {
-		id,
-		count: count.toString(),
-		includeNotPresent: includeNotPresent.toString(),
-	});
+	const response = await fetchSubsonic(
+		"getArtistInfo2",
+		{
+			id,
+			count: count.toString(),
+			includeNotPresent: includeNotPresent.toString(),
+		},
+		{ signal },
+	);
 
 	const data: SubsonicResponse<{
 		artistInfo2?: ArtistInfo2 & { similarArtist?: Artist[] | Artist };
@@ -312,13 +349,20 @@ export interface SearchResult {
 	songs: Song[];
 }
 
-export async function search(query: string): Promise<SearchResult> {
-	const response = await fetchSubsonic("search3", {
-		query,
-		artistCount: "20",
-		albumCount: "20",
-		songCount: "20",
-	});
+export async function search(
+	query: string,
+	signal?: AbortSignal,
+): Promise<SearchResult> {
+	const response = await fetchSubsonic(
+		"search3",
+		{
+			query,
+			artistCount: "20",
+			albumCount: "20",
+			songCount: "20",
+		},
+		{ signal },
+	);
 
 	const data: SubsonicResponse<{
 		searchResult3?: {
@@ -349,8 +393,8 @@ export interface StarredResult {
 	songs: Song[];
 }
 
-export async function getStarred(): Promise<StarredResult> {
-	const response = await fetchSubsonic("getStarred2");
+export async function getStarred(signal?: AbortSignal): Promise<StarredResult> {
+	const response = await fetchSubsonic("getStarred2", undefined, { signal });
 
 	const data: SubsonicResponse<{
 		starred2?: {
@@ -489,8 +533,13 @@ export interface Lyrics {
 export async function getLyrics(
 	artist: string,
 	title: string,
+	signal?: AbortSignal,
 ): Promise<Lyrics | null> {
-	const response = await fetchSubsonic("getLyrics", { artist, title });
+	const response = await fetchSubsonic(
+		"getLyrics",
+		{ artist, title },
+		{ signal },
+	);
 
 	const data: SubsonicResponse<{
 		lyrics?: Lyrics;
@@ -557,8 +606,8 @@ export async function getArtistAlbums(artistId: string): Promise<Album[]> {
 	return ensureArray(data["subsonic-response"].artist?.album);
 }
 
-export async function getGenres(): Promise<Genre[]> {
-	const response = await fetchSubsonic("getGenres");
+export async function getGenres(signal?: AbortSignal): Promise<Genre[]> {
+	const response = await fetchSubsonic("getGenres", undefined, { signal });
 
 	const data: SubsonicResponse<{
 		genres?: { genre?: Genre[] | Genre };
@@ -577,12 +626,17 @@ export async function getSongsByGenre(
 	genre: string,
 	count = 50,
 	offset = 0,
+	signal?: AbortSignal,
 ): Promise<Song[]> {
-	const response = await fetchSubsonic("getSongsByGenre", {
-		genre,
-		count: count.toString(),
-		offset: offset.toString(),
-	});
+	const response = await fetchSubsonic(
+		"getSongsByGenre",
+		{
+			genre,
+			count: count.toString(),
+			offset: offset.toString(),
+		},
+		{ signal },
+	);
 
 	const data: SubsonicResponse<{
 		songsByGenre?: { song?: Song[] | Song };
@@ -619,8 +673,8 @@ export interface PlaylistWithSongs extends Playlist {
 	entry?: Song[];
 }
 
-export async function getPlaylists(): Promise<Playlist[]> {
-	const response = await fetchSubsonic("getPlaylists");
+export async function getPlaylists(signal?: AbortSignal): Promise<Playlist[]> {
+	const response = await fetchSubsonic("getPlaylists", undefined, { signal });
 
 	const data: SubsonicResponse<{
 		playlists?: { playlist?: Playlist[] | Playlist };
@@ -635,8 +689,11 @@ export async function getPlaylists(): Promise<Playlist[]> {
 	return ensureArray(data["subsonic-response"].playlists?.playlist);
 }
 
-export async function getPlaylist(id: string): Promise<PlaylistWithSongs> {
-	const response = await fetchSubsonic("getPlaylist", { id });
+export async function getPlaylist(
+	id: string,
+	signal?: AbortSignal,
+): Promise<PlaylistWithSongs> {
+	const response = await fetchSubsonic("getPlaylist", { id }, { signal });
 
 	const data: SubsonicResponse<{
 		playlist?: Playlist & { entry?: Song[] | Song };
@@ -911,8 +968,9 @@ export interface StructuredLyrics {
 
 export async function getLyricsBySongId(
 	id: string,
+	signal?: AbortSignal,
 ): Promise<StructuredLyrics[]> {
-	const response = await fetchSubsonic("getLyricsBySongId", { id });
+	const response = await fetchSubsonic("getLyricsBySongId", { id }, { signal });
 
 	const data: SubsonicResponse<{
 		lyricsList?: { structuredLyrics?: StructuredLyrics[] };

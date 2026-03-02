@@ -5,8 +5,12 @@ import {
 	IconTrash,
 	IconX,
 } from "@tabler/icons-solidjs";
-import { useQuery, useQueryClient } from "@tanstack/solid-query";
-import { createFileRoute, useNavigate } from "@tanstack/solid-router";
+import {
+	createMutation,
+	useQuery,
+	useQueryClient,
+} from "@tanstack/solid-query";
+import { createFileRoute, Link, useNavigate } from "@tanstack/solid-router";
 import { createSignal, For, Show } from "solid-js";
 import CoverArt from "~/components/CoverArt";
 import { PlaylistDialog } from "~/components/PlaylistDialog";
@@ -36,14 +40,19 @@ import {
 } from "~/components/ui/tooltip";
 import {
 	deletePlaylist,
-	getPlaylist,
+	type Playlist,
+	type PlaylistWithSongs,
+	playlistQueryOptions,
 	type Song,
 	updatePlaylist,
 } from "~/lib/api";
 import { usePlayer } from "~/lib/player";
+import { queryKeys } from "~/lib/query";
 import { cn } from "~/lib/utils";
 
 export const Route = createFileRoute("/app/playlists/$id")({
+	loader: ({ context: { queryClient }, params }) =>
+		queryClient.ensureQueryData(playlistQueryOptions(params.id)),
 	component: PlaylistDetailPage,
 });
 
@@ -62,12 +71,104 @@ function PlaylistDetailPage() {
 
 	const [isRenameDialogOpen, setIsRenameDialogOpen] = createSignal(false);
 	const [isDeleteDialogOpen, setIsDeleteDialogOpen] = createSignal(false);
-	const [isDeleting, setIsDeleting] = createSignal(false);
+	const playlist = useQuery(() => playlistQueryOptions(params().id));
 
-	const playlist = useQuery(() => ({
-		queryKey: ["playlist", params().id],
-		queryFn: () => getPlaylist(params().id),
+	const removeSongMutation = createMutation(() => ({
+		mutationFn: (songIndex: number) =>
+			updatePlaylist({
+				playlistId: params().id,
+				songIndexToRemove: [songIndex],
+			}),
+		onMutate: async (songIndex) => {
+			const detailKey = queryKeys.playlists.detail(params().id);
+			await queryClient.cancelQueries({ queryKey: detailKey });
+
+			const previous = queryClient.getQueryData<PlaylistWithSongs>(detailKey);
+			if (!previous?.entry) {
+				return { previous };
+			}
+
+			const removed = previous.entry[songIndex];
+			queryClient.setQueryData<PlaylistWithSongs>(detailKey, {
+				...previous,
+				entry: previous.entry.filter((_, i) => i !== songIndex),
+				songCount: Math.max((previous.songCount ?? 0) - 1, 0),
+				duration: Math.max(
+					(previous.duration ?? 0) - (removed?.duration ?? 0),
+					0,
+				),
+			});
+
+			return { previous };
+		},
+		onError: (error, _variables, context) => {
+			if (context?.previous) {
+				queryClient.setQueryData(
+					queryKeys.playlists.detail(params().id),
+					context.previous,
+				);
+			}
+			showToast({
+				title: "Error",
+				description:
+					error instanceof Error ? error.message : "Failed to remove song",
+				variant: "destructive",
+			});
+		},
+		onSuccess: () => {
+			showToast({
+				title: "Song Removed",
+				description: "Song removed from playlist.",
+			});
+		},
+		onSettled: () => {
+			void queryClient.invalidateQueries({
+				queryKey: queryKeys.playlists.detail(params().id),
+			});
+			void queryClient.invalidateQueries({ queryKey: queryKeys.playlists.all });
+		},
 	}));
+
+	const deletePlaylistMutation = createMutation(() => ({
+		mutationFn: (playlistId: string) => deletePlaylist(playlistId),
+		onMutate: async (playlistId) => {
+			await queryClient.cancelQueries({ queryKey: queryKeys.playlists.all });
+			const previous = queryClient.getQueryData<Playlist[]>(
+				queryKeys.playlists.all,
+			);
+			if (previous) {
+				queryClient.setQueryData<Playlist[]>(
+					queryKeys.playlists.all,
+					previous.filter((item) => item.id !== playlistId),
+				);
+			}
+			return { previous };
+		},
+		onError: (error, _playlistId, context) => {
+			if (context?.previous) {
+				queryClient.setQueryData(queryKeys.playlists.all, context.previous);
+			}
+			showToast({
+				title: "Error",
+				description:
+					error instanceof Error ? error.message : "Failed to delete playlist",
+				variant: "destructive",
+			});
+			setIsDeleteDialogOpen(false);
+		},
+		onSuccess: () => {
+			showToast({
+				title: "Playlist Deleted",
+				description: "The playlist has been removed.",
+			});
+			navigate({ to: "/app/playlists" });
+		},
+		onSettled: () => {
+			void queryClient.invalidateQueries({ queryKey: queryKeys.playlists.all });
+		},
+	}));
+
+	const isDeleting = () => deletePlaylistMutation.isPending;
 
 	const handlePlaySong = (song: Song, index: number) => {
 		const songs = playlist.data?.entry || [];
@@ -75,45 +176,19 @@ function PlaylistDetailPage() {
 	};
 
 	const handleDeletePlaylist = async () => {
-		setIsDeleting(true);
 		try {
-			await deletePlaylist(params().id);
-			showToast({
-				title: "Playlist Deleted",
-				description: "The playlist has been removed.",
-			});
-			await queryClient.invalidateQueries({ queryKey: ["playlists"] });
-			navigate({ to: "/app/playlists" });
-		} catch (e) {
-			showToast({
-				title: "Error",
-				description:
-					e instanceof Error ? e.message : "Failed to delete playlist",
-				variant: "destructive",
-			});
-			setIsDeleting(false);
-			setIsDeleteDialogOpen(false);
+			await deletePlaylistMutation.mutateAsync(params().id);
+		} catch {
+			// Error toast and rollback are handled in mutation callbacks.
 		}
 	};
 
 	const handleRemoveSong = async (e: Event, index: number) => {
 		e.stopPropagation();
 		try {
-			await updatePlaylist({
-				playlistId: params().id,
-				songIndexToRemove: [index],
-			});
-			showToast({
-				title: "Song Removed",
-				description: "Song removed from playlist.",
-			});
-			queryClient.invalidateQueries({ queryKey: ["playlist", params().id] });
-		} catch (e) {
-			showToast({
-				title: "Error",
-				description: e instanceof Error ? e.message : "Failed to remove song",
-				variant: "destructive",
-			});
+			await removeSongMutation.mutateAsync(index);
+		} catch {
+			// Error toast and rollback are handled in mutation callbacks.
 		}
 	};
 
@@ -194,8 +269,30 @@ function PlaylistDetailPage() {
 											{song.title}
 										</span>
 									</TableCell>
-									<TableCell>{song.artist}</TableCell>
-									<TableCell>{song.album}</TableCell>
+									<TableCell>
+										<Show when={song.artistId} fallback={song.artist}>
+											<Link
+												to="/app/artists/$id"
+												params={{ id: song.artistId ?? "" }}
+												class="hover:text-foreground hover:underline"
+												onClick={(e) => e.stopPropagation()}
+											>
+												{song.artist}
+											</Link>
+										</Show>
+									</TableCell>
+									<TableCell>
+										<Show when={song.albumId} fallback={song.album}>
+											<Link
+												to="/app/albums/$id"
+												params={{ id: song.albumId ?? "" }}
+												class="hover:text-foreground hover:underline"
+												onClick={(e) => e.stopPropagation()}
+											>
+												{song.album}
+											</Link>
+										</Show>
+									</TableCell>
 									<TableCell class="text-right font-mono text-xs text-muted-foreground">
 										{formatDuration(song.duration)}
 									</TableCell>
@@ -227,9 +324,11 @@ function PlaylistDetailPage() {
 					currentName={playlist.data?.name}
 					onSuccess={() => {
 						queryClient.invalidateQueries({
-							queryKey: ["playlist", params().id],
+							queryKey: queryKeys.playlists.detail(params().id),
 						});
-						queryClient.invalidateQueries({ queryKey: ["playlists"] });
+						queryClient.invalidateQueries({
+							queryKey: queryKeys.playlists.all,
+						});
 					}}
 				/>
 

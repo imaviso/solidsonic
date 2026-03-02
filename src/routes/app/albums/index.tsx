@@ -28,18 +28,22 @@ import {
 	ContextMenuSeparator,
 	ContextMenuTrigger,
 } from "~/components/ui/context-menu";
-import {
-	albumListQueryOptions,
-	getAlbum,
-	getAlbumList,
-	star,
-	unstar,
-} from "~/lib/api";
+import { type Album, getAlbum, getAlbumList, star, unstar } from "~/lib/api";
 import { usePlayer } from "~/lib/player";
+import { queryKeys } from "~/lib/query";
 
 export const Route = createFileRoute("/app/albums/")({
 	loader: ({ context: { queryClient } }) =>
-		queryClient.ensureQueryData(albumListQueryOptions("newest", 50, 0)),
+		queryClient.prefetchInfiniteQuery({
+			queryKey: queryKeys.albums.infiniteNewest(50),
+			queryFn: ({ pageParam, signal }) =>
+				getAlbumList("newest", 50, pageParam as number, signal),
+			initialPageParam: 0,
+			getNextPageParam: (lastPage: Album[], allPages: Album[][]) => {
+				if (lastPage.length < 50) return undefined;
+				return allPages.length * 50;
+			},
+		}),
 	component: AlbumsPage,
 });
 
@@ -63,8 +67,9 @@ function AlbumsPage() {
 
 	// Stable Infinite Query
 	const albums = useInfiniteQuery(() => ({
-		queryKey: ["albums", "list", "infinite"],
-		queryFn: ({ pageParam }) => getAlbumList("newest", 50, pageParam as number),
+		queryKey: queryKeys.albums.infiniteNewest(50),
+		queryFn: ({ pageParam, signal }) =>
+			getAlbumList("newest", 50, pageParam as number, signal),
 		initialPageParam: 0,
 		getNextPageParam: (lastPage, allPages) => {
 			if (lastPage.length < 50) return undefined;

@@ -1,10 +1,22 @@
 import { createStore } from "solid-js/store";
 
-export interface SubsonicCredentials {
+export interface LegacySubsonicCredentials {
+	authType: "legacy";
 	serverUrl: string;
 	username: string;
 	password: string;
 }
+
+export interface ApiKeySubsonicCredentials {
+	authType: "apiKey";
+	serverUrl: string;
+	apiKey: string;
+	username?: string;
+}
+
+export type SubsonicCredentials =
+	| LegacySubsonicCredentials
+	| ApiKeySubsonicCredentials;
 
 interface AuthState {
 	credentials: SubsonicCredentials | null;
@@ -12,7 +24,65 @@ interface AuthState {
 	isLoaded: boolean;
 }
 
-const AUTH_STORAGE_KEY = "solidsonic-auth";
+const AUTH_STORAGE_KEY = "solidsonic-auth-session";
+const LEGACY_AUTH_STORAGE_KEY = "solidsonic-auth";
+
+function isObject(value: unknown): value is Record<string, unknown> {
+	return typeof value === "object" && value !== null;
+}
+
+function parseStoredCredentials(value: unknown): SubsonicCredentials | null {
+	if (!isObject(value) || typeof value.serverUrl !== "string") {
+		return null;
+	}
+
+	const serverUrl = value.serverUrl.replace(/\/+$/, "");
+
+	if (
+		value.authType === "apiKey" &&
+		typeof value.apiKey === "string" &&
+		value.apiKey.trim().length > 0
+	) {
+		return {
+			authType: "apiKey",
+			serverUrl,
+			apiKey: value.apiKey.trim(),
+			username:
+				typeof value.username === "string" && value.username.trim().length > 0
+					? value.username.trim()
+					: undefined,
+		};
+	}
+
+	if (
+		value.authType === "legacy" &&
+		typeof value.username === "string" &&
+		typeof value.password === "string" &&
+		value.username.trim().length > 0
+	) {
+		return {
+			authType: "legacy",
+			serverUrl,
+			username: value.username.trim(),
+			password: value.password,
+		};
+	}
+
+	if (
+		typeof value.username === "string" &&
+		typeof value.password === "string" &&
+		value.username.trim().length > 0
+	) {
+		return {
+			authType: "legacy",
+			serverUrl,
+			username: value.username.trim(),
+			password: value.password,
+		};
+	}
+
+	return null;
+}
 
 // Create a Solid Store
 const [authState, setAuthState] = createStore<AuthState>({
@@ -23,30 +93,26 @@ const [authState, setAuthState] = createStore<AuthState>({
 
 let authLoadPromise: Promise<void> | null = null;
 
-// Load credentials asynchronously from secure storage
+// Load credentials asynchronously from session storage
 async function loadCredentials() {
 	let credentials = null;
 
-	// Try secure storage first
-	if (window.electronAPI?.auth) {
-		credentials = await window.electronAPI.auth.get();
-	}
-
-	// Fallback/Migration from localStorage
-	if (!credentials) {
-		try {
-			const stored = localStorage.getItem(AUTH_STORAGE_KEY);
-			if (stored) {
-				credentials = JSON.parse(stored);
-				// If we have electronAPI, migrate it
-				if (window.electronAPI?.auth && credentials) {
-					await window.electronAPI.auth.save(credentials);
-					localStorage.removeItem(AUTH_STORAGE_KEY);
+	try {
+		const sessionStored = sessionStorage.getItem(AUTH_STORAGE_KEY);
+		if (sessionStored) {
+			credentials = parseStoredCredentials(JSON.parse(sessionStored));
+		} else {
+			const legacyStored = localStorage.getItem(LEGACY_AUTH_STORAGE_KEY);
+			if (legacyStored) {
+				credentials = parseStoredCredentials(JSON.parse(legacyStored));
+				if (credentials) {
+					sessionStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(credentials));
 				}
+				localStorage.removeItem(LEGACY_AUTH_STORAGE_KEY);
 			}
-		} catch {
-			// Invalid stored data
 		}
+	} catch {
+		// Invalid stored data
 	}
 
 	if (credentials) {
@@ -75,20 +141,26 @@ export function isAuthLoaded() {
 }
 
 export function login(credentials: SubsonicCredentials) {
-	// Normalize server URL (remove trailing slash)
-	const normalizedCredentials = {
-		...credentials,
-		serverUrl: credentials.serverUrl.replace(/\/+$/, ""),
-	};
+	const normalizedServerUrl = credentials.serverUrl.replace(/\/+$/, "");
+	const normalizedCredentials: SubsonicCredentials =
+		credentials.authType === "apiKey"
+			? {
+					authType: "apiKey",
+					serverUrl: normalizedServerUrl,
+					apiKey: credentials.apiKey.trim(),
+					username: credentials.username?.trim() || undefined,
+				}
+			: {
+					authType: "legacy",
+					serverUrl: normalizedServerUrl,
+					username: credentials.username.trim(),
+					password: credentials.password,
+				};
 
-	if (window.electronAPI?.auth) {
-		window.electronAPI.auth.save(normalizedCredentials);
-	} else {
-		localStorage.setItem(
-			AUTH_STORAGE_KEY,
-			JSON.stringify(normalizedCredentials),
-		);
-	}
+	sessionStorage.setItem(
+		AUTH_STORAGE_KEY,
+		JSON.stringify(normalizedCredentials),
+	);
 
 	// Update store
 	setAuthState({
@@ -98,11 +170,8 @@ export function login(credentials: SubsonicCredentials) {
 }
 
 export function logout() {
-	if (window.electronAPI?.auth) {
-		window.electronAPI.auth.clear();
-	} else {
-		localStorage.removeItem(AUTH_STORAGE_KEY);
-	}
+	sessionStorage.removeItem(AUTH_STORAGE_KEY);
+	localStorage.removeItem(LEGACY_AUTH_STORAGE_KEY);
 
 	// Update store
 	setAuthState({

@@ -5,9 +5,11 @@ import {
 	IconSearch,
 	IconUser,
 } from "@tabler/icons-solidjs";
+import { useQuery } from "@tanstack/solid-query";
 import { useNavigate } from "@tanstack/solid-router";
 import {
 	createEffect,
+	createMemo,
 	createSignal,
 	For,
 	onCleanup,
@@ -25,8 +27,9 @@ import {
 	CommandList,
 	CommandSeparator,
 } from "~/components/ui/command";
-import { type SearchResult, type Song, search } from "~/lib/api";
+import { type Song, searchQueryOptions } from "~/lib/api";
 import { usePlayer } from "~/lib/player";
+import { cn } from "~/lib/utils";
 
 type RecentSearchItem = {
 	type: "artist" | "album" | "song";
@@ -70,44 +73,46 @@ function clearRecentSearches() {
 	return [];
 }
 
-export function SearchCommand() {
+interface SearchCommandProps {
+	triggerClass?: string;
+	showShortcut?: boolean;
+}
+
+export function SearchCommand(props: SearchCommandProps = {}) {
 	const [open, setOpen] = createSignal(false);
 	const [query, setQuery] = createSignal("");
-	const [results, setResults] = createSignal<SearchResult | null>(null);
-	const [loading, setLoading] = createSignal(false);
+	const [debouncedQuery, setDebouncedQuery] = createSignal("");
 	const [recentSearches, setRecentSearches] = createSignal<RecentSearchItem[]>(
 		[],
 	);
 	const navigate = useNavigate();
 	const player = usePlayer();
 
-	onMount(() => {
-		setRecentSearches(getRecentSearches());
+	createEffect(() => {
+		const value = query().trim();
+		const timer = setTimeout(() => {
+			setDebouncedQuery(value);
+		}, 250);
+		onCleanup(() => clearTimeout(timer));
 	});
 
-	// Search effect with debounce
-	createEffect(() => {
-		const q = query();
-		if (q.length < 2) {
-			setResults(null);
-			setLoading(false);
-			return;
-		}
+	const searchQuery = useQuery(() => ({
+		...searchQueryOptions(debouncedQuery()),
+		enabled: debouncedQuery().length >= 2,
+		placeholderData: (previousData) => previousData,
+		refetchOnWindowFocus: false,
+		staleTime: 30_000,
+	}));
 
-		setLoading(true);
-		const timer = setTimeout(async () => {
-			try {
-				const res = await search(q);
-				setResults(res);
-			} catch (e) {
-				console.error("Search failed:", e);
-				setResults(null);
-			} finally {
-				setLoading(false);
-			}
-		}, 300);
+	const isLoading = createMemo(
+		() => searchQuery.isFetching && debouncedQuery().length >= 2,
+	);
+	const results = createMemo(() =>
+		debouncedQuery().length >= 2 ? (searchQuery.data ?? null) : null,
+	);
 
-		onCleanup(() => clearTimeout(timer));
+	onMount(() => {
+		setRecentSearches(getRecentSearches());
 	});
 
 	onMount(() => {
@@ -159,15 +164,20 @@ export function SearchCommand() {
 			<button
 				type="button"
 				onClick={() => setOpen(true)}
-				class="flex items-center gap-2 px-3 py-1.5 text-sm text-muted-foreground border rounded-md hover:bg-muted transition-colors w-40 md:w-64 text-left group"
+				class={cn(
+					"flex items-center gap-2 px-3 py-1.5 text-sm text-muted-foreground border rounded-md hover:bg-muted transition-colors text-left group",
+					props.triggerClass ?? "w-40 md:w-64",
+				)}
 			>
 				<IconSearch class="size-4 group-hover:text-foreground transition-colors" />
 				<span class="group-hover:text-foreground transition-colors">
 					Search library...
 				</span>
-				<kbd class="ml-auto pointer-events-none hidden md:inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">
-					<span class="text-xs">⌘</span>K
-				</kbd>
+				<Show when={props.showShortcut !== false}>
+					<kbd class="ml-auto pointer-events-none hidden md:inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">
+						<span class="text-xs">⌘</span>K
+					</kbd>
+				</Show>
 			</button>
 
 			<CommandDialog open={open()} onOpenChange={setOpen} shouldFilter={false}>
@@ -177,7 +187,7 @@ export function SearchCommand() {
 					onValueChange={setQuery}
 				/>
 				<CommandList>
-					<Show when={loading()}>
+					<Show when={isLoading()}>
 						<div class="flex items-center justify-center py-6">
 							<IconLoader2 class="size-6 animate-spin text-muted-foreground" />
 						</div>
@@ -249,7 +259,7 @@ export function SearchCommand() {
 
 					<Show
 						when={
-							!loading() &&
+							!isLoading() &&
 							query().length >= 2 &&
 							(!results() ||
 								((results()?.artists?.length ?? 0) === 0 &&
@@ -260,7 +270,7 @@ export function SearchCommand() {
 						<CommandEmpty>No results found.</CommandEmpty>
 					</Show>
 
-					<Show when={!loading() && results()}>
+					<Show when={!isLoading() && results()}>
 						<Show when={(results()?.artists?.length ?? 0) > 0}>
 							<CommandGroup heading="Artists">
 								<For each={results()?.artists}>

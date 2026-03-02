@@ -9,6 +9,11 @@
 		"isolatedModules": true,
 		"skipLibCheck": true,
 		"strict": true,
+    "noEmit": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
 		"paths": {
 			"~/*": ["./src/*"]
 		}

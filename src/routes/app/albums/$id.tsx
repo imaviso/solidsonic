@@ -10,7 +10,7 @@ import {
 	IconUser,
 } from "@tabler/icons-solidjs";
 import { useQuery } from "@tanstack/solid-query";
-import { createFileRoute, useNavigate } from "@tanstack/solid-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/solid-router";
 import { For, Show } from "solid-js";
 import { createStore } from "solid-js/store";
 import { AddToPlaylistDialog } from "~/components/AddToPlaylistDialog";
@@ -204,7 +204,18 @@ function AlbumDetailPage() {
 												{song.title}
 											</span>
 										</TableCell>
-										<TableCell>{song.artist}</TableCell>
+										<TableCell>
+											<Show when={song.artistId} fallback={song.artist}>
+												<Link
+													to="/app/artists/$id"
+													params={{ id: song.artistId ?? "" }}
+													class="hover:text-foreground hover:underline"
+													onClick={(e) => e.stopPropagation()}
+												>
+													{song.artist}
+												</Link>
+											</Show>
+										</TableCell>
 										<TableCell class="text-right font-mono text-xs text-muted-foreground">
 											{formatDuration(song.duration)}
 										</TableCell>

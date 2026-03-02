@@ -5,7 +5,6 @@ import solid from "vite-plugin-solid";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-	base: "./",
 	plugins: [tanstackRouter({ target: "solid", autoCodeSplitting: true }), solid()],
 	resolve: {
 		alias: {

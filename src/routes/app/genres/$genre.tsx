@@ -11,12 +11,13 @@ import {
 	IconUser,
 } from "@tabler/icons-solidjs";
 import { useQuery } from "@tanstack/solid-query";
-import { createFileRoute, useNavigate } from "@tanstack/solid-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/solid-router";
 import { For, Show } from "solid-js";
 import { createStore } from "solid-js/store";
 import { AddToPlaylistDialog } from "~/components/AddToPlaylistDialog";
 import CoverArt from "~/components/CoverArt";
 import { ErrorComponent } from "~/components/ErrorComponent";
+import { Button } from "~/components/ui/button";
 import {
 	ContextMenu,
 	ContextMenuContent,
@@ -35,9 +36,27 @@ import {
 import { genreSongsQueryOptions, star, unstar } from "~/lib/api";
 import { usePlayer } from "~/lib/player";
 
+const PAGE_SIZE = 100;
+
 export const Route = createFileRoute("/app/genres/$genre")({
-	loader: ({ context: { queryClient }, params }) =>
-		queryClient.ensureQueryData(genreSongsQueryOptions(params.genre, 100)),
+	validateSearch: (search: Record<string, unknown>): { page?: number } => {
+		const rawPage = Number(search.page);
+		const page =
+			Number.isFinite(rawPage) && rawPage > 0 ? Math.floor(rawPage) : 1;
+		if (page <= 1) {
+			return {};
+		}
+		return { page };
+	},
+	loaderDeps: ({ search }) => ({ page: search.page ?? 1 }),
+	loader: ({ context: { queryClient }, params, deps }) =>
+		queryClient.ensureQueryData(
+			genreSongsQueryOptions(
+				params.genre,
+				PAGE_SIZE,
+				(deps.page - 1) * PAGE_SIZE,
+			),
+		),
 	errorComponent: ErrorComponent,
 	component: GenreDetailPage,
 });
@@ -58,6 +77,7 @@ function GenreDetailPage() {
 		addToQueue,
 	} = usePlayer();
 	const navigate = useNavigate();
+	const search = Route.useSearch();
 	const [playlistDialogState, setPlaylistDialogState] = createStore<{
 		open: boolean;
 		songIds: string[];
@@ -66,15 +86,36 @@ function GenreDetailPage() {
 		songIds: [],
 	});
 
-	const songs = useQuery(() => genreSongsQueryOptions(params().genre, 100));
+	const page = () => search().page ?? 1;
+	const offset = () => (page() - 1) * PAGE_SIZE;
+
+	const songs = useQuery(() =>
+		genreSongsQueryOptions(params().genre, PAGE_SIZE, offset()),
+	);
+
+	const hasNextPage = () => (songs.data?.length ?? 0) === PAGE_SIZE;
+
+	const goToPage = (nextPage: number) => {
+		navigate({
+			to: "/app/genres/$genre",
+			params: { genre: params().genre },
+			search: nextPage > 1 ? { page: nextPage } : {},
+			replace: true,
+		});
+	};
 
 	return (
 		<div class="flex flex-col gap-6 h-full overflow-y-auto">
-			<div class="flex flex-col gap-2">
-				<span class="text-sm font-medium text-muted-foreground uppercase">
-					Genre
-				</span>
-				<h1 class="text-4xl font-bold">{params().genre}</h1>
+			<div class="flex items-end justify-between gap-3">
+				<div class="flex flex-col gap-2">
+					<span class="text-sm font-medium text-muted-foreground uppercase">
+						Genre
+					</span>
+					<h1 class="text-4xl font-bold">{params().genre}</h1>
+				</div>
+				<Show when={songs.isFetching && !songs.isLoading}>
+					<span class="text-xs text-muted-foreground">Refreshing...</span>
+				</Show>
 			</div>
 
 			<Show when={!songs.isLoading} fallback={<div>Loading...</div>}>
@@ -125,8 +166,30 @@ function GenreDetailPage() {
 												{song.title}
 											</span>
 										</TableCell>
-										<TableCell>{song.artist}</TableCell>
-										<TableCell>{song.album}</TableCell>
+										<TableCell>
+											<Show when={song.artistId} fallback={song.artist}>
+												<Link
+													to="/app/artists/$id"
+													params={{ id: song.artistId ?? "" }}
+													class="hover:text-foreground hover:underline"
+													onClick={(e) => e.stopPropagation()}
+												>
+													{song.artist}
+												</Link>
+											</Show>
+										</TableCell>
+										<TableCell>
+											<Show when={song.albumId} fallback={song.album}>
+												<Link
+													to="/app/albums/$id"
+													params={{ id: song.albumId ?? "" }}
+													class="hover:text-foreground hover:underline"
+													onClick={(e) => e.stopPropagation()}
+												>
+													{song.album}
+												</Link>
+											</Show>
+										</TableCell>
 										<TableCell class="text-right font-mono text-xs text-muted-foreground">
 											{formatDuration(song.duration)}
 										</TableCell>
@@ -215,6 +278,26 @@ function GenreDetailPage() {
 						</For>
 					</TableBody>
 				</Table>
+
+				<div class="flex items-center justify-between pt-2">
+					<Button
+						variant="outline"
+						size="sm"
+						onClick={() => goToPage(page() - 1)}
+						disabled={page() <= 1 || songs.isFetching}
+					>
+						Previous
+					</Button>
+					<span class="text-sm text-muted-foreground">Page {page()}</span>
+					<Button
+						variant="outline"
+						size="sm"
+						onClick={() => goToPage(page() + 1)}
+						disabled={!hasNextPage() || songs.isFetching}
+					>
+						Next
+					</Button>
+				</div>
 			</Show>
 
 			<AddToPlaylistDialog

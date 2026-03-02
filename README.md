@@ -1,114 +1,69 @@
 # SolidSonic
 
-SolidSonic is a modern, high-performance desktop music player for Subsonic and OpenSubsonic-compatible servers. Built with **SolidJS** and **Electron**, it offers a snappy, reactive user experience combined with flexible audio backends.
+SolidSonic is a modern web music player for Subsonic and OpenSubsonic-compatible servers. It is built with SolidJS and focuses on fast navigation, responsive playback controls, and a clean music library experience in the browser.
 
 ![Home Screen](./assets/home.png)
 ![Player View](./assets/player.png)
 
-## ✨ Features
+## Features
 
-- **Subsonic/OpenSubsonic Integration**: Full support for your favorite music server backends.
-- **Flexible Audio Backends**: 
-  - **HTML5 Audio**: Standard web-based playback.
-  - **MPV (Experimental)**: Robust playback via `node-mpv` for advanced formats and high quality.
-- **Reactive UI**: A sleek, modern interface built with SolidJS and Tailwind CSS.
-- **MPRIS Support**: Seamless integration with Linux desktop media controls.
-- **Advanced State Management**: Powered by TanStack Query for efficient data fetching and caching.
-- **File-Based Routing**: Clean and predictable navigation via TanStack Router.
-- **Cross-Platform**: Ready for Windows, macOS, and Linux.
+- Subsonic/OpenSubsonic integration
+- HTML5 audio playback
+- Reactive UI with SolidJS and Tailwind CSS
+- TanStack Router file-based routing
+- TanStack Query data fetching and caching
 
-## 🚀 Tech Stack
+## Tech Stack
 
-- **Frontend**: [SolidJS](https://www.solidjs.com/)
-- **Desktop Framework**: [Electron](https://www.electronjs.org/)
-- **Routing**: [TanStack Router](https://tanstack.com/router)
-- **Data Fetching**: [TanStack Query](https://tanstack.com/query)
-- **Styling**: [Tailwind CSS](https://tailwindcss.com/)
-- **Audio Backends**: HTML5 Audio & [MPV](https://mpv.io/) (via `node-mpv`)
-- **Linting/Formatting**: [Biome](https://biomejs.dev/)
-- **Build Tool**: [Vite](https://vitejs.dev/)
+- Frontend: [SolidJS](https://www.solidjs.com/)
+- Routing: [TanStack Router](https://tanstack.com/router)
+- Data fetching: [TanStack Query](https://tanstack.com/query)
+- Styling: [Tailwind CSS](https://tailwindcss.com/)
+- Linting/formatting: [Biome](https://biomejs.dev/)
+- Build tool: [Vite](https://vitejs.dev/)
 
-## ❄️ Nix Support
-
-This project includes a [Nix Flake](https://nixos.wiki/wiki/Flakes) for reproducible development environments and packaging.
-
-### Development Shell
-
-If you have Nix installed with flakes enabled, you can enter a pre-configured development environment with all dependencies (Node.js, Bun, MPV, Electron, etc.) ready to go:
-
-```bash
-nix develop
-```
-
-### Packaging
-
-To build the SolidSonic package using Nix:
-
-```bash
-nix build
-```
-
-The resulting binary will be available in `./result/bin/solidsonic`.
-
-## 🛠️ Getting Started
+## Getting Started
 
 ### Prerequisites
 
 - [Node.js](https://nodejs.org/) (latest LTS recommended)
-- [Bun](https://bun.sh/) (preferred for dependency management)
-- **MPV**: Ensure `mpv` is installed on your system and available in your PATH.
+- [Bun](https://bun.sh/) (optional)
 
 ### Installation
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/imaviso/solidsonic.git
-   cd solidsonic
-   ```
-
-2. Install dependencies:
-   ```bash
-   bun install
-   # or
-   npm install
-   ```
+```bash
+git clone https://github.com/imaviso/solidsonic.git
+cd solidsonic
+npm install
+```
 
 ### Development
 
-Start the development server with Hot Module Replacement (HMR) and Electron:
-
 ```bash
-npm run electron:dev
+npm run dev
 ```
 
-### Building
-
-To package the application for your current platform:
+### Build
 
 ```bash
-npm run electron:build
+npm run build
+npm run preview
 ```
 
-Build for specific platforms:
-- `npm run electron:build:win`
-- `npm run electron:build:mac`
-- `npm run electron:build:linux`
+## Testing and Quality
 
-## 🧪 Testing & Quality
+- Run tests: `npm run test`
+- Lint and format checks: `npm run check`
+- Auto-format: `npm run format`
 
-- **Run tests**: `npm run test`
-- **Lint & Format**: `npm run check`
-- **Fix formatting**: `npm run format`
+## Project Structure
 
-## 📂 Project Structure
+- `src/`: SolidJS application code
+  - `src/components/`: reusable UI components
+  - `src/lib/`: core logic (API, player, auth, settings)
+  - `src/routes/`: file-based routes
+  - `src/hooks/`: custom SolidJS hooks
 
-- `electron/`: Main process logic, MPRIS integration, and preload scripts.
-- `src/`: Renderer process (SolidJS application).
-  - `src/components/`: Reusable UI components.
-  - `src/lib/`: Core logic (API, Player, Auth, Settings).
-  - `src/routes/`: File-based route definitions.
-  - `src/hooks/`: Custom SolidJS primitives.
-
-## 📄 License
+## License
 
 This project is licensed under the [MIT License](LICENSE).

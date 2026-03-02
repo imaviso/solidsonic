@@ -1,5 +1,9 @@
 import { IconPlaylist, IconPlus } from "@tabler/icons-solidjs";
-import { createQuery, useQueryClient } from "@tanstack/solid-query";
+import {
+	createMutation,
+	createQuery,
+	useQueryClient,
+} from "@tanstack/solid-query";
 import { createSignal, For, Show } from "solid-js";
 import { Button } from "~/components/ui/button";
 import {
@@ -11,7 +15,12 @@ import {
 } from "~/components/ui/dialog";
 import { Input } from "~/components/ui/input";
 import { showToast } from "~/components/ui/toast";
-import { createPlaylist, getPlaylists, updatePlaylist } from "~/lib/api";
+import {
+	createPlaylist,
+	playlistListQueryOptions,
+	updatePlaylist,
+} from "~/lib/api";
+import { queryKeys } from "~/lib/query";
 
 interface AddToPlaylistDialogProps {
 	open: boolean;
@@ -23,27 +32,49 @@ export function AddToPlaylistDialog(props: AddToPlaylistDialogProps) {
 	const queryClient = useQueryClient();
 	const [newPlaylistName, setNewPlaylistName] = createSignal("");
 	const [isCreating, setIsCreating] = createSignal(false);
-	const [isSubmitting, setIsSubmitting] = createSignal(false);
 
-	const playlists = createQuery(() => ({
-		queryKey: ["playlists"],
-		queryFn: getPlaylists,
+	const playlists = createQuery(() => playlistListQueryOptions());
+
+	const createPlaylistMutation = createMutation(() => ({
+		mutationFn: (variables: { name: string; songIds: string[] }) =>
+			createPlaylist({
+				name: variables.name,
+				songId: variables.songIds,
+			}),
+		onSuccess: (playlist, variables) => {
+			showToast({
+				title: "Playlist Created",
+				description: `Added ${variables.songIds.length} songs to "${playlist.name}"`,
+			});
+			void queryClient.invalidateQueries({ queryKey: queryKeys.playlists.all });
+		},
 	}));
+
+	const addToPlaylistMutation = createMutation(() => ({
+		mutationFn: (variables: { playlistId: string; songIds: string[] }) =>
+			updatePlaylist({
+				playlistId: variables.playlistId,
+				songIdToAdd: variables.songIds,
+			}),
+		onSuccess: (_result, variables) => {
+			void queryClient.invalidateQueries({ queryKey: queryKeys.playlists.all });
+			void queryClient.invalidateQueries({
+				queryKey: queryKeys.playlists.detail(variables.playlistId),
+			});
+		},
+	}));
+
+	const isSubmitting = () =>
+		createPlaylistMutation.isPending || addToPlaylistMutation.isPending;
 
 	const handleCreateAndAdd = async () => {
 		if (!newPlaylistName()) return;
 
-		setIsSubmitting(true);
 		try {
-			const playlist = await createPlaylist({
+			await createPlaylistMutation.mutateAsync({
 				name: newPlaylistName(),
-				songId: props.songIds,
+				songIds: props.songIds,
 			});
-			showToast({
-				title: "Playlist Created",
-				description: `Added ${props.songIds.length} songs to "${playlist.name}"`,
-			});
-			queryClient.invalidateQueries({ queryKey: ["playlists"] });
 			setNewPlaylistName("");
 			setIsCreating(false);
 			props.onOpenChange(false);
@@ -54,8 +85,6 @@ export function AddToPlaylistDialog(props: AddToPlaylistDialogProps) {
 					e instanceof Error ? e.message : "Failed to create playlist",
 				variant: "destructive",
 			});
-		} finally {
-			setIsSubmitting(false);
 		}
 	};
 
@@ -63,17 +92,15 @@ export function AddToPlaylistDialog(props: AddToPlaylistDialogProps) {
 		playlistId: string,
 		playlistName: string,
 	) => {
-		setIsSubmitting(true);
 		try {
-			await updatePlaylist({
+			await addToPlaylistMutation.mutateAsync({
 				playlistId,
-				songIdToAdd: props.songIds,
+				songIds: props.songIds,
 			});
 			showToast({
 				title: "Added to Playlist",
 				description: `Added ${props.songIds.length} songs to "${playlistName}"`,
 			});
-			queryClient.invalidateQueries({ queryKey: ["playlists"] });
 			props.onOpenChange(false);
 		} catch (e) {
 			showToast({
@@ -82,8 +109,6 @@ export function AddToPlaylistDialog(props: AddToPlaylistDialogProps) {
 					e instanceof Error ? e.message : "Failed to add to playlist",
 				variant: "destructive",
 			});
-		} finally {
-			setIsSubmitting(false);
 		}
 	};
 
@@ -99,7 +124,6 @@ export function AddToPlaylistDialog(props: AddToPlaylistDialogProps) {
 				</DialogHeader>
 
 				<div class="flex flex-col gap-4 py-4 max-h-[60vh] overflow-y-auto">
-					{/* Create New Playlist Section */}
 					<Show
 						when={isCreating()}
 						fallback={
@@ -144,7 +168,6 @@ export function AddToPlaylistDialog(props: AddToPlaylistDialogProps) {
 						</div>
 					</Show>
 
-					{/* Existing Playlists List */}
 					<div class="flex flex-col gap-1">
 						<span class="text-sm font-medium text-muted-foreground px-1 mb-2">
 							Existing Playlists

@@ -36,9 +36,9 @@ import {
 	albumListQueryOptions,
 	genreListQueryOptions,
 	getAlbum,
-	getStarred,
 	type Song,
 	star,
+	starredQueryOptions,
 	unstar,
 } from "~/lib/api";
 import { usePlayer } from "~/lib/player";
@@ -245,10 +245,7 @@ function StarredSongsSection(props: {
 		addToQueue,
 		playNextInQueue,
 	} = usePlayer();
-	const starred = useQuery(() => ({
-		queryKey: ["starred"],
-		queryFn: getStarred,
-	}));
+	const starred = useQuery(() => starredQueryOptions());
 	const navigate = useNavigate();
 
 	const handlePlaySong = (song: Song, index: number) => {

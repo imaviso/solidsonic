@@ -1,35 +1,27 @@
-import { QueryClient } from "@tanstack/solid-query";
 import { PersistQueryClientProvider } from "@tanstack/solid-query-persist-client";
 import {
-	createHashHistory,
+	createBrowserHistory,
 	createRouter,
 	RouterProvider,
 } from "@tanstack/solid-router";
 import { render } from "solid-js/web";
 import { createIDBPersister } from "./lib/persistence";
+import { createAppQueryClient } from "./lib/query";
 import "~/lib/settings"; // Initialize settings (theme, etc.)
 import { routeTree } from "./routeTree.gen";
 import "@fontsource-variable/geist";
 import "./styles.css";
 
-const queryClient = new QueryClient({
-	defaultOptions: {
-		queries: {
-			gcTime: 1000 * 60 * 60 * 24 * 7, // 7 days
-			staleTime: 1000 * 60 * 5, // 5 minutes
-		},
-	},
-});
+const queryClient = createAppQueryClient();
 
 const persister = createIDBPersister();
 
-// Use hash history for Electron compatibility (file:// protocol)
-const hashHistory = createHashHistory();
+const browserHistory = createBrowserHistory();
 
 // Set up a Router instance
 const router = createRouter({
 	routeTree,
-	history: hashHistory,
+	history: browserHistory,
 	defaultPreload: "intent",
 	scrollRestoration: true,
 	defaultStructuralSharing: true,

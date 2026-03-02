@@ -5,9 +5,12 @@ import { createSignal, For, Show } from "solid-js";
 import { PlaylistDialog } from "~/components/PlaylistDialog";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent } from "~/components/ui/card";
-import { getPlaylists } from "~/lib/api";
+import { playlistListQueryOptions } from "~/lib/api";
+import { queryKeys } from "~/lib/query";
 
 export const Route = createFileRoute("/app/playlists/")({
+	loader: ({ context: { queryClient } }) =>
+		queryClient.ensureQueryData(playlistListQueryOptions()),
 	component: PlaylistsPage,
 });
 
@@ -15,10 +18,7 @@ function PlaylistsPage() {
 	const queryClient = useQueryClient();
 	const [isCreateDialogOpen, setIsCreateDialogOpen] = createSignal(false);
 
-	const playlists = useQuery(() => ({
-		queryKey: ["playlists"],
-		queryFn: getPlaylists,
-	}));
+	const playlists = useQuery(() => playlistListQueryOptions());
 
 	return (
 		<div class="flex flex-col gap-6 h-full overflow-y-auto">
@@ -38,7 +38,7 @@ function PlaylistsPage() {
 				onOpenChange={setIsCreateDialogOpen}
 				mode="create"
 				onSuccess={() => {
-					queryClient.invalidateQueries({ queryKey: ["playlists"] });
+					queryClient.invalidateQueries({ queryKey: queryKeys.playlists.all });
 				}}
 			/>
 

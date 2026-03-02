@@ -4,12 +4,9 @@ import { createStore } from "solid-js/store";
 // Types
 // ============================================================================
 
-export type AudioBackendType = "html5" | "mpv";
 export type Theme = "light" | "dark" | "system";
 
 export interface Settings {
-	audioBackend: AudioBackendType;
-	mpvPath?: string; // Custom path to mpv binary (optional)
 	dynamicPlayerBackground: boolean; // Enable dynamic background based on album art
 	theme: Theme;
 	maxBitRate: number; // 0 = unlimited
@@ -23,7 +20,6 @@ export interface Settings {
 const SETTINGS_STORAGE_KEY = "solidsonic-settings";
 
 const defaultSettings: Settings = {
-	audioBackend: "html5",
 	dynamicPlayerBackground: false,
 	theme: "system",
 	maxBitRate: 0,
@@ -58,31 +54,6 @@ function saveSettings(settings: Settings): void {
 const [settings, setSettings] = createStore<Settings>(loadSettings());
 
 // ============================================================================
-// Environment Detection
-// ============================================================================
-
-export function isElectron(): boolean {
-	return (
-		typeof window !== "undefined" && window.electronAPI?.isElectron === true
-	);
-}
-
-export function isMpvAvailable(): boolean {
-	return isElectron() && typeof window.electronAPI?.mpv !== "undefined";
-}
-
-export async function checkMpvInstalled(): Promise<boolean> {
-	if (!isMpvAvailable()) return false;
-	try {
-		const mpv = window.electronAPI?.mpv;
-		if (!mpv) return false;
-		return await mpv.isAvailable();
-	} catch {
-		return false;
-	}
-}
-
-// ============================================================================
 // Public API
 // ============================================================================
 
@@ -93,14 +64,6 @@ export function getSettings(): Settings {
 export function updateSettings(updates: Partial<Settings>): void {
 	setSettings(updates);
 	saveSettings(settings);
-}
-
-export function setAudioBackend(backend: AudioBackendType): void {
-	updateSettings({ audioBackend: backend });
-}
-
-export function setMpvPath(path: string | undefined): void {
-	updateSettings({ mpvPath: path });
 }
 
 export function setDynamicPlayerBackground(enabled: boolean): void {
@@ -159,13 +122,9 @@ export function useSettings() {
 	return {
 		settings,
 		updateSettings,
-		setAudioBackend,
-		setMpvPath,
 		setDynamicPlayerBackground,
 		setTheme,
 		setMaxBitRate,
 		setScrobblingEnabled,
-		isElectron: isElectron(),
-		isMpvAvailable: isMpvAvailable(),
 	};
 }

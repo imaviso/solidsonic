@@ -1,14 +1,13 @@
 # Agentic Guidelines for SolidSonic
 
-This document provides essential information for AI agents working on the SolidSonic codebase. SolidSonic is a music player built with SolidJS, TanStack Router/Query, and Electron.
+This document provides essential information for AI agents working on the SolidSonic codebase. SolidSonic is a web music player built with SolidJS and TanStack Router/Query.
 
 ## 🛠 Commands
 
 ### Development & Build
 - `npm run dev`: Start Vite development server (port 3000).
-- `npm run electron:dev`: Run Vite and Electron concurrently (main development command).
 - `npm run build`: Build the frontend (Vite) and run type checking.
-- `npm run electron:build`: Build the app for the current platform using electron-builder.
+- `npm run preview`: Preview the production build locally.
 
 ### Linting & Formatting
 This project uses **Biome** for linting and formatting.
@@ -27,8 +26,7 @@ This project uses **Vitest**.
 ## 🏗 Architecture & Conventions
 
 ### Directory Structure
-- `electron/`: Main process and preload scripts.
-- `src/`: Renderer process (SolidJS).
+- `src/`: SolidJS application.
   - `src/components/ui/`: UI components (shadcn-like).
   - `src/lib/`: Core logic (API, Auth, Player).
   - `src/routes/`: TanStack Router file-based routing.
@@ -39,7 +37,6 @@ This project uses **Vitest**.
 - **Routing**: TanStack Router (File-based)
 - **Data Fetching**: TanStack Query
 - **Styling**: Tailwind CSS
-- **Desktop**: Electron
 - **Linter/Formatter**: Biome
 
 ---
@@ -73,9 +70,9 @@ This project uses **Vitest**.
 - Functions/Variables: camelCase.
 - Constants: SCREAMING_SNAKE_CASE.
 
-### Secure Storage
-- Sensitive data (passwords) must **never** be stored in `localStorage`.
-- Use the IPC bridge `window.electronAPI.auth` to interact with Electron's `safeStorage`.
+### Authentication Storage
+- Credentials are currently stored client-side in browser storage.
+- Keep handling defensive (validate parsed values and gracefully recover from invalid data).
 
 ### Styling
 - **Tailwind CSS**: Use Tailwind classes for all styling.
@@ -107,12 +104,11 @@ const query = createQuery(() => ({
 ## 🚦 Testing Guidelines
 - Place tests in the same directory as the file being tested or in a `__tests__` folder.
 - Follow the `filename.test.ts` or `filename.test.tsx` naming convention.
-- Use `vi.mock` for mocking Electron IPC or external API calls.
+- Use `vi.mock` for mocking browser APIs or external API calls.
 
 ---
 
 ## ⚠️ Important Reminders
-- **CORS**: The app runs in a browser environment (Electron Renderer). The Subsonic server must have CORS enabled, or requests must be proxied.
+- **CORS**: The app runs in a browser environment. The Subsonic server must have CORS enabled, or requests must be proxied.
 - **Reactivity**: Remember that SolidJS reactivity is lost if you destructure signals or props too early. Always access props like `props.data` or use `splitProps`.
-- **Main vs Renderer**: Only the Main process (`electron/`) has access to Node.js APIs (fs, path, safeStorage). The Renderer (`src/`) must use the `preload.cjs` bridge (`window.electronAPI`).
 - **Media URLs**: When generating URLs for `<audio>` or `<img>`, use `buildMediaUrl` as it handles token/salt generation in the query string.

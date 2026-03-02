@@ -11,7 +11,7 @@ import {
 	IconUser,
 } from "@tabler/icons-solidjs";
 import { useInfiniteQuery } from "@tanstack/solid-query";
-import { createFileRoute, useNavigate } from "@tanstack/solid-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/solid-router";
 import { createVirtualizer } from "@tanstack/solid-virtual";
 import { createEffect, createMemo, For, Show } from "solid-js";
 import { createStore } from "solid-js/store";
@@ -25,10 +25,19 @@ import {
 	ContextMenuSeparator,
 	ContextMenuTrigger,
 } from "~/components/ui/context-menu";
-import { getRandomSongs, star, unstar } from "~/lib/api";
+import { getRandomSongs, type Song, star, unstar } from "~/lib/api";
 import { usePlayer } from "~/lib/player";
+import { queryKeys } from "~/lib/query";
 
 export const Route = createFileRoute("/app/songs")({
+	loader: ({ context: { queryClient } }) =>
+		queryClient.prefetchInfiniteQuery({
+			queryKey: queryKeys.songs.randomInfinite(50),
+			queryFn: ({ signal }) => getRandomSongs(50, signal),
+			initialPageParam: 0,
+			getNextPageParam: (_lastPage: Song[], allPages: Song[][]) =>
+				allPages.length + 1,
+		}),
 	component: SongsPage,
 });
 
@@ -52,8 +61,8 @@ function SongsPage() {
 	});
 
 	const songs = useInfiniteQuery(() => ({
-		queryKey: ["songs", "random"],
-		queryFn: () => getRandomSongs(50),
+		queryKey: queryKeys.songs.randomInfinite(50),
+		queryFn: ({ signal }) => getRandomSongs(50, signal),
 		initialPageParam: 0,
 		getNextPageParam: (_lastPage, allPages) => {
 			return allPages.length + 1;
@@ -186,10 +195,28 @@ function SongsPage() {
 												</span>
 											</div>
 											<div class="truncate text-muted-foreground">
-												{song.artist}
+												<Show when={song.artistId} fallback={song.artist}>
+													<Link
+														to="/app/artists/$id"
+														params={{ id: song.artistId ?? "" }}
+														class="hover:text-foreground hover:underline"
+														onClick={(e) => e.stopPropagation()}
+													>
+														{song.artist}
+													</Link>
+												</Show>
 											</div>
 											<div class="truncate text-muted-foreground">
-												{song.album}
+												<Show when={song.albumId} fallback={song.album}>
+													<Link
+														to="/app/albums/$id"
+														params={{ id: song.albumId ?? "" }}
+														class="hover:text-foreground hover:underline"
+														onClick={(e) => e.stopPropagation()}
+													>
+														{song.album}
+													</Link>
+												</Show>
 											</div>
 											<div class="text-right font-mono text-xs text-muted-foreground">
 												{formatDuration(song.duration)}

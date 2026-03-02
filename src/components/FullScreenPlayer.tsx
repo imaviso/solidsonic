@@ -49,6 +49,7 @@ import {
 	type StructuredLyrics,
 } from "~/lib/api";
 import { usePlayer } from "~/lib/player";
+import { queryKeys } from "~/lib/query";
 import { cn, handleVolumeScroll } from "~/lib/utils";
 
 interface FullScreenPlayerProps {
@@ -71,12 +72,15 @@ const LyricsView: Component = () => {
 	let scrollTimeout: NodeJS.Timeout;
 
 	const lyricsQuery = createQuery(() => ({
-		queryKey: ["lyrics", player.currentTrack?.id],
-		queryFn: async () => {
+		queryKey: queryKeys.lyrics.bySong(player.currentTrack?.id ?? ""),
+		queryFn: async ({ signal }) => {
 			if (!player.currentTrack) return null;
 			// Try structured lyrics first
 			try {
-				const structured = await getLyricsBySongId(player.currentTrack.id);
+				const structured = await getLyricsBySongId(
+					player.currentTrack.id,
+					signal,
+				);
 				if (structured && structured.length > 0) {
 					// Only treat as "synced" if the flag is true
 					if (structured[0].synced) {
@@ -94,6 +98,7 @@ const LyricsView: Component = () => {
 				const plain = await getLyrics(
 					player.currentTrack.artist || "",
 					player.currentTrack.title,
+					signal,
 				);
 				if (plain) {
 					return { type: "plain", data: plain } as const;

@@ -1,5 +1,23 @@
 import { getCredentials, type SubsonicCredentials } from "./auth";
 
+const SUBSONIC_API_VERSION = "1.16.1";
+const SUBSONIC_CLIENT_ID = "solidsonic";
+
+export interface OpenSubsonicExtension {
+	name: string;
+	versions: number[];
+}
+
+export interface TokenInfoResult {
+	username?: string;
+}
+
+interface ParsedSubsonicError {
+	code?: number;
+	message: string;
+	helpUrl?: string;
+}
+
 // Generate a random salt for authentication
 function generateSalt(length = 16): string {
 	const chars =
@@ -214,41 +232,182 @@ async function md5(message: string): Promise<string> {
 	return hex(state);
 }
 
-// Cache for auth tokens to prevent spamming new tokens/salts
-let authCache: {
-	username: string;
-	password: string;
-	serverUrl: string;
-	token: string;
-	salt: string;
-} | null = null;
+function addParams(
+	params: URLSearchParams,
+	additionalParams?: Record<string, string | string[]>,
+) {
+	if (!additionalParams) return;
 
-async function getAuthTokens(
+	for (const [key, value] of Object.entries(additionalParams)) {
+		if (Array.isArray(value)) {
+			for (const v of value) {
+				params.append(key, v);
+			}
+		} else {
+			params.set(key, value);
+		}
+	}
+}
+
+function createBaseParams() {
+	return new URLSearchParams({
+		v: SUBSONIC_API_VERSION,
+		c: SUBSONIC_CLIENT_ID,
+		f: "json",
+	});
+}
+
+async function getLegacyAuthTokens(
 	credentials: SubsonicCredentials,
 ): Promise<{ token: string; salt: string }> {
-	// Return cached tokens if credentials haven't changed
-	if (
-		authCache &&
-		authCache.username === credentials.username &&
-		authCache.password === credentials.password &&
-		authCache.serverUrl === credentials.serverUrl
-	) {
-		return { token: authCache.token, salt: authCache.salt };
+	if (credentials.authType !== "legacy") {
+		throw new Error("Legacy auth tokens requested for non-legacy credentials");
 	}
 
 	const salt = generateSalt();
 	const token = await md5(credentials.password + salt);
-
-	// Update cache
-	authCache = {
-		username: credentials.username,
-		password: credentials.password,
-		serverUrl: credentials.serverUrl,
-		token,
-		salt,
-	};
-
 	return { token, salt };
+}
+
+function parseSubsonicError(data: unknown): ParsedSubsonicError {
+	const fallback = "Unknown error";
+	if (typeof data !== "object" || data === null) {
+		return { message: fallback };
+	}
+
+	const response = (data as Record<string, unknown>)["subsonic-response"];
+	if (typeof response !== "object" || response === null) {
+		return { message: fallback };
+	}
+
+	const error = (response as Record<string, unknown>).error;
+	if (typeof error !== "object" || error === null) {
+		return { message: fallback };
+	}
+
+	const parsedError = error as Record<string, unknown>;
+	const code =
+		typeof parsedError.code === "number" ? parsedError.code : undefined;
+	const message =
+		typeof parsedError.message === "string" ? parsedError.message : fallback;
+	const helpUrl =
+		typeof parsedError.helpUrl === "string" ? parsedError.helpUrl : undefined;
+
+	return { code, message, helpUrl };
+}
+
+function formatSubsonicError(error: ParsedSubsonicError): string {
+	const codePrefix = error.code ? `[${error.code}] ` : "";
+	const helpSuffix = error.helpUrl ? ` (${error.helpUrl})` : "";
+	return `${codePrefix}${error.message}${helpSuffix}`;
+}
+
+async function fetchPublicEndpoint(
+	serverUrl: string,
+	endpoint: string,
+	additionalParams?: Record<string, string | string[]>,
+): Promise<unknown> {
+	const params = createBaseParams();
+	addParams(params, additionalParams);
+
+	const baseUrl = getBaseUrl(serverUrl.replace(/\/+$/, ""));
+	const url = `${baseUrl}/rest/${endpoint}?${params.toString()}`;
+
+	const response = await fetch(url);
+	return response.json();
+}
+
+export async function getOpenSubsonicExtensions(
+	serverUrl: string,
+): Promise<OpenSubsonicExtension[]> {
+	const data = await fetchPublicEndpoint(
+		serverUrl,
+		"getOpenSubsonicExtensions",
+	);
+	const response =
+		typeof data === "object" && data !== null
+			? (data as Record<string, unknown>)["subsonic-response"]
+			: null;
+
+	if (typeof response !== "object" || response === null) {
+		throw new Error("Failed to read OpenSubsonic extensions");
+	}
+
+	const parsedResponse = response as Record<string, unknown>;
+	if (parsedResponse.status !== "ok") {
+		throw new Error(formatSubsonicError(parseSubsonicError(data)));
+	}
+
+	const rawExtensions = parsedResponse.openSubsonicExtensions;
+	if (!Array.isArray(rawExtensions)) {
+		return [];
+	}
+
+	return rawExtensions
+		.filter(
+			(item): item is Record<string, unknown> =>
+				typeof item === "object" && item !== null,
+		)
+		.map((item) => ({
+			name: typeof item.name === "string" ? item.name : "",
+			versions: Array.isArray(item.versions)
+				? item.versions.filter(
+						(version): version is number => typeof version === "number",
+					)
+				: [],
+		}))
+		.filter((item) => item.name.length > 0);
+}
+
+export async function supportsApiKeyAuthentication(
+	serverUrl: string,
+): Promise<boolean> {
+	try {
+		const extensions = await getOpenSubsonicExtensions(serverUrl);
+		return extensions.some(
+			(extension) => extension.name === "apiKeyAuthentication",
+		);
+	} catch {
+		return false;
+	}
+}
+
+export async function getTokenInfoWithApiKey(
+	serverUrl: string,
+	apiKey: string,
+): Promise<TokenInfoResult> {
+	const trimmedApiKey = apiKey.trim();
+	if (!trimmedApiKey) {
+		throw new Error("API key is required");
+	}
+
+	const data = await fetchPublicEndpoint(serverUrl, "tokenInfo", {
+		apiKey: trimmedApiKey,
+	});
+
+	const response =
+		typeof data === "object" && data !== null
+			? (data as Record<string, unknown>)["subsonic-response"]
+			: null;
+
+	if (typeof response !== "object" || response === null) {
+		throw new Error("Failed to validate API key");
+	}
+
+	const parsedResponse = response as Record<string, unknown>;
+	if (parsedResponse.status !== "ok") {
+		throw new Error(formatSubsonicError(parseSubsonicError(data)));
+	}
+
+	const tokenInfo = parsedResponse.tokenInfo;
+	if (typeof tokenInfo !== "object" || tokenInfo === null) {
+		return {};
+	}
+
+	const username = (tokenInfo as Record<string, unknown>).username;
+	return {
+		username: typeof username === "string" ? username : undefined,
+	};
 }
 
 export async function createApiRequest(
@@ -261,31 +420,21 @@ export async function createApiRequest(
 		throw new Error("Not authenticated");
 	}
 
-	const { token, salt } = await getAuthTokens(credentials);
+	const params = createBaseParams();
+	addParams(params, additionalParams);
 
-	const params = new URLSearchParams({
-		v: "1.16.1", // Subsonic API version
-		c: "solidsonic", // Client identifier
-		f: "json", // Response format
-	});
+	let headers: HeadersInit = {};
 
-	if (additionalParams) {
-		for (const [key, value] of Object.entries(additionalParams)) {
-			if (Array.isArray(value)) {
-				for (const v of value) {
-					params.append(key, v);
-				}
-			} else {
-				params.set(key, value);
-			}
-		}
+	if (credentials.authType === "apiKey") {
+		params.set("apiKey", credentials.apiKey);
+	} else {
+		const { token, salt } = await getLegacyAuthTokens(credentials);
+		headers = {
+			"X-Subsonic-Username": credentials.username,
+			"X-Subsonic-Token": token,
+			"X-Subsonic-Salt": salt,
+		};
 	}
-
-	const headers: HeadersInit = {
-		"X-Subsonic-Username": credentials.username,
-		"X-Subsonic-Token": token,
-		"X-Subsonic-Salt": salt,
-	};
 
 	const baseUrl = getBaseUrl(credentials.serverUrl);
 	const url = `${baseUrl}/rest/${endpoint}?${params.toString()}`;
@@ -325,16 +474,16 @@ export async function buildMediaUrl(
 		throw new Error("Not authenticated");
 	}
 
-	const { token, salt } = await getAuthTokens(credentials);
+	const params = createBaseParams();
 
-	const params = new URLSearchParams({
-		u: credentials.username,
-		t: token,
-		s: salt,
-		v: "1.16.1",
-		c: "solidsonic",
-		f: "json",
-	});
+	if (credentials.authType === "apiKey") {
+		params.set("apiKey", credentials.apiKey);
+	} else {
+		const { token, salt } = await getLegacyAuthTokens(credentials);
+		params.set("u", credentials.username);
+		params.set("t", token);
+		params.set("s", salt);
+	}
 
 	if (additionalParams) {
 		for (const [key, value] of Object.entries(additionalParams)) {
@@ -364,7 +513,7 @@ export async function ping(
 			return { success: true };
 		}
 
-		const error = data["subsonic-response"]?.error?.message || "Unknown error";
+		const error = formatSubsonicError(parseSubsonicError(data));
 		return { success: false, error };
 	} catch (error) {
 		return {

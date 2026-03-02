@@ -1,3 +1,4 @@
+import { createMutation, useQueryClient } from "@tanstack/solid-query";
 import { createSignal } from "solid-js";
 import { Button } from "~/components/ui/button";
 import {
@@ -11,6 +12,7 @@ import {
 import { Input } from "~/components/ui/input";
 import { showToast } from "~/components/ui/toast";
 import { createPlaylist, updatePlaylist } from "~/lib/api";
+import { queryKeys } from "~/lib/query";
 
 interface PlaylistDialogProps {
 	open: boolean;
@@ -22,8 +24,41 @@ interface PlaylistDialogProps {
 }
 
 export function PlaylistDialog(props: PlaylistDialogProps) {
+	const queryClient = useQueryClient();
 	const [name, setName] = createSignal(props.currentName || "");
-	const [isSubmitting, setIsSubmitting] = createSignal(false);
+
+	const createPlaylistMutation = createMutation(() => ({
+		mutationFn: (playlistName: string) =>
+			createPlaylist({ name: playlistName }),
+		onSuccess: (_playlist, playlistName) => {
+			showToast({
+				title: "Playlist Created",
+				description: `Playlist "${playlistName}" created successfully.`,
+			});
+			void queryClient.invalidateQueries({ queryKey: queryKeys.playlists.all });
+		},
+	}));
+
+	const renamePlaylistMutation = createMutation(() => ({
+		mutationFn: (variables: { playlistId: string; name: string }) =>
+			updatePlaylist({
+				playlistId: variables.playlistId,
+				name: variables.name,
+			}),
+		onSuccess: (_result, variables) => {
+			showToast({
+				title: "Playlist Updated",
+				description: "Playlist renamed successfully.",
+			});
+			void queryClient.invalidateQueries({ queryKey: queryKeys.playlists.all });
+			void queryClient.invalidateQueries({
+				queryKey: queryKeys.playlists.detail(variables.playlistId),
+			});
+		},
+	}));
+
+	const isSubmitting = () =>
+		createPlaylistMutation.isPending || renamePlaylistMutation.isPending;
 
 	// Update name when props change
 	const updateName = () => {
@@ -45,25 +80,14 @@ export function PlaylistDialog(props: PlaylistDialogProps) {
 	const handleSubmit = async () => {
 		if (!name()) return;
 
-		setIsSubmitting(true);
 		try {
 			if (props.mode === "create") {
-				await createPlaylist({
-					name: name(),
-				});
-				showToast({
-					title: "Playlist Created",
-					description: `Playlist "${name()}" created successfully.`,
-				});
+				await createPlaylistMutation.mutateAsync(name());
 			} else {
 				if (!props.playlistId) return;
-				await updatePlaylist({
+				await renamePlaylistMutation.mutateAsync({
 					playlistId: props.playlistId,
 					name: name(),
-				});
-				showToast({
-					title: "Playlist Updated",
-					description: "Playlist renamed successfully.",
 				});
 			}
 			props.onSuccess?.();
@@ -74,8 +98,6 @@ export function PlaylistDialog(props: PlaylistDialogProps) {
 				description: e instanceof Error ? e.message : "Failed to save playlist",
 				variant: "destructive",
 			});
-		} finally {
-			setIsSubmitting(false);
 		}
 	};
 
