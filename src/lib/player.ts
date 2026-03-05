@@ -4,6 +4,7 @@ import {
 	getCoverArtUrl,
 	getPlayQueue,
 	getRemoteCommands,
+	getRemoteState,
 	getSong,
 	getStreamUrl,
 	savePlayQueue,
@@ -230,10 +231,37 @@ let remoteControllerSessionId: string | null = null;
 let remoteLastCommandId = 0;
 let remoteCommandPollTimer: ReturnType<typeof setInterval> | null = null;
 let remoteStateSyncTimer: ReturnType<typeof setInterval> | null = null;
+let remoteControllerStatePollTimer: ReturnType<typeof setInterval> | null =
+	null;
 let remoteCommandPollInFlight = false;
 let remoteStateSyncInFlight = false;
+let remoteControllerStatePollInFlight = false;
+let remoteControllerQueueSyncInFlight = false;
 let remoteLastCommandPollAt: number | null = null;
 let remoteLastStatePushAt: number | null = null;
+let remoteControllerQueueSignature: string | null = null;
+const remoteControllerSongCache = new Map<string, Song>();
+const remoteControllerSongRequests = new Map<string, Promise<Song | null>>();
+
+interface RemoteControllerTrackSnapshot {
+	id?: string;
+	title?: string;
+	artist?: string;
+	album?: string;
+	coverArt?: string;
+}
+
+interface RemoteControllerPlaybackSnapshot {
+	isPlaying?: boolean;
+	currentTimeMs?: number;
+	durationMs?: number;
+	volume?: number;
+	shuffle?: boolean;
+	repeat?: RepeatMode;
+	queueIndex?: number;
+	queueSongIds?: string[];
+	currentTrack?: RemoteControllerTrackSnapshot;
+}
 
 // Save current queue to server (debounced)
 function debouncedSaveQueue() {
@@ -350,6 +378,264 @@ function sendRemoteCommandIfController(
 	});
 
 	return true;
+}
+
+function parseRemoteQueueSongIds(value: unknown): string[] {
+	if (!Array.isArray(value)) {
+		return [];
+	}
+
+	return value
+		.map((item) => (typeof item === "string" ? item : String(item)))
+		.filter((songId) => songId.length > 0);
+}
+
+function createRemoteSnapshotSong(
+	track: RemoteControllerTrackSnapshot | undefined,
+	fallbackId?: string,
+): Song | null {
+	const trackId =
+		typeof track?.id === "string" && track.id.length > 0
+			? track.id
+			: fallbackId;
+
+	if (!trackId) {
+		return null;
+	}
+
+	return {
+		id: trackId,
+		title:
+			typeof track?.title === "string" && track.title.length > 0
+				? track.title
+				: "Unknown title",
+		artist: typeof track?.artist === "string" ? track.artist : undefined,
+		album: typeof track?.album === "string" ? track.album : undefined,
+		coverArt: typeof track?.coverArt === "string" ? track.coverArt : undefined,
+	};
+}
+
+async function fetchSongForRemoteQueue(songId: string): Promise<Song | null> {
+	const cached = remoteControllerSongCache.get(songId);
+	if (cached) {
+		return cached;
+	}
+
+	const inFlight = remoteControllerSongRequests.get(songId);
+	if (inFlight) {
+		return inFlight;
+	}
+
+	const request = getSong(songId)
+		.then((song) => {
+			remoteControllerSongCache.set(songId, song);
+			return song;
+		})
+		.catch(() => null)
+		.finally(() => {
+			remoteControllerSongRequests.delete(songId);
+		});
+
+	remoteControllerSongRequests.set(songId, request);
+	return request;
+}
+
+async function syncRemoteControllerQueue(
+	songIds: string[],
+	requestedIndex: number,
+	fallbackTrack: Song | null,
+): Promise<void> {
+	if (remoteControllerQueueSyncInFlight) {
+		return;
+	}
+
+	const signature = songIds.join("|");
+	if (signature === remoteControllerQueueSignature) {
+		return;
+	}
+
+	remoteControllerQueueSyncInFlight = true;
+
+	try {
+		const queue = (
+			await Promise.all(
+				songIds.map((songId) => fetchSongForRemoteQueue(songId)),
+			)
+		).filter((song): song is Song => song !== null);
+
+		if (queue.length === 0) {
+			remoteControllerQueueSignature = signature;
+			updateState({
+				queue: [],
+				originalQueue: [],
+				queueIndex: -1,
+				currentTrack: fallbackTrack,
+			});
+			return;
+		}
+
+		let queueIndex = Math.max(
+			0,
+			Math.min(Math.trunc(requestedIndex), queue.length - 1),
+		);
+		if (fallbackTrack?.id) {
+			const matchedIndex = queue.findIndex(
+				(song) => song.id === fallbackTrack.id,
+			);
+			if (matchedIndex >= 0) {
+				queueIndex = matchedIndex;
+			}
+		}
+
+		remoteControllerQueueSignature = signature;
+		updateState({
+			queue,
+			originalQueue: queue,
+			queueIndex,
+			currentTrack: queue[queueIndex] ?? fallbackTrack,
+		});
+	} finally {
+		remoteControllerQueueSyncInFlight = false;
+	}
+}
+
+async function pollRemoteControllerState(): Promise<void> {
+	if (!canControlRemoteHost() || !remoteControllerSessionId) {
+		return;
+	}
+
+	if (remoteControllerStatePollInFlight) {
+		return;
+	}
+
+	remoteControllerStatePollInFlight = true;
+
+	try {
+		const remoteState = await getRemoteState(remoteControllerSessionId);
+		if (!remoteState?.stateJson) {
+			return;
+		}
+
+		let snapshot: RemoteControllerPlaybackSnapshot | null = null;
+		try {
+			snapshot = JSON.parse(
+				remoteState.stateJson,
+			) as RemoteControllerPlaybackSnapshot;
+		} catch {
+			snapshot = null;
+		}
+
+		if (!snapshot) {
+			return;
+		}
+
+		const updates: Partial<PlayerState> = {};
+
+		if (typeof snapshot.isPlaying === "boolean") {
+			updates.isPlaying = snapshot.isPlaying;
+		}
+
+		if (typeof snapshot.currentTimeMs === "number") {
+			updates.currentTime = Math.max(0, snapshot.currentTimeMs / 1000);
+		}
+
+		if (typeof snapshot.durationMs === "number") {
+			updates.duration = Math.max(0, snapshot.durationMs / 1000);
+		}
+
+		if (typeof snapshot.volume === "number") {
+			updates.volume = Math.max(0, Math.min(1, snapshot.volume));
+		}
+
+		if (typeof snapshot.shuffle === "boolean") {
+			updates.shuffle = snapshot.shuffle;
+		}
+
+		if (
+			snapshot.repeat === "off" ||
+			snapshot.repeat === "all" ||
+			snapshot.repeat === "one"
+		) {
+			updates.repeat = snapshot.repeat;
+		}
+
+		const parsedQueueIndex =
+			typeof snapshot.queueIndex === "number"
+				? Math.max(-1, Math.trunc(snapshot.queueIndex))
+				: playerState.queueIndex;
+
+		updates.queueIndex = parsedQueueIndex;
+
+		const queueSongIds = parseRemoteQueueSongIds(snapshot.queueSongIds);
+		const fallbackTrack = createRemoteSnapshotSong(
+			snapshot.currentTrack,
+			queueSongIds[parsedQueueIndex],
+		);
+
+		if (fallbackTrack) {
+			updates.currentTrack = fallbackTrack;
+		}
+
+		updateState(updates);
+
+		if (queueSongIds.length === 0) {
+			remoteControllerQueueSignature = "";
+			if (playerState.queue.length > 0 || playerState.queueIndex !== -1) {
+				updateState({
+					queue: [],
+					originalQueue: [],
+					queueIndex: -1,
+					currentTrack: null,
+					isPlaying: false,
+					currentTime: 0,
+					duration: 0,
+				});
+			}
+			return;
+		}
+
+		void syncRemoteControllerQueue(
+			queueSongIds,
+			parsedQueueIndex,
+			fallbackTrack,
+		);
+	} catch (err) {
+		if (
+			err instanceof Error &&
+			err.message.toLowerCase().includes("remote session")
+		) {
+			setRemoteControllerSessionId(null);
+			return;
+		}
+
+		console.warn("Remote controller state sync failed:", err);
+	} finally {
+		remoteControllerStatePollInFlight = false;
+	}
+}
+
+function startRemoteControllerStateSync() {
+	if (remoteControllerStatePollTimer) {
+		clearInterval(remoteControllerStatePollTimer);
+	}
+
+	remoteControllerQueueSignature = null;
+	remoteControllerStatePollTimer = setInterval(() => {
+		void pollRemoteControllerState();
+	}, 1000);
+
+	void pollRemoteControllerState();
+}
+
+function stopRemoteControllerStateSync() {
+	if (remoteControllerStatePollTimer) {
+		clearInterval(remoteControllerStatePollTimer);
+		remoteControllerStatePollTimer = null;
+	}
+
+	remoteControllerStatePollInFlight = false;
+	remoteControllerQueueSyncInFlight = false;
+	remoteControllerQueueSignature = null;
 }
 
 async function pollRemoteCommands(): Promise<void> {
@@ -674,6 +960,7 @@ export function startRemoteHostSync(sessionId: string) {
 	remoteLastCommandId = 0;
 	remoteLastCommandPollAt = null;
 	remoteLastStatePushAt = null;
+	stopRemoteControllerStateSync();
 
 	try {
 		localStorage.setItem(REMOTE_HOST_SESSION_STORAGE_KEY, sessionId);
@@ -722,6 +1009,10 @@ export function stopRemoteHostSync() {
 		clearInterval(remoteStateSyncTimer);
 		remoteStateSyncTimer = null;
 	}
+
+	if (remoteControllerSessionId) {
+		startRemoteControllerStateSync();
+	}
 }
 
 export function getRemoteHostSessionId(): string | null {
@@ -731,6 +1022,10 @@ export function getRemoteHostSessionId(): string | null {
 export function setRemoteControllerSessionId(sessionId: string | null) {
 	remoteControllerSessionId = sessionId;
 
+	if (sessionId && remoteHostSessionId === null) {
+		currentBackend?.pause();
+	}
+
 	try {
 		if (sessionId) {
 			localStorage.setItem(REMOTE_CONTROLLER_SESSION_STORAGE_KEY, sessionId);
@@ -739,6 +1034,12 @@ export function setRemoteControllerSessionId(sessionId: string | null) {
 		}
 	} catch {
 		// Ignore localStorage failures
+	}
+
+	if (sessionId && remoteHostSessionId === null) {
+		startRemoteControllerStateSync();
+	} else {
+		stopRemoteControllerStateSync();
 	}
 }
 
@@ -773,7 +1074,7 @@ export function initRemoteHostSync() {
 			REMOTE_CONTROLLER_SESSION_STORAGE_KEY,
 		);
 		if (controllerSessionId) {
-			remoteControllerSessionId = controllerSessionId;
+			setRemoteControllerSessionId(controllerSessionId);
 		}
 	} catch {
 		// Ignore localStorage failures
