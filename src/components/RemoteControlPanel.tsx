@@ -28,9 +28,11 @@ import {
 	sendRemoteCommand,
 } from "~/lib/api";
 import {
+	getRemoteControllerSessionId,
 	getRemoteHostSessionId,
 	getRemoteHostSyncStatus,
 	type RemoteHostSyncStatus,
+	setRemoteControllerSessionId,
 	startRemoteHostSync,
 	stopRemoteHostSync,
 } from "~/lib/player";
@@ -147,6 +149,16 @@ export function RemoteControlPanel() {
 				connected: false,
 			});
 		}
+
+		const existingControllerSessionId = getRemoteControllerSessionId();
+		if (existingControllerSessionId) {
+			setControllerSession({
+				id: existingControllerSessionId,
+				expiresAt: "",
+				hostDeviceId: "",
+				connected: true,
+			});
+		}
 	});
 
 	onMount(() => {
@@ -186,6 +198,43 @@ export function RemoteControlPanel() {
 		void fetchHostSession();
 		const timer = setInterval(() => {
 			void fetchHostSession();
+		}, 2000);
+
+		onCleanup(() => {
+			cancelled = true;
+			clearInterval(timer);
+		});
+	});
+
+	createEffect(() => {
+		const sessionId = controllerSession()?.id;
+		if (!sessionId) {
+			return;
+		}
+
+		let cancelled = false;
+
+		const fetchControllerSession = async () => {
+			const session = await getRemoteSession(sessionId);
+			if (cancelled) {
+				return;
+			}
+
+			if (!session) {
+				setRemoteControllerSessionId(null);
+				setControllerSession(null);
+				setRemoteState(null);
+				setSeekDraftMs(null);
+				toast.error("Controller session expired");
+				return;
+			}
+
+			setControllerSession(session);
+		};
+
+		void fetchControllerSession();
+		const timer = setInterval(() => {
+			void fetchControllerSession();
 		}, 2000);
 
 		onCleanup(() => {
@@ -269,6 +318,7 @@ export function RemoteControlPanel() {
 				deviceName: "SolidSonic Controller",
 			});
 			setControllerSession(session);
+			setRemoteControllerSessionId(session.id);
 			setJoinCode("");
 			toast.success("Joined remote session");
 		} catch (error) {
@@ -281,6 +331,7 @@ export function RemoteControlPanel() {
 	};
 
 	const handleLeaveControllerSession = () => {
+		setRemoteControllerSessionId(null);
 		setControllerSession(null);
 		setRemoteState(null);
 		setSeekDraftMs(null);
@@ -407,6 +458,9 @@ export function RemoteControlPanel() {
 						</div>
 						<p class="text-xs text-muted-foreground">
 							Session expires in: {controllerExpiresIn()}
+						</p>
+						<p class="text-xs text-muted-foreground">
+							Remote mode is active: play actions in this app control the host.
 						</p>
 
 						<div class="grid grid-cols-2 gap-2 md:grid-cols-5">

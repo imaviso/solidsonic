@@ -4,9 +4,11 @@ import {
 	getCoverArtUrl,
 	getPlayQueue,
 	getRemoteCommands,
+	getSong,
 	getStreamUrl,
 	savePlayQueue,
 	scrobble,
+	sendRemoteCommand,
 	updateRemoteState,
 } from "./api";
 import {
@@ -220,7 +222,11 @@ let saveQueueTimeout: ReturnType<typeof setTimeout> | null = null;
 let queueSyncEnabled = false;
 
 const REMOTE_HOST_SESSION_STORAGE_KEY = "solidsonic_remote_host_session_id";
+const REMOTE_CONTROLLER_SESSION_STORAGE_KEY =
+	"solidsonic_remote_controller_session_id";
+const MAX_REMOTE_QUEUE_ITEMS = 200;
 let remoteHostSessionId: string | null = null;
+let remoteControllerSessionId: string | null = null;
 let remoteLastCommandId = 0;
 let remoteCommandPollTimer: ReturnType<typeof setInterval> | null = null;
 let remoteStateSyncTimer: ReturnType<typeof setInterval> | null = null;
@@ -266,6 +272,84 @@ function getPlayerStateSnapshot(): PlayerState {
 		shuffle: playerState.shuffle,
 		repeat: playerState.repeat,
 	};
+}
+
+function canControlRemoteHost(): boolean {
+	return remoteControllerSessionId !== null && remoteHostSessionId === null;
+}
+
+function buildRemoteQueuePayload(
+	queue: Song[],
+	requestedIndex: number,
+): {
+	songIds: string[];
+	index: number;
+} {
+	if (queue.length <= MAX_REMOTE_QUEUE_ITEMS) {
+		return {
+			songIds: queue.map((song) => song.id),
+			index: Math.max(0, Math.min(requestedIndex, queue.length - 1)),
+		};
+	}
+
+	const windowStart = Math.max(
+		0,
+		Math.min(
+			requestedIndex - Math.floor(MAX_REMOTE_QUEUE_ITEMS / 2),
+			queue.length - MAX_REMOTE_QUEUE_ITEMS,
+		),
+	);
+	const windowQueue = queue.slice(
+		windowStart,
+		windowStart + MAX_REMOTE_QUEUE_ITEMS,
+	);
+
+	return {
+		songIds: windowQueue.map((song) => song.id),
+		index: requestedIndex - windowStart,
+	};
+}
+
+async function sendRemoteCommandIfControllerAsync(
+	command: string,
+	payload?: Record<string, unknown>,
+): Promise<boolean> {
+	if (!canControlRemoteHost() || !remoteControllerSessionId) {
+		return false;
+	}
+
+	try {
+		await sendRemoteCommand({
+			sessionId: remoteControllerSessionId,
+			command,
+			payload: payload ? JSON.stringify(payload) : undefined,
+		});
+		return true;
+	} catch (err) {
+		console.warn("Remote control command failed:", err);
+		setRemoteControllerSessionId(null);
+		return false;
+	}
+}
+
+function sendRemoteCommandIfController(
+	command: string,
+	payload?: Record<string, unknown>,
+): boolean {
+	if (!canControlRemoteHost() || !remoteControllerSessionId) {
+		return false;
+	}
+
+	void sendRemoteCommand({
+		sessionId: remoteControllerSessionId,
+		command,
+		payload: payload ? JSON.stringify(payload) : undefined,
+	}).catch((err) => {
+		console.warn("Remote control command failed:", err);
+		setRemoteControllerSessionId(null);
+	});
+
+	return true;
 }
 
 async function pollRemoteCommands(): Promise<void> {
@@ -361,6 +445,171 @@ async function applyRemoteCommand(
 	}
 
 	switch (command) {
+		case "playQueue": {
+			const rawSongIds = payload?.songIds;
+			const songIds = Array.isArray(rawSongIds)
+				? rawSongIds
+						.map((value) => (typeof value === "string" ? value : String(value)))
+						.filter((value) => value.length > 0)
+				: [];
+
+			if (songIds.length === 0) {
+				break;
+			}
+
+			const queue = (
+				await Promise.all(
+					songIds.map(async (songId) => {
+						try {
+							return await getSong(songId);
+						} catch {
+							return null;
+						}
+					}),
+				)
+			).filter((song): song is Song => song !== null);
+
+			if (queue.length === 0) {
+				break;
+			}
+
+			const requestedIndex = payload?.index;
+			const index =
+				typeof requestedIndex === "number"
+					? Math.max(0, Math.min(Math.trunc(requestedIndex), queue.length - 1))
+					: 0;
+
+			await playSong(queue[index], queue, index);
+
+			const positionMs = payload?.positionMs;
+			if (typeof positionMs === "number" && positionMs > 0) {
+				seek(positionMs / 1000);
+			}
+
+			break;
+		}
+		case "setQueueState": {
+			const rawSongIds = payload?.songIds;
+			const songIds = Array.isArray(rawSongIds)
+				? rawSongIds
+						.map((value) => (typeof value === "string" ? value : String(value)))
+						.filter((value) => value.length > 0)
+				: [];
+
+			if (songIds.length === 0) {
+				break;
+			}
+
+			const queue = (
+				await Promise.all(
+					songIds.map(async (songId) => {
+						try {
+							return await getSong(songId);
+						} catch {
+							return null;
+						}
+					}),
+				)
+			).filter((song): song is Song => song !== null);
+
+			if (queue.length === 0) {
+				break;
+			}
+
+			const requestedIndex = payload?.index;
+			const index =
+				typeof requestedIndex === "number"
+					? Math.max(0, Math.min(Math.trunc(requestedIndex), queue.length - 1))
+					: 0;
+
+			updateState({
+				queue,
+				originalQueue: queue,
+				queueIndex: index,
+				currentTrack: queue[index],
+			});
+			debouncedSaveQueue();
+			break;
+		}
+		case "addToQueue": {
+			const rawSongIds = payload?.songIds;
+			const songIds = Array.isArray(rawSongIds)
+				? rawSongIds
+						.map((value) => (typeof value === "string" ? value : String(value)))
+						.filter((value) => value.length > 0)
+				: [];
+
+			if (songIds.length === 0) {
+				break;
+			}
+
+			const songs = (
+				await Promise.all(
+					songIds.map(async (songId) => {
+						try {
+							return await getSong(songId);
+						} catch {
+							return null;
+						}
+					}),
+				)
+			).filter((song): song is Song => song !== null);
+
+			if (songs.length > 0) {
+				addToQueue(songs);
+			}
+			break;
+		}
+		case "playNextInQueue": {
+			const songId = payload?.songId;
+			if (typeof songId !== "string" || songId.length === 0) {
+				break;
+			}
+
+			try {
+				const song = await getSong(songId);
+				playNextInQueue(song);
+			} catch {
+				// Ignore failed song lookup.
+			}
+			break;
+		}
+		case "removeFromQueue": {
+			const index = payload?.index;
+			if (typeof index === "number") {
+				removeFromQueue(Math.trunc(index));
+			}
+			break;
+		}
+		case "moveInQueue": {
+			const fromIndex = payload?.fromIndex;
+			const toIndex = payload?.toIndex;
+			if (typeof fromIndex === "number" && typeof toIndex === "number") {
+				moveInQueue(Math.trunc(fromIndex), Math.trunc(toIndex));
+			}
+			break;
+		}
+		case "insertIntoQueue": {
+			const songId = payload?.songId;
+			const index = payload?.index;
+			if (typeof songId !== "string" || songId.length === 0) {
+				break;
+			}
+			if (typeof index !== "number") {
+				break;
+			}
+
+			try {
+				const song = await getSong(songId);
+				insertIntoQueue(song, Math.trunc(index));
+			} catch {
+				// Ignore failed song lookup.
+			}
+			break;
+		}
+		case "clearQueue":
+			clearQueue();
+			break;
 		case "play":
 			play();
 			break;
@@ -404,6 +653,9 @@ async function applyRemoteCommand(
 		}
 		case "toggleShuffle":
 			toggleShuffle();
+			break;
+		case "toggleRepeat":
+			toggleRepeat();
 			break;
 		case "setRepeat": {
 			const mode = payload?.mode;
@@ -476,6 +728,24 @@ export function getRemoteHostSessionId(): string | null {
 	return remoteHostSessionId;
 }
 
+export function setRemoteControllerSessionId(sessionId: string | null) {
+	remoteControllerSessionId = sessionId;
+
+	try {
+		if (sessionId) {
+			localStorage.setItem(REMOTE_CONTROLLER_SESSION_STORAGE_KEY, sessionId);
+		} else {
+			localStorage.removeItem(REMOTE_CONTROLLER_SESSION_STORAGE_KEY);
+		}
+	} catch {
+		// Ignore localStorage failures
+	}
+}
+
+export function getRemoteControllerSessionId(): string | null {
+	return remoteControllerSessionId;
+}
+
 export interface RemoteHostSyncStatus {
 	isActive: boolean;
 	sessionId: string | null;
@@ -498,6 +768,13 @@ export function initRemoteHostSync() {
 		if (sessionId) {
 			startRemoteHostSync(sessionId);
 		}
+
+		const controllerSessionId = localStorage.getItem(
+			REMOTE_CONTROLLER_SESSION_STORAGE_KEY,
+		);
+		if (controllerSessionId) {
+			remoteControllerSessionId = controllerSessionId;
+		}
 	} catch {
 		// Ignore localStorage failures
 	}
@@ -509,13 +786,23 @@ export async function playSong(
 	queue?: Song[],
 	startIndex?: number,
 ) {
+	const newQueue = queue ?? [song];
+	const currentIndex = startIndex ?? 0;
+
+	if (
+		await sendRemoteCommandIfControllerAsync(
+			"playQueue",
+			buildRemoteQueuePayload(newQueue, currentIndex),
+		)
+	) {
+		return;
+	}
+
 	const backend = getAudioBackend();
 
 	// Reset scrobble state for new song
 	scrobbledTrackId = null;
 
-	const newQueue = queue ?? [song];
-	const currentIndex = startIndex ?? 0;
 	updateState({
 		currentTrack: song,
 		queue: newQueue,
@@ -556,6 +843,10 @@ export async function playAlbum(songs: Song[], startIndex = 0) {
 }
 
 export function togglePlayPause() {
+	if (sendRemoteCommandIfController("togglePlayPause")) {
+		return;
+	}
+
 	const backend = getAudioBackend();
 	if (playerState.isPlaying) {
 		backend.pause();
@@ -567,17 +858,29 @@ export function togglePlayPause() {
 }
 
 export function pause() {
+	if (sendRemoteCommandIfController("pause")) {
+		return;
+	}
+
 	getAudioBackend().pause();
 	updateState({ isPlaying: false });
 }
 
 export function play() {
+	if (sendRemoteCommandIfController("play")) {
+		return;
+	}
+
 	if (playerState.currentTrack) {
 		getAudioBackend().resume();
 	}
 }
 
 export async function playNext() {
+	if (await sendRemoteCommandIfControllerAsync("next")) {
+		return;
+	}
+
 	const { queue, queueIndex, repeat, currentTrack } = playerState;
 	if (queue.length === 0) return;
 
@@ -602,6 +905,10 @@ export async function playNext() {
 }
 
 export async function playPrevious() {
+	if (await sendRemoteCommandIfControllerAsync("previous")) {
+		return;
+	}
+
 	const { queue, queueIndex, currentTime, repeat } = playerState;
 	if (queue.length === 0) return;
 
@@ -624,6 +931,14 @@ export async function playPrevious() {
 }
 
 export function seek(time: number) {
+	if (
+		sendRemoteCommandIfController("seek", {
+			positionMs: Math.floor(time * 1000),
+		})
+	) {
+		return;
+	}
+
 	const backend = getAudioBackend();
 	// Update state immediately for smooth UI
 	updateState({ currentTime: time });
@@ -632,6 +947,10 @@ export function seek(time: number) {
 }
 
 export function setVolume(volume: number) {
+	if (sendRemoteCommandIfController("setVolume", { volume })) {
+		return;
+	}
+
 	const backend = getAudioBackend();
 	const clampedVolume = Math.max(0, Math.min(1, volume));
 	backend.setVolume(clampedVolume);
@@ -640,6 +959,18 @@ export function setVolume(volume: number) {
 }
 
 export function addToQueue(songs: Song[]) {
+	if (songs.length === 0) {
+		return;
+	}
+
+	if (
+		sendRemoteCommandIfController("addToQueue", {
+			songIds: songs.map((song) => song.id),
+		})
+	) {
+		return;
+	}
+
 	updateState({
 		queue: [...playerState.queue, ...songs],
 		originalQueue: [...playerState.originalQueue, ...songs],
@@ -648,6 +979,10 @@ export function addToQueue(songs: Song[]) {
 }
 
 export function playNextInQueue(song: Song) {
+	if (sendRemoteCommandIfController("playNextInQueue", { songId: song.id })) {
+		return;
+	}
+
 	const { queue, originalQueue, queueIndex } = playerState;
 	// Insert the song right after the current track
 	const newQueue = [
@@ -672,6 +1007,10 @@ export function clearQueue(): {
 	previousOriginalQueue: Song[];
 	previousQueueIndex: number;
 } | null {
+	if (sendRemoteCommandIfController("clearQueue")) {
+		return null;
+	}
+
 	const { queue, currentTrack, originalQueue, queueIndex } = playerState;
 
 	// Store previous state for undo
@@ -708,6 +1047,15 @@ export function restoreQueueState(state: {
 	const { previousQueue, previousOriginalQueue, previousQueueIndex } = state;
 	if (previousQueue.length === 0) return;
 
+	if (
+		sendRemoteCommandIfController("setQueueState", {
+			songIds: previousQueue.map((song) => song.id),
+			index: previousQueueIndex,
+		})
+	) {
+		return;
+	}
+
 	updateState({
 		queue: previousQueue,
 		originalQueue: previousOriginalQueue,
@@ -720,6 +1068,10 @@ export function restoreQueueState(state: {
 export function removeFromQueue(
 	index: number,
 ): { song: Song; index: number } | null {
+	if (sendRemoteCommandIfController("removeFromQueue", { index })) {
+		return null;
+	}
+
 	const { queue, originalQueue, queueIndex, currentTrack } = playerState;
 
 	// Don't allow removing the currently playing song
@@ -750,6 +1102,10 @@ export function removeFromQueue(
 }
 
 export function moveInQueue(fromIndex: number, toIndex: number) {
+	if (sendRemoteCommandIfController("moveInQueue", { fromIndex, toIndex })) {
+		return;
+	}
+
 	const { queue, queueIndex } = playerState;
 
 	if (
@@ -790,6 +1146,12 @@ export function moveInQueue(fromIndex: number, toIndex: number) {
 
 // Re-insert a song at a specific index in the queue (for undo)
 export function insertIntoQueue(song: Song, index: number) {
+	if (
+		sendRemoteCommandIfController("insertIntoQueue", { songId: song.id, index })
+	) {
+		return;
+	}
+
 	const { queue, originalQueue, queueIndex } = playerState;
 
 	const newQueue = [...queue.slice(0, index), song, ...queue.slice(index)];
@@ -824,6 +1186,10 @@ function shuffleArray<T>(array: T[]): T[] {
 }
 
 export function toggleShuffle() {
+	if (sendRemoteCommandIfController("toggleShuffle")) {
+		return;
+	}
+
 	const { shuffle, queue, queueIndex, currentTrack, originalQueue } =
 		playerState;
 
@@ -862,6 +1228,10 @@ export function toggleShuffle() {
 }
 
 export function toggleRepeat() {
+	if (sendRemoteCommandIfController("toggleRepeat")) {
+		return;
+	}
+
 	const { repeat } = playerState;
 	const modes: RepeatMode[] = ["off", "all", "one"];
 	const currentIndex = modes.indexOf(repeat);
@@ -870,6 +1240,10 @@ export function toggleRepeat() {
 }
 
 export function setRepeat(mode: RepeatMode) {
+	if (sendRemoteCommandIfController("setRepeat", { mode })) {
+		return;
+	}
+
 	updateState({ repeat: mode });
 }
 
