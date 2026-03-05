@@ -106,12 +106,14 @@ function GenreDetailPage() {
 
 	return (
 		<div class="flex flex-col gap-6 h-full overflow-y-auto">
-			<div class="flex items-end justify-between gap-3">
+			<div class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
 				<div class="flex flex-col gap-2">
 					<span class="text-sm font-medium text-muted-foreground uppercase">
 						Genre
 					</span>
-					<h1 class="text-4xl font-bold">{params().genre}</h1>
+					<h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold break-words">
+						{params().genre}
+					</h1>
 				</div>
 				<Show when={songs.isFetching && !songs.isLoading}>
 					<span class="text-xs text-muted-foreground">Refreshing...</span>
@@ -119,170 +121,175 @@ function GenreDetailPage() {
 			</div>
 
 			<Show when={!songs.isLoading} fallback={<div>Loading...</div>}>
-				<Table>
-					<TableHeader>
-						<TableRow>
-							<TableHead class="w-[50px]">#</TableHead>
-							<TableHead class="w-[48px]"></TableHead>
-							<TableHead>Title</TableHead>
-							<TableHead>Artist</TableHead>
-							<TableHead>Album</TableHead>
-							<TableHead class="text-right">
-								<IconClock class="size-4 ml-auto" />
-							</TableHead>
-						</TableRow>
-					</TableHeader>
-					<TableBody>
-						<For each={songs.data}>
-							{(song, i) => (
-								<ContextMenu>
-									<ContextMenuTrigger
-										as={TableRow}
-										class="group cursor-pointer hover:bg-muted/50"
-										onClick={() => {
-											const songList = songs.data;
-											if (songList) {
-												play(song, songList, i());
-											}
-										}}
-									>
-										<TableCell class="font-medium text-muted-foreground group-hover:text-foreground">
-											<span class="group-hover:hidden text-xs">{i() + 1}</span>
-											<IconPlayerPlayFilled class="size-3 hidden group-hover:block text-primary" />
-										</TableCell>
-										<TableCell>
-											<CoverArt
-												id={song.coverArt}
-												size={80}
-												class="size-10 rounded shadow-sm"
-											/>
-										</TableCell>
-										<TableCell class="font-medium">
-											<span
-												class={
-													currentTrack?.id === song.id ? "text-primary" : ""
-												}
-											>
-												{song.title}
-											</span>
-										</TableCell>
-										<TableCell>
-											<Show when={song.artistId} fallback={song.artist}>
-												<Link
-													to="/app/artists/$id"
-													params={{ id: song.artistId ?? "" }}
-													class="hover:text-foreground hover:underline"
-													onClick={(e) => e.stopPropagation()}
-												>
-													{song.artist}
-												</Link>
-											</Show>
-										</TableCell>
-										<TableCell>
-											<Show when={song.albumId} fallback={song.album}>
-												<Link
-													to="/app/albums/$id"
-													params={{ id: song.albumId ?? "" }}
-													class="hover:text-foreground hover:underline"
-													onClick={(e) => e.stopPropagation()}
-												>
-													{song.album}
-												</Link>
-											</Show>
-										</TableCell>
-										<TableCell class="text-right font-mono text-xs text-muted-foreground">
-											{formatDuration(song.duration)}
-										</TableCell>
-									</ContextMenuTrigger>
-									<ContextMenuContent>
-										<ContextMenuItem
-											onSelect={() => {
+				<div class="overflow-x-auto">
+					<Table>
+						<TableHeader>
+							<TableRow>
+								<TableHead class="w-[50px]">#</TableHead>
+								<TableHead class="w-[48px]"></TableHead>
+								<TableHead>Title</TableHead>
+								<TableHead class="hidden md:table-cell">Artist</TableHead>
+								<TableHead class="hidden md:table-cell">Album</TableHead>
+								<TableHead class="text-right">
+									<IconClock class="size-4 ml-auto" />
+								</TableHead>
+							</TableRow>
+						</TableHeader>
+						<TableBody>
+							<For each={songs.data}>
+								{(song, i) => (
+									<ContextMenu>
+										<ContextMenuTrigger
+											as={TableRow}
+											class="group cursor-pointer hover:bg-muted/50"
+											onClick={() => {
 												const songList = songs.data;
 												if (songList) {
 													play(song, songList, i());
 												}
 											}}
 										>
-											<IconPlayerPlay class="mr-2 size-4" />
-											Play
-										</ContextMenuItem>
-										<ContextMenuItem onSelect={() => playNextInQueue(song)}>
-											<IconPlayerSkipForward class="mr-2 size-4" />
-											Play Next
-										</ContextMenuItem>
-										<ContextMenuItem onSelect={() => addToQueue([song])}>
-											<IconList class="mr-2 size-4" />
-											Add to Queue
-										</ContextMenuItem>
-										<ContextMenuItem
-											onSelect={() => {
-												setPlaylistDialogState({
-													open: true,
-													songIds: [song.id],
-												});
-											}}
-										>
-											<IconPlaylistAdd class="mr-2 size-4" />
-											Add to Playlist...
-										</ContextMenuItem>
-										<ContextMenuSeparator />
-										<ContextMenuItem
-											onSelect={() => {
-												if (song.artistId) {
-													navigate({
-														to: "/app/artists/$id",
-														params: { id: song.artistId },
-													});
-												}
-											}}
-											disabled={!song.artistId}
-										>
-											<IconUser class="mr-2 size-4" />
-											Go to Artist
-										</ContextMenuItem>
-										<ContextMenuItem
-											onSelect={() => {
-												if (song.albumId) {
-													navigate({
-														to: "/app/albums/$id",
-														params: { id: song.albumId },
-													});
-												}
-											}}
-											disabled={!song.albumId}
-										>
-											<IconDisc class="mr-2 size-4" />
-											Go to Album
-										</ContextMenuItem>
-										<ContextMenuSeparator />
-										<ContextMenuItem
-											onSelect={() => {
-												if (song.starred) {
-													unstar({ id: song.id });
-												} else {
-													star({ id: song.id });
-												}
-											}}
-										>
-											<Show
-												when={song.starred}
-												fallback={<IconStar class="mr-2 size-4" />}
+											<TableCell class="font-medium text-muted-foreground group-hover:text-foreground">
+												<span class="group-hover:hidden text-xs">
+													{i() + 1}
+												</span>
+												<IconPlayerPlayFilled class="size-3 hidden group-hover:block text-primary" />
+											</TableCell>
+											<TableCell>
+												<CoverArt
+													id={song.coverArt}
+													size={80}
+													class="size-10 rounded shadow-sm"
+												/>
+											</TableCell>
+											<TableCell class="font-medium">
+												<span
+													class={
+														currentTrack?.id === song.id ? "text-primary" : ""
+													}
+												>
+													{song.title}
+												</span>
+											</TableCell>
+											<TableCell class="hidden md:table-cell">
+												<Show when={song.artistId} fallback={song.artist}>
+													<Link
+														to="/app/artists/$id"
+														params={{ id: song.artistId ?? "" }}
+														class="hover:text-foreground hover:underline"
+														onClick={(e) => e.stopPropagation()}
+													>
+														{song.artist}
+													</Link>
+												</Show>
+											</TableCell>
+											<TableCell class="hidden md:table-cell">
+												<Show when={song.albumId} fallback={song.album}>
+													<Link
+														to="/app/albums/$id"
+														params={{ id: song.albumId ?? "" }}
+														class="hover:text-foreground hover:underline"
+														onClick={(e) => e.stopPropagation()}
+													>
+														{song.album}
+													</Link>
+												</Show>
+											</TableCell>
+											<TableCell class="text-right font-mono text-xs text-muted-foreground">
+												{formatDuration(song.duration)}
+											</TableCell>
+										</ContextMenuTrigger>
+										<ContextMenuContent>
+											<ContextMenuItem
+												onSelect={() => {
+													const songList = songs.data;
+													if (songList) {
+														play(song, songList, i());
+													}
+												}}
 											>
-												<IconStarFilled class="mr-2 size-4 text-yellow-500" />
-											</Show>
-											{song.starred ? "Unstar" : "Star"}
-										</ContextMenuItem>
-									</ContextMenuContent>
-								</ContextMenu>
-							)}
-						</For>
-					</TableBody>
-				</Table>
+												<IconPlayerPlay class="mr-2 size-4" />
+												Play
+											</ContextMenuItem>
+											<ContextMenuItem onSelect={() => playNextInQueue(song)}>
+												<IconPlayerSkipForward class="mr-2 size-4" />
+												Play Next
+											</ContextMenuItem>
+											<ContextMenuItem onSelect={() => addToQueue([song])}>
+												<IconList class="mr-2 size-4" />
+												Add to Queue
+											</ContextMenuItem>
+											<ContextMenuItem
+												onSelect={() => {
+													setPlaylistDialogState({
+														open: true,
+														songIds: [song.id],
+													});
+												}}
+											>
+												<IconPlaylistAdd class="mr-2 size-4" />
+												Add to Playlist...
+											</ContextMenuItem>
+											<ContextMenuSeparator />
+											<ContextMenuItem
+												onSelect={() => {
+													if (song.artistId) {
+														navigate({
+															to: "/app/artists/$id",
+															params: { id: song.artistId },
+														});
+													}
+												}}
+												disabled={!song.artistId}
+											>
+												<IconUser class="mr-2 size-4" />
+												Go to Artist
+											</ContextMenuItem>
+											<ContextMenuItem
+												onSelect={() => {
+													if (song.albumId) {
+														navigate({
+															to: "/app/albums/$id",
+															params: { id: song.albumId },
+														});
+													}
+												}}
+												disabled={!song.albumId}
+											>
+												<IconDisc class="mr-2 size-4" />
+												Go to Album
+											</ContextMenuItem>
+											<ContextMenuSeparator />
+											<ContextMenuItem
+												onSelect={() => {
+													if (song.starred) {
+														unstar({ id: song.id });
+													} else {
+														star({ id: song.id });
+													}
+												}}
+											>
+												<Show
+													when={song.starred}
+													fallback={<IconStar class="mr-2 size-4" />}
+												>
+													<IconStarFilled class="mr-2 size-4 text-yellow-500" />
+												</Show>
+												{song.starred ? "Unstar" : "Star"}
+											</ContextMenuItem>
+										</ContextMenuContent>
+									</ContextMenu>
+								)}
+							</For>
+						</TableBody>
+					</Table>
+				</div>
 
 				<div class="flex items-center justify-between pt-2">
 					<Button
 						variant="outline"
 						size="sm"
+						class="h-11 sm:h-9"
 						onClick={() => goToPage(page() - 1)}
 						disabled={page() <= 1 || songs.isFetching}
 					>
@@ -292,6 +299,7 @@ function GenreDetailPage() {
 					<Button
 						variant="outline"
 						size="sm"
+						class="h-11 sm:h-9"
 						onClick={() => goToPage(page() + 1)}
 						disabled={!hasNextPage() || songs.isFetching}
 					>

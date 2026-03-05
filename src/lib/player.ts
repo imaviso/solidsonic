@@ -263,6 +263,10 @@ interface RemoteControllerPlaybackSnapshot {
 	currentTrack?: RemoteControllerTrackSnapshot;
 }
 
+function hasStateUpdates(updates: Partial<PlayerState>): boolean {
+	return Object.keys(updates).length > 0;
+}
+
 // Save current queue to server (debounced)
 function debouncedSaveQueue() {
 	if (!queueSyncEnabled) return;
@@ -530,25 +534,63 @@ async function pollRemoteControllerState(): Promise<void> {
 		}
 
 		const updates: Partial<PlayerState> = {};
+		const wasPlaying = playerState.isPlaying;
+		const parsedQueueIndex =
+			typeof snapshot.queueIndex === "number"
+				? Math.max(-1, Math.trunc(snapshot.queueIndex))
+				: playerState.queueIndex;
+		const queueIndexChanged = parsedQueueIndex !== playerState.queueIndex;
+		const snapshotTrackId =
+			typeof snapshot.currentTrack?.id === "string" &&
+			snapshot.currentTrack.id.length > 0
+				? snapshot.currentTrack.id
+				: undefined;
+		const trackChanged =
+			snapshotTrackId !== undefined &&
+			snapshotTrackId !== playerState.currentTrack?.id;
 
 		if (typeof snapshot.isPlaying === "boolean") {
-			updates.isPlaying = snapshot.isPlaying;
+			if (snapshot.isPlaying !== playerState.isPlaying) {
+				updates.isPlaying = snapshot.isPlaying;
+			}
 		}
 
 		if (typeof snapshot.currentTimeMs === "number") {
-			updates.currentTime = Math.max(0, snapshot.currentTimeMs / 1000);
+			const nextCurrentTime = Math.max(0, snapshot.currentTimeMs / 1000);
+			const isPlaybackStateChanging =
+				typeof snapshot.isPlaying === "boolean" &&
+				snapshot.isPlaying !== wasPlaying;
+			const driftSeconds = Math.abs(playerState.currentTime - nextCurrentTime);
+			const shouldUpdateTimeWhilePlaying =
+				isPlaybackStateChanging || queueIndexChanged || trackChanged;
+			const shouldUpdateTimeWhilePaused = driftSeconds >= 1;
+
+			if (
+				(wasPlaying && (shouldUpdateTimeWhilePlaying || driftSeconds >= 15)) ||
+				(!wasPlaying && shouldUpdateTimeWhilePaused)
+			) {
+				updates.currentTime = nextCurrentTime;
+			}
 		}
 
 		if (typeof snapshot.durationMs === "number") {
-			updates.duration = Math.max(0, snapshot.durationMs / 1000);
+			const nextDuration = Math.max(0, snapshot.durationMs / 1000);
+			if (Math.abs(playerState.duration - nextDuration) >= 1) {
+				updates.duration = nextDuration;
+			}
 		}
 
 		if (typeof snapshot.volume === "number") {
-			updates.volume = Math.max(0, Math.min(1, snapshot.volume));
+			const nextVolume = Math.max(0, Math.min(1, snapshot.volume));
+			if (Math.abs(playerState.volume - nextVolume) >= 0.02) {
+				updates.volume = nextVolume;
+			}
 		}
 
 		if (typeof snapshot.shuffle === "boolean") {
-			updates.shuffle = snapshot.shuffle;
+			if (snapshot.shuffle !== playerState.shuffle) {
+				updates.shuffle = snapshot.shuffle;
+			}
 		}
 
 		if (
@@ -556,15 +598,14 @@ async function pollRemoteControllerState(): Promise<void> {
 			snapshot.repeat === "all" ||
 			snapshot.repeat === "one"
 		) {
-			updates.repeat = snapshot.repeat;
+			if (snapshot.repeat !== playerState.repeat) {
+				updates.repeat = snapshot.repeat;
+			}
 		}
 
-		const parsedQueueIndex =
-			typeof snapshot.queueIndex === "number"
-				? Math.max(-1, Math.trunc(snapshot.queueIndex))
-				: playerState.queueIndex;
-
-		updates.queueIndex = parsedQueueIndex;
+		if (queueIndexChanged) {
+			updates.queueIndex = parsedQueueIndex;
+		}
 
 		const queueSongIds = parseRemoteQueueSongIds(snapshot.queueSongIds);
 		const fallbackTrack = createRemoteSnapshotSong(
@@ -573,10 +614,14 @@ async function pollRemoteControllerState(): Promise<void> {
 		);
 
 		if (fallbackTrack) {
-			updates.currentTrack = fallbackTrack;
+			if (playerState.currentTrack?.id !== fallbackTrack.id) {
+				updates.currentTrack = fallbackTrack;
+			}
 		}
 
-		updateState(updates);
+		if (hasStateUpdates(updates)) {
+			updateState(updates);
+		}
 
 		if (queueSongIds.length === 0) {
 			remoteControllerQueueSignature = "";
@@ -622,7 +667,7 @@ function startRemoteControllerStateSync() {
 	remoteControllerQueueSignature = null;
 	remoteControllerStatePollTimer = setInterval(() => {
 		void pollRemoteControllerState();
-	}, 1000);
+	}, 4000);
 
 	void pollRemoteControllerState();
 }

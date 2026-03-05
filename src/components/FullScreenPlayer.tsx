@@ -184,7 +184,7 @@ const LyricsView: Component = () => {
 					<Show
 						when={lyrics().type === "synced"}
 						fallback={
-							<div class="whitespace-pre-wrap text-xl md:text-2xl lg:text-3xl font-bold leading-loose text-foreground/90 max-w-3xl px-8">
+							<div class="whitespace-pre-wrap text-base sm:text-xl md:text-2xl lg:text-3xl font-bold leading-loose text-foreground/90 max-w-3xl px-4 sm:px-8">
 								{lyrics().type === "unsynced"
 									? (lyrics().data as StructuredLyrics).line
 											.map((l) => l.value)
@@ -201,7 +201,7 @@ const LyricsView: Component = () => {
 								<button
 									type="button"
 									class={cn(
-										"text-2xl md:text-3xl lg:text-5xl font-bold transition-all duration-700 cursor-pointer px-8 py-2 outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-lg w-full text-center bg-transparent border-0 select-none",
+										"text-lg sm:text-2xl md:text-3xl lg:text-5xl font-bold transition-all duration-700 cursor-pointer px-4 sm:px-8 py-2 outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-lg w-full text-center bg-transparent border-0 select-none",
 										i() === currentLineIndex()
 											? "text-primary scale-100 opacity-100 blur-0"
 											: "text-muted-foreground/40 scale-95 opacity-40 blur-[2px] hover:opacity-70 hover:blur-0",
@@ -306,7 +306,7 @@ const QueueView: Component = () => {
 							</div>
 						</div>
 
-						<div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity focus-within:opacity-100">
+						<div class="flex items-center gap-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity focus-within:opacity-100">
 							<div class="text-xs text-muted-foreground font-mono mr-2">
 								{formatTime(song.duration || 0)}
 							</div>
@@ -315,7 +315,7 @@ const QueueView: Component = () => {
 									<Button
 										variant="ghost"
 										size="icon"
-										class="size-8 text-muted-foreground hover:text-foreground"
+										class="size-11 md:size-8 text-muted-foreground hover:text-foreground"
 										onClick={(e) => {
 											e.stopPropagation();
 											player.moveInQueue(i(), i() - 1);
@@ -332,7 +332,7 @@ const QueueView: Component = () => {
 									<Button
 										variant="ghost"
 										size="icon"
-										class="size-8 text-muted-foreground hover:text-foreground"
+										class="size-11 md:size-8 text-muted-foreground hover:text-foreground"
 										onClick={(e) => {
 											e.stopPropagation();
 											player.moveInQueue(i(), i() + 1);
@@ -349,7 +349,7 @@ const QueueView: Component = () => {
 									<Button
 										variant="ghost"
 										size="icon"
-										class="size-8 text-destructive/70 hover:text-destructive hover:bg-destructive/10"
+										class="size-11 md:size-8 text-destructive/70 hover:text-destructive hover:bg-destructive/10"
 										onClick={(e) => {
 											e.stopPropagation();
 											player.removeFromQueue(i());
@@ -426,22 +426,22 @@ const FullScreenPlayer: Component<FullScreenPlayerProps> = (props) => {
 				</div>
 
 				{/* Content Container */}
-				<div class="relative z-10 flex flex-col h-full max-w-7xl mx-auto p-6 lg:p-10">
+				<div class="relative z-10 flex flex-col h-full max-w-7xl mx-auto p-3 sm:p-4 lg:p-10">
 					{/* Header */}
 					<div class="flex items-center justify-between flex-none">
 						<Button
 							variant="ghost"
 							size="icon"
-							class="rounded-full"
+							class="size-11 sm:size-10 rounded-full"
 							onClick={props.onClose}
 						>
 							<IconChevronDown class="size-6" />
 						</Button>
-						<div class="flex bg-muted/20 rounded-full p-1">
+						<div class="flex flex-wrap justify-center gap-1 bg-muted/20 rounded-full p-1 max-w-full">
 							<Button
 								variant={view() === "artwork" ? "secondary" : "ghost"}
 								size="sm"
-								class="rounded-full h-8 px-4 text-xs font-medium"
+								class="rounded-full h-11 sm:h-8 px-2 sm:px-4 text-[11px] sm:text-xs font-medium"
 								onClick={() => setView("artwork")}
 							>
 								Playing
@@ -449,7 +449,7 @@ const FullScreenPlayer: Component<FullScreenPlayerProps> = (props) => {
 							<Button
 								variant={view() === "lyrics" ? "secondary" : "ghost"}
 								size="sm"
-								class="rounded-full h-8 px-4 text-xs font-medium"
+								class="rounded-full h-11 sm:h-8 px-2 sm:px-4 text-[11px] sm:text-xs font-medium"
 								onClick={() => setView("lyrics")}
 							>
 								Lyrics
@@ -457,7 +457,7 @@ const FullScreenPlayer: Component<FullScreenPlayerProps> = (props) => {
 							<Button
 								variant={view() === "queue" ? "secondary" : "ghost"}
 								size="sm"
-								class="rounded-full h-8 px-4 text-xs font-medium"
+								class="rounded-full h-11 sm:h-8 px-2 sm:px-4 text-[11px] sm:text-xs font-medium"
 								onClick={() => setView("queue")}
 							>
 								Up Next
@@ -588,7 +588,7 @@ const FullScreenPlayer: Component<FullScreenPlayerProps> = (props) => {
 									variant="ghost"
 									size="icon"
 									class={cn(
-										"size-10 text-muted-foreground hover:text-foreground",
+										"size-11 sm:size-10 text-muted-foreground hover:text-foreground",
 										player.shuffle && "text-primary",
 									)}
 									onClick={player.toggleShuffle}
@@ -596,34 +596,36 @@ const FullScreenPlayer: Component<FullScreenPlayerProps> = (props) => {
 									<IconArrowsShuffle class="size-5" />
 								</Button>
 
-								<div class="flex items-center gap-6">
+								<div class="flex items-center gap-3 sm:gap-6">
 									<Button
 										variant="ghost"
 										size="icon"
-										class="size-12 hover:scale-110 transition-transform"
+										class="size-11 sm:size-12 hover:scale-110 transition-transform"
 										onClick={player.playPrevious}
 									>
-										<IconPlayerSkipBackFilled class="size-8" />
+										<IconPlayerSkipBackFilled class="size-6 sm:size-8" />
 									</Button>
 									<Button
 										size="icon"
-										class="size-16 rounded-full hover:scale-105 transition-transform shadow-lg"
+										class="size-12 sm:size-16 rounded-full hover:scale-105 transition-transform shadow-lg"
 										onClick={player.togglePlayPause}
 									>
 										<Show
 											when={player.isPlaying}
-											fallback={<IconPlayerPlayFilled class="size-8" />}
+											fallback={
+												<IconPlayerPlayFilled class="size-6 sm:size-8" />
+											}
 										>
-											<IconPlayerPauseFilled class="size-8" />
+											<IconPlayerPauseFilled class="size-6 sm:size-8" />
 										</Show>
 									</Button>
 									<Button
 										variant="ghost"
 										size="icon"
-										class="size-12 hover:scale-110 transition-transform"
+										class="size-11 sm:size-12 hover:scale-110 transition-transform"
 										onClick={player.playNext}
 									>
-										<IconPlayerSkipForwardFilled class="size-8" />
+										<IconPlayerSkipForwardFilled class="size-6 sm:size-8" />
 									</Button>
 								</div>
 
@@ -631,7 +633,7 @@ const FullScreenPlayer: Component<FullScreenPlayerProps> = (props) => {
 									variant="ghost"
 									size="icon"
 									class={cn(
-										"size-10 text-muted-foreground hover:text-foreground",
+										"size-11 sm:size-10 text-muted-foreground hover:text-foreground",
 										player.repeat !== "off" && "text-primary",
 									)}
 									onClick={player.toggleRepeat}
@@ -654,7 +656,7 @@ const FullScreenPlayer: Component<FullScreenPlayerProps> = (props) => {
 									<Button
 										variant="ghost"
 										size="icon"
-										class="size-8 p-0"
+										class="size-11 sm:size-8 p-0"
 										onClick={() =>
 											player.setVolume(player.volume === 0 ? 1 : 0)
 										}
@@ -692,7 +694,7 @@ const FullScreenPlayer: Component<FullScreenPlayerProps> = (props) => {
 										variant="ghost"
 										size="icon"
 										class={cn(
-											"text-muted-foreground",
+											"size-11 sm:size-10 text-muted-foreground",
 											view() === "lyrics" && "text-primary bg-muted",
 										)}
 										onClick={() =>
@@ -705,7 +707,7 @@ const FullScreenPlayer: Component<FullScreenPlayerProps> = (props) => {
 										variant="ghost"
 										size="icon"
 										class={cn(
-											"text-muted-foreground",
+											"size-11 sm:size-10 text-muted-foreground",
 											view() === "queue" && "text-primary bg-muted",
 										)}
 										onClick={() =>

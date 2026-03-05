@@ -27,9 +27,9 @@ function SettingsPage() {
 		useSettings();
 
 	return (
-		<div class="container max-w-2xl py-8 space-y-8 h-full overflow-y-auto">
+		<div class="container max-w-2xl py-6 sm:py-8 space-y-6 sm:space-y-8 h-full overflow-y-auto">
 			<div>
-				<h2 class="text-3xl font-bold tracking-tight">Settings</h2>
+				<h2 class="text-2xl sm:text-3xl font-bold tracking-tight">Settings</h2>
 				<p class="text-muted-foreground">Manage your player preferences</p>
 			</div>
 
@@ -43,7 +43,7 @@ function SettingsPage() {
 						</CardDescription>
 					</CardHeader>
 					<CardContent class="space-y-6">
-						<div class="flex items-center justify-between">
+						<div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
 							<div class="space-y-0.5">
 								<Label>Theme</Label>
 								<p class="text-sm text-muted-foreground">
@@ -64,7 +64,7 @@ function SettingsPage() {
 									</SelectItem>
 								)}
 							>
-								<SelectTrigger class="w-[180px]">
+								<SelectTrigger class="h-11 sm:h-10 w-full sm:w-[180px]">
 									<SelectValue<string>>
 										{(state) => {
 											const val = state.selectedOption();
@@ -87,7 +87,7 @@ function SettingsPage() {
 						<CardDescription>Configure how music is played</CardDescription>
 					</CardHeader>
 					<CardContent class="space-y-6">
-						<div class="flex items-center justify-between">
+						<div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
 							<div class="space-y-0.5">
 								<Label>Max Bitrate</Label>
 								<p class="text-sm text-muted-foreground">
@@ -107,7 +107,7 @@ function SettingsPage() {
 									</SelectItem>
 								)}
 							>
-								<SelectTrigger class="w-[180px]">
+								<SelectTrigger class="h-11 sm:h-10 w-full sm:w-[180px]">
 									<SelectValue<number>>
 										{(state) =>
 											state.selectedOption() === 0
@@ -120,7 +120,7 @@ function SettingsPage() {
 							</Select>
 						</div>
 
-						<div class="flex items-center justify-between">
+						<div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
 							<div class="space-y-0.5">
 								<Label>Scrobbling</Label>
 								<p class="text-sm text-muted-foreground">

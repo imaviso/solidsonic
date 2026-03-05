@@ -114,7 +114,7 @@ export function AddToPlaylistDialog(props: AddToPlaylistDialogProps) {
 
 	return (
 		<Dialog open={props.open} onOpenChange={props.onOpenChange}>
-			<DialogContent class="sm:max-w-[425px]">
+			<DialogContent class="max-w-[95vw] sm:max-w-[425px]">
 				<DialogHeader>
 					<DialogTitle>Add to Playlist</DialogTitle>
 					<DialogDescription>
@@ -139,8 +139,9 @@ export function AddToPlaylistDialog(props: AddToPlaylistDialogProps) {
 					>
 						<div class="flex flex-col gap-2 p-4 border rounded-md bg-muted/30">
 							<span class="text-sm font-medium">New Playlist Name</span>
-							<div class="flex gap-2">
+							<div class="flex flex-col gap-2 sm:flex-row">
 								<Input
+									class="h-11"
 									value={newPlaylistName()}
 									onInput={(
 										e: InputEvent & { currentTarget: HTMLInputElement },
@@ -151,6 +152,7 @@ export function AddToPlaylistDialog(props: AddToPlaylistDialogProps) {
 									}}
 								/>
 								<Button
+									class="h-11 sm:h-10 w-full sm:w-auto"
 									disabled={!newPlaylistName() || isSubmitting()}
 									onClick={handleCreateAndAdd}
 								>

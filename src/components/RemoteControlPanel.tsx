@@ -1,4 +1,12 @@
 import {
+	IconPlayerPauseFilled,
+	IconPlayerPlayFilled,
+	IconPlayerSkipBackFilled,
+	IconPlayerSkipForwardFilled,
+	IconRewindBackward10,
+	IconRewindForward10,
+} from "@tabler/icons-solidjs";
+import {
 	createEffect,
 	createMemo,
 	createSignal,
@@ -397,15 +405,24 @@ export function RemoteControlPanel() {
 	return (
 		<div class="space-y-6">
 			<div class="space-y-3">
-				<div class="flex items-center justify-between gap-3">
+				<div class="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
 					<h3 class="text-sm font-medium">Host This Player</h3>
 					<Show
 						when={hostSession()}
 						fallback={
-							<Button onClick={handleCreateRemoteSession}>Start Host</Button>
+							<Button
+								class="w-full sm:w-auto"
+								onClick={handleCreateRemoteSession}
+							>
+								Start Host
+							</Button>
 						}
 					>
-						<Button variant="destructive" onClick={handleStopRemoteHost}>
+						<Button
+							variant="destructive"
+							class="w-full sm:w-auto"
+							onClick={handleStopRemoteHost}
+						>
 							Stop Host
 						</Button>
 					</Show>
@@ -414,10 +431,10 @@ export function RemoteControlPanel() {
 				<Show when={hostSession()}>
 					<div class="space-y-2 rounded-md border p-3">
 						<p class="text-sm text-muted-foreground">Pairing code</p>
-						<p class="text-2xl font-mono tracking-widest">
+						<p class="text-xl font-mono tracking-widest sm:text-2xl">
 							{hostSession()?.pairingCode ?? "(joined)"}
 						</p>
-						<p class="text-xs text-muted-foreground">
+						<p class="text-xs text-muted-foreground break-all">
 							Session ID: {hostSession()?.id}
 						</p>
 						<p class="text-xs text-muted-foreground">
@@ -439,20 +456,30 @@ export function RemoteControlPanel() {
 
 			<div class="space-y-3">
 				<h3 class="text-sm font-medium">Join As Controller</h3>
-				<div class="flex gap-2">
+				<div class="flex flex-col gap-2 sm:flex-row">
 					<Input
+						class="h-11 text-base"
 						value={joinCode()}
 						onInput={(event) => setJoinCode(event.currentTarget.value)}
 						placeholder="Enter 6-digit code"
 					/>
-					<Button onClick={handleJoinRemoteSession}>Join</Button>
+					<Button
+						class="h-11 w-full sm:w-auto sm:px-6"
+						onClick={handleJoinRemoteSession}
+					>
+						Join
+					</Button>
 				</div>
 
 				<Show when={controllerSession()}>
-					<div class="space-y-4 rounded-md border p-3 pb-20 md:pb-3">
-						<div class="flex items-center justify-between">
+					<div class="space-y-4 rounded-md border bg-card/40 p-3 pb-24 sm:p-4 md:pb-3">
+						<div class="flex flex-col items-start justify-between gap-2 sm:flex-row sm:items-center">
 							<p class="text-sm font-medium">Controller Connected</p>
-							<Button variant="outline" onClick={handleLeaveControllerSession}>
+							<Button
+								variant="outline"
+								class="w-full sm:w-auto"
+								onClick={handleLeaveControllerSession}
+							>
 								Leave
 							</Button>
 						</div>
@@ -463,42 +490,48 @@ export function RemoteControlPanel() {
 							Remote mode is active: play actions in this app control the host.
 						</p>
 
-						<div class="grid grid-cols-2 gap-2 md:grid-cols-5">
+						<div class="hidden gap-2 md:grid md:grid-cols-5">
 							<Button
 								variant="outline"
+								class="h-10"
 								onClick={() => void handleSendRemoteCommand("play")}
 							>
 								Play
 							</Button>
 							<Button
 								variant="outline"
+								class="h-10"
 								onClick={() => void handleSendRemoteCommand("pause")}
 							>
 								Pause
 							</Button>
 							<Button
 								variant="outline"
+								class="h-10"
 								onClick={() => void handleSendRemoteCommand("previous")}
 							>
 								Previous
 							</Button>
 							<Button
 								variant="outline"
+								class="h-10"
 								onClick={() => void handleSendRemoteCommand("togglePlayPause")}
 							>
 								Play/Pause
 							</Button>
 							<Button
 								variant="outline"
+								class="h-10"
 								onClick={() => void handleSendRemoteCommand("next")}
 							>
 								Next
 							</Button>
 						</div>
 
-						<div class="grid grid-cols-2 gap-2 md:grid-cols-4">
+						<div class="grid grid-cols-2 gap-2 sm:grid-cols-4">
 							<Button
 								variant="secondary"
+								class="h-10"
 								onClick={() =>
 									void handleSendRemoteCommand("setVolume", { volume: 0.2 })
 								}
@@ -507,6 +540,7 @@ export function RemoteControlPanel() {
 							</Button>
 							<Button
 								variant="secondary"
+								class="h-10"
 								onClick={() =>
 									void handleSendRemoteCommand("setVolume", { volume: 0.8 })
 								}
@@ -515,12 +549,14 @@ export function RemoteControlPanel() {
 							</Button>
 							<Button
 								variant="secondary"
+								class="h-10"
 								onClick={() => void handleSendRemoteCommand("toggleShuffle")}
 							>
 								Shuffle
 							</Button>
 							<Button
 								variant="secondary"
+								class="h-10"
 								onClick={() =>
 									void handleSendRemoteCommand("setRepeat", {
 										mode:
@@ -557,9 +593,10 @@ export function RemoteControlPanel() {
 								</SliderTrack>
 								<SliderThumb class="block h-4 w-4 rounded-full border-2 border-primary bg-background" />
 							</Slider>
-							<div class="grid grid-cols-2 gap-2">
+							<div class="hidden grid-cols-2 gap-2 md:grid">
 								<Button
 									variant="outline"
+									class="h-10"
 									onClick={() =>
 										void handleSendRemoteCommand("seek", {
 											positionMs: Math.max(0, currentTimeMs() - 10_000),
@@ -570,6 +607,7 @@ export function RemoteControlPanel() {
 								</Button>
 								<Button
 									variant="outline"
+									class="h-10"
 									onClick={() =>
 										void handleSendRemoteCommand("seek", {
 											positionMs: Math.min(
@@ -593,9 +631,10 @@ export function RemoteControlPanel() {
 										: "-"}
 								</span>
 							</div>
-							<div class="flex gap-2">
+							<div class="grid grid-cols-2 gap-2">
 								<Button
 									variant="outline"
+									class="h-10"
 									disabled={currentQueueIndex() <= 0}
 									onClick={() =>
 										void handleSendRemoteCommand("setQueueIndex", {
@@ -607,6 +646,7 @@ export function RemoteControlPanel() {
 								</Button>
 								<Button
 									variant="outline"
+									class="h-10"
 									disabled={
 										currentQueueIndex() < 0 ||
 										currentQueueIndex() >= queueLength() - 1
@@ -620,9 +660,11 @@ export function RemoteControlPanel() {
 									Next Track
 								</Button>
 							</div>
-							<div class="flex gap-2">
+							<div class="flex flex-col gap-2 sm:flex-row">
 								<Input
+									class="h-11"
 									type="number"
+									inputmode="numeric"
 									value={queueIndexInput()}
 									onInput={(event) =>
 										setQueueIndexInput(event.currentTarget.value)
@@ -631,6 +673,7 @@ export function RemoteControlPanel() {
 								/>
 								<Button
 									variant="secondary"
+									class="h-11 w-full sm:w-auto"
 									onClick={handleQueueJump}
 									disabled={queueLength() === 0}
 								>
@@ -641,7 +684,7 @@ export function RemoteControlPanel() {
 
 						<div class="space-y-1 text-sm">
 							<p class="font-medium">Now Playing</p>
-							<p class="text-muted-foreground">
+							<p class="text-muted-foreground break-words">
 								{snapshot()?.currentTrack
 									? `${snapshot()?.currentTrack?.title ?? "Unknown"} - ${snapshot()?.currentTrack?.artist ?? "Unknown artist"}`
 									: "No track information"}
@@ -657,29 +700,71 @@ export function RemoteControlPanel() {
 							</p>
 						</div>
 
-						<div class="sticky bottom-2 rounded-md border bg-background/95 p-2 backdrop-blur md:hidden">
-							<div class="grid grid-cols-3 gap-2">
+						<div class="sticky bottom-0 rounded-md border bg-background/95 p-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] shadow-lg backdrop-blur md:hidden">
+							<div class="grid grid-cols-5 gap-1.5">
 								<Button
 									variant="outline"
-									class="h-12"
+									class="h-12 gap-0 px-0 text-[11px] min-[360px]:gap-1"
+									aria-label="Previous track"
 									onClick={() => void handleSendRemoteCommand("previous")}
 								>
-									Prev
+									<IconPlayerSkipBackFilled class="size-4" />
+									<span class="hidden min-[360px]:inline">Prev</span>
 								</Button>
 								<Button
-									class="h-12"
+									variant="outline"
+									class="h-12 gap-0 px-0 text-[11px] min-[360px]:gap-1"
+									aria-label="Rewind 10 seconds"
+									onClick={() =>
+										void handleSendRemoteCommand("seek", {
+											positionMs: Math.max(0, currentTimeMs() - 10_000),
+										})
+									}
+								>
+									<IconRewindBackward10 class="size-4" />
+									<span class="hidden min-[360px]:inline">-10s</span>
+								</Button>
+								<Button
+									class="h-12 gap-0 min-[360px]:gap-1"
+									aria-label={snapshot()?.isPlaying ? "Pause" : "Play"}
 									onClick={() =>
 										void handleSendRemoteCommand("togglePlayPause")
 									}
 								>
-									{snapshot()?.isPlaying ? "Pause" : "Play"}
+									<Show
+										when={snapshot()?.isPlaying}
+										fallback={<IconPlayerPlayFilled class="size-4" />}
+									>
+										<IconPlayerPauseFilled class="size-4" />
+									</Show>
+									<span class="hidden min-[360px]:inline">
+										{snapshot()?.isPlaying ? "Pause" : "Play"}
+									</span>
 								</Button>
 								<Button
 									variant="outline"
-									class="h-12"
+									class="h-12 gap-0 px-0 text-[11px] min-[360px]:gap-1"
+									aria-label="Forward 10 seconds"
+									onClick={() =>
+										void handleSendRemoteCommand("seek", {
+											positionMs: Math.min(
+												durationMs(),
+												currentTimeMs() + 10_000,
+											),
+										})
+									}
+								>
+									<IconRewindForward10 class="size-4" />
+									<span class="hidden min-[360px]:inline">+10s</span>
+								</Button>
+								<Button
+									variant="outline"
+									class="h-12 gap-0 px-0 text-[11px] min-[360px]:gap-1"
+									aria-label="Next track"
 									onClick={() => void handleSendRemoteCommand("next")}
 								>
-									Next
+									<IconPlayerSkipForwardFilled class="size-4" />
+									<span class="hidden min-[360px]:inline">Next</span>
 								</Button>
 							</div>
 						</div>

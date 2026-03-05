@@ -43,7 +43,7 @@ function GenresPage() {
 	return (
 		<div class="flex flex-col gap-6 h-full overflow-y-auto">
 			<div>
-				<h2 class="text-3xl font-bold tracking-tight">Genres</h2>
+				<h2 class="text-2xl sm:text-3xl font-bold tracking-tight">Genres</h2>
 				<p class="text-muted-foreground">Browse by genre</p>
 			</div>
 
@@ -64,8 +64,8 @@ function GenresPage() {
 										class="block group"
 									>
 										<Card class="h-full hover:bg-muted/50 transition-colors">
-											<CardContent class="p-6 flex flex-col items-center justify-center text-center gap-2">
-												<span class="font-semibold text-lg group-hover:underline">
+											<CardContent class="p-4 sm:p-6 flex flex-col items-center justify-center text-center gap-2">
+												<span class="font-semibold text-base sm:text-lg group-hover:underline">
 													{genre.value}
 												</span>
 												<span class="text-xs text-muted-foreground">

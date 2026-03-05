@@ -164,7 +164,7 @@ function AlbumsPage() {
 	return (
 		<div class="flex flex-col gap-4 h-full">
 			<div class="flex-none">
-				<h2 class="text-3xl font-bold tracking-tight">Albums</h2>
+				<h2 class="text-2xl sm:text-3xl font-bold tracking-tight">Albums</h2>
 				<p class="text-muted-foreground">Your music library</p>
 			</div>
 

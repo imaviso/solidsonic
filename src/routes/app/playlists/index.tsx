@@ -22,12 +22,17 @@ function PlaylistsPage() {
 
 	return (
 		<div class="flex flex-col gap-6 h-full overflow-y-auto">
-			<div class="flex items-center justify-between">
+			<div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
 				<div>
-					<h2 class="text-3xl font-bold tracking-tight">Playlists</h2>
+					<h2 class="text-2xl sm:text-3xl font-bold tracking-tight">
+						Playlists
+					</h2>
 					<p class="text-muted-foreground">Your curated collections</p>
 				</div>
-				<Button onClick={() => setIsCreateDialogOpen(true)}>
+				<Button
+					class="h-11 sm:h-10 w-full sm:w-auto"
+					onClick={() => setIsCreateDialogOpen(true)}
+				>
 					<IconPlus class="size-4 mr-2" />
 					Create Playlist
 				</Button>
@@ -55,7 +60,7 @@ function PlaylistsPage() {
 								class="block group"
 							>
 								<Card class="h-full border-0 shadow-none bg-muted/40 hover:bg-muted/60 transition-colors">
-									<CardContent class="p-6 flex flex-col items-center justify-center text-center gap-4 h-full aspect-square">
+									<CardContent class="p-4 sm:p-6 flex flex-col items-center justify-center text-center gap-4 h-full aspect-square">
 										<div class="p-4 rounded-full bg-background shadow-sm">
 											<IconPlaylist class="size-8 text-primary" />
 										</div>

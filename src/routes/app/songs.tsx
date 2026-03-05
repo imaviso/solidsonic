@@ -112,14 +112,18 @@ function SongsPage() {
 
 	return (
 		<div class="flex flex-col gap-6 h-full">
-			<div class="flex items-center justify-between">
+			<div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
 				<div>
-					<h2 class="text-3xl font-bold tracking-tight">Songs</h2>
+					<h2 class="text-2xl sm:text-3xl font-bold tracking-tight">Songs</h2>
 					<p class="text-muted-foreground">
 						Random selection from your library
 					</p>
 				</div>
-				<Button onClick={handlePlayAll} disabled={!songs.data}>
+				<Button
+					class="h-11 sm:h-10 w-full sm:w-auto"
+					onClick={handlePlayAll}
+					disabled={!songs.data}
+				>
 					<IconPlayerPlayFilled class="mr-2 size-4" />
 					Play All
 				</Button>
@@ -127,7 +131,7 @@ function SongsPage() {
 
 			<div ref={scrollContainerRef} class="flex-1 overflow-auto">
 				{/* Header */}
-				<div class="grid grid-cols-[40px_48px_1fr_80px] md:grid-cols-[40px_48px_1fr_1fr_1fr_80px] gap-4 px-4 py-2 text-sm font-medium text-muted-foreground border-b sticky top-0 bg-background z-10">
+				<div class="grid grid-cols-[28px_40px_minmax(0,1fr)_52px] sm:grid-cols-[40px_48px_minmax(0,1fr)_80px] md:grid-cols-[40px_48px_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_80px] gap-2 sm:gap-4 px-2 sm:px-4 py-2 text-sm font-medium text-muted-foreground border-b sticky top-0 bg-background z-10">
 					<div>#</div>
 					<div></div>
 					<div>Title</div>
@@ -164,7 +168,7 @@ function SongsPage() {
 									>
 										<button
 											type="button"
-											class="w-full h-full grid grid-cols-[40px_48px_1fr_80px] md:grid-cols-[40px_48px_1fr_1fr_1fr_80px] gap-4 px-4 items-center group cursor-pointer hover:bg-muted/50 border-0 bg-transparent text-left"
+											class="w-full h-full grid grid-cols-[28px_40px_minmax(0,1fr)_52px] sm:grid-cols-[40px_48px_minmax(0,1fr)_80px] md:grid-cols-[40px_48px_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_80px] gap-2 sm:gap-4 px-2 sm:px-4 items-center group cursor-pointer hover:bg-muted/50 border-0 bg-transparent text-left rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
 											onClick={() => handlePlaySong(virtualRow.index)}
 											onKeyDown={(e) => {
 												if (e.key === "Enter" || e.key === " ") {

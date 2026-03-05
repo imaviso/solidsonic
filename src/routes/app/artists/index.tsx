@@ -19,7 +19,6 @@ export const Route = createFileRoute("/app/artists/")({
 });
 
 const ITEM_HEIGHT = 220;
-const IMAGE_HEIGHT = 160;
 const TEXT_HEIGHT = 60;
 
 function ArtistsPage() {
@@ -63,7 +62,7 @@ function ArtistsPage() {
 	return (
 		<div class="flex flex-col gap-4 h-full">
 			<div>
-				<h2 class="text-3xl font-bold tracking-tight">Artists</h2>
+				<h2 class="text-2xl sm:text-3xl font-bold tracking-tight">Artists</h2>
 				<p class="text-muted-foreground">Your artist library</p>
 			</div>
 
@@ -115,12 +114,7 @@ function ArtistsPage() {
 														class="block group"
 													>
 														<div class="flex flex-col items-center text-center">
-															<div
-																style={{
-																	height: `${IMAGE_HEIGHT}px`,
-																	width: `${IMAGE_HEIGHT}px`,
-																}}
-															>
+															<div class="w-full max-w-[160px] aspect-square mx-auto">
 																<CoverArt
 																	id={artist.coverArt}
 																	class="h-full w-full object-cover rounded-full shadow-sm"

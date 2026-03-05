@@ -165,7 +165,7 @@ export function SearchCommand(props: SearchCommandProps = {}) {
 				type="button"
 				onClick={() => setOpen(true)}
 				class={cn(
-					"flex items-center gap-2 px-3 py-1.5 text-sm text-muted-foreground border rounded-md hover:bg-muted transition-colors text-left group",
+					"flex min-h-11 items-center gap-2 px-3 py-1.5 text-sm text-muted-foreground border rounded-md hover:bg-muted transition-colors text-left group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
 					props.triggerClass ?? "w-40 md:w-64",
 				)}
 			>

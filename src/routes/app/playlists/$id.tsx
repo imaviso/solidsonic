@@ -206,7 +206,7 @@ function PlaylistDetailPage() {
 						<span class="text-sm font-medium text-muted-foreground uppercase">
 							Playlist
 						</span>
-						<h1 class="text-3xl md:text-4xl font-bold">
+						<h1 class="text-3xl md:text-4xl font-bold break-words">
 							{playlist.data?.name}
 						</h1>
 						<p class="text-muted-foreground">
@@ -214,10 +214,11 @@ function PlaylistDetailPage() {
 							{Math.floor((playlist.data?.duration || 0) / 60)} mins
 						</p>
 					</div>
-					<div class="flex gap-2">
+					<div class="flex gap-2 w-full md:w-auto justify-center">
 						<Button
 							variant="outline"
 							size="icon"
+							class="size-11 md:size-10"
 							onClick={() => setIsRenameDialogOpen(true)}
 						>
 							<IconEdit class="size-4" />
@@ -225,6 +226,7 @@ function PlaylistDetailPage() {
 						<Button
 							variant="destructive"
 							size="icon"
+							class="size-11 md:size-10"
 							onClick={() => setIsDeleteDialogOpen(true)}
 						>
 							<IconTrash class="size-4" />
@@ -232,91 +234,95 @@ function PlaylistDetailPage() {
 					</div>
 				</div>
 
-				<Table>
-					<TableHeader>
-						<TableRow>
-							<TableHead class="w-[50px]">#</TableHead>
-							<TableHead class="w-[48px]"></TableHead>
-							<TableHead>Title</TableHead>
-							<TableHead class="hidden md:table-cell">Artist</TableHead>
-							<TableHead class="hidden md:table-cell">Album</TableHead>
-							<TableHead class="text-right">
-								<IconClock class="size-4 ml-auto" />
-							</TableHead>
-							<TableHead class="w-[40px]"></TableHead>
-						</TableRow>
-					</TableHeader>
-					<TableBody>
-						<For each={playlist.data?.entry}>
-							{(song, i) => (
-								<TableRow
-									class="group cursor-pointer hover:bg-muted/50"
-									onClick={() => handlePlaySong(song, i())}
-								>
-									<TableCell class="font-medium text-muted-foreground group-hover:text-foreground">
-										<span class="group-hover:hidden text-xs">{i() + 1}</span>
-										<IconPlayerPlayFilled class="size-3 hidden group-hover:block text-primary" />
-									</TableCell>
-									<TableCell>
-										<CoverArt
-											id={song.coverArt}
-											size={80}
-											class="size-10 rounded shadow-sm"
-										/>
-									</TableCell>
-									<TableCell class="font-medium">
-										<span
-											class={currentTrack?.id === song.id ? "text-primary" : ""}
-										>
-											{song.title}
-										</span>
-									</TableCell>
-									<TableCell class="hidden md:table-cell">
-										<Show when={song.artistId} fallback={song.artist}>
-											<Link
-												to="/app/artists/$id"
-												params={{ id: song.artistId ?? "" }}
-												class="hover:text-foreground hover:underline"
-												onClick={(e) => e.stopPropagation()}
+				<div class="overflow-x-auto">
+					<Table>
+						<TableHeader>
+							<TableRow>
+								<TableHead class="w-[50px]">#</TableHead>
+								<TableHead class="w-[48px]"></TableHead>
+								<TableHead>Title</TableHead>
+								<TableHead class="hidden md:table-cell">Artist</TableHead>
+								<TableHead class="hidden md:table-cell">Album</TableHead>
+								<TableHead class="text-right">
+									<IconClock class="size-4 ml-auto" />
+								</TableHead>
+								<TableHead class="w-[40px]"></TableHead>
+							</TableRow>
+						</TableHeader>
+						<TableBody>
+							<For each={playlist.data?.entry}>
+								{(song, i) => (
+									<TableRow
+										class="group cursor-pointer hover:bg-muted/50"
+										onClick={() => handlePlaySong(song, i())}
+									>
+										<TableCell class="font-medium text-muted-foreground group-hover:text-foreground">
+											<span class="group-hover:hidden text-xs">{i() + 1}</span>
+											<IconPlayerPlayFilled class="size-3 hidden group-hover:block text-primary" />
+										</TableCell>
+										<TableCell>
+											<CoverArt
+												id={song.coverArt}
+												size={80}
+												class="size-10 rounded shadow-sm"
+											/>
+										</TableCell>
+										<TableCell class="font-medium">
+											<span
+												class={
+													currentTrack?.id === song.id ? "text-primary" : ""
+												}
 											>
-												{song.artist}
-											</Link>
-										</Show>
-									</TableCell>
-									<TableCell class="hidden md:table-cell">
-										<Show when={song.albumId} fallback={song.album}>
-											<Link
-												to="/app/albums/$id"
-												params={{ id: song.albumId ?? "" }}
-												class="hover:text-foreground hover:underline"
-												onClick={(e) => e.stopPropagation()}
-											>
-												{song.album}
-											</Link>
-										</Show>
-									</TableCell>
-									<TableCell class="text-right font-mono text-xs text-muted-foreground">
-										{formatDuration(song.duration)}
-									</TableCell>
-									<TableCell>
-										<Tooltip>
-											<TooltipTrigger
-												class={cn(
-													buttonVariants({ variant: "ghost", size: "icon" }),
-													"size-8 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive",
-												)}
-												onClick={(e: MouseEvent) => handleRemoveSong(e, i())}
-											>
-												<IconX class="size-4" />
-											</TooltipTrigger>
-											<TooltipContent>Remove from playlist</TooltipContent>
-										</Tooltip>
-									</TableCell>
-								</TableRow>
-							)}
-						</For>
-					</TableBody>
-				</Table>
+												{song.title}
+											</span>
+										</TableCell>
+										<TableCell class="hidden md:table-cell">
+											<Show when={song.artistId} fallback={song.artist}>
+												<Link
+													to="/app/artists/$id"
+													params={{ id: song.artistId ?? "" }}
+													class="hover:text-foreground hover:underline"
+													onClick={(e) => e.stopPropagation()}
+												>
+													{song.artist}
+												</Link>
+											</Show>
+										</TableCell>
+										<TableCell class="hidden md:table-cell">
+											<Show when={song.albumId} fallback={song.album}>
+												<Link
+													to="/app/albums/$id"
+													params={{ id: song.albumId ?? "" }}
+													class="hover:text-foreground hover:underline"
+													onClick={(e) => e.stopPropagation()}
+												>
+													{song.album}
+												</Link>
+											</Show>
+										</TableCell>
+										<TableCell class="text-right font-mono text-xs text-muted-foreground">
+											{formatDuration(song.duration)}
+										</TableCell>
+										<TableCell>
+											<Tooltip>
+												<TooltipTrigger
+													class={cn(
+														buttonVariants({ variant: "ghost", size: "icon" }),
+														"size-11 md:size-8 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive",
+													)}
+													onClick={(e: MouseEvent) => handleRemoveSong(e, i())}
+												>
+													<IconX class="size-4" />
+												</TooltipTrigger>
+												<TooltipContent>Remove from playlist</TooltipContent>
+											</Tooltip>
+										</TableCell>
+									</TableRow>
+								)}
+							</For>
+						</TableBody>
+					</Table>
+				</div>
 
 				<PlaylistDialog
 					open={isRenameDialogOpen()}

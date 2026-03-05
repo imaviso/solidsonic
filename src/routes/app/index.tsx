@@ -106,7 +106,7 @@ function AlbumSection(props: {
 
 	return (
 		<div class="min-w-0">
-			<div class="flex items-center justify-between mb-4 px-1">
+			<div class="mb-4 px-1">
 				<h2 class="text-2xl font-bold tracking-tight">{props.title}</h2>
 			</div>
 			<Show when={!albums.isLoading} fallback={<AlbumCarouselSkeleton />}>
@@ -274,7 +274,7 @@ function StarredSongsSection(props: {
 								<ContextMenuTrigger>
 									<button
 										type="button"
-										class="grid grid-cols-[30px_40px_1fr_60px] md:grid-cols-[30px_40px_1fr_1fr_60px] gap-3 px-3 py-2 items-center rounded-md hover:bg-muted/50 group cursor-pointer text-sm w-full text-left"
+										class="grid grid-cols-[24px_36px_minmax(0,1fr)_52px] sm:grid-cols-[30px_40px_minmax(0,1fr)_60px] md:grid-cols-[30px_40px_minmax(0,1fr)_minmax(0,1fr)_60px] gap-2 sm:gap-3 px-2 sm:px-3 py-2 items-center rounded-md hover:bg-muted/50 group cursor-pointer text-sm w-full text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
 										onClick={() => handlePlaySong(song, i())}
 									>
 										<div class="text-muted-foreground text-xs group-hover:text-primary flex justify-center">
@@ -452,7 +452,7 @@ function DashboardPage() {
 	};
 
 	return (
-		<div class="flex flex-col gap-10 pb-10 h-full overflow-y-auto">
+		<div class="flex flex-col gap-8 md:gap-10 pb-10 h-full overflow-y-auto">
 			<AlbumSection
 				title="New Arrivals"
 				type="newest"

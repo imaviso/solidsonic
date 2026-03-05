@@ -191,7 +191,7 @@ const Player: Component = () => {
 					<Button
 						variant="ghost"
 						size="icon"
-						class="h-10 w-10 rounded-full"
+						class="h-11 w-11 rounded-full"
 						onClick={(e) => {
 							e.stopPropagation();
 							player.togglePlayPause();

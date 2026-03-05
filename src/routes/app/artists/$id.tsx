@@ -47,8 +47,8 @@ function ArtistDetailPage() {
 				fallback={<div>Loading...</div>}
 			>
 				{/* Header with artist info */}
-				<div class="flex items-end gap-6 pb-6 border-b">
-					<div class="size-32 bg-muted rounded-full shadow-sm flex items-center justify-center overflow-hidden">
+				<div class="flex flex-col items-center gap-4 pb-6 border-b text-center sm:flex-row sm:items-end sm:text-left sm:gap-6">
+					<div class="size-28 sm:size-32 bg-muted rounded-full shadow-sm flex items-center justify-center overflow-hidden">
 						<Show
 							when={artistInfo.data?.info.largeImageUrl}
 							fallback={
@@ -66,7 +66,9 @@ function ArtistDetailPage() {
 						<span class="text-sm font-medium text-muted-foreground uppercase">
 							Artist
 						</span>
-						<h1 class="text-4xl font-bold">{artist.data?.artist.name}</h1>
+						<h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold break-words">
+							{artist.data?.artist.name}
+						</h1>
 						<p class="text-muted-foreground">
 							{artist.data?.albums.length} albums
 						</p>

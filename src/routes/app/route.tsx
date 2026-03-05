@@ -44,11 +44,11 @@ function AppLayout() {
 				<AppSidebar />
 				<SidebarInset class="h-svh overflow-hidden flex flex-col">
 					{/* Mobile Header */}
-					<div class="md:hidden flex items-center h-14 px-4 border-b shrink-0 bg-background">
+					<div class="md:hidden flex items-center h-14 px-3 border-b shrink-0 bg-background">
 						<SidebarTrigger />
 						<span class="ml-4 font-semibold">SolidSonic</span>
 					</div>
-					<div class="flex flex-1 flex-col gap-4 p-4 overflow-hidden min-h-0 h-full">
+					<div class="flex flex-1 flex-col gap-3 sm:gap-4 p-2 sm:p-4 overflow-hidden min-h-0 h-full">
 						<Suspense
 							fallback={
 								<div class="flex-1 animate-pulse bg-muted/10 rounded-lg" />
