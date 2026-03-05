@@ -628,6 +628,7 @@ export function seek(time: number) {
 	// Update state immediately for smooth UI
 	updateState({ currentTime: time });
 	backend.seek(time);
+	debouncedSaveQueue();
 }
 
 export function setVolume(volume: number) {
@@ -643,6 +644,7 @@ export function addToQueue(songs: Song[]) {
 		queue: [...playerState.queue, ...songs],
 		originalQueue: [...playerState.originalQueue, ...songs],
 	});
+	debouncedSaveQueue();
 }
 
 export function playNextInQueue(song: Song) {
@@ -662,6 +664,7 @@ export function playNextInQueue(song: Song) {
 		queue: newQueue,
 		originalQueue: newOriginalQueue,
 	});
+	debouncedSaveQueue();
 }
 
 export function clearQueue(): {
@@ -685,12 +688,14 @@ export function clearQueue(): {
 			originalQueue: [currentTrack],
 			queueIndex: 0,
 		});
+		debouncedSaveQueue();
 		return previousState;
 	}
 	// Otherwise completely clear the queue
 	const backend = getAudioBackend();
 	backend.stop();
 	updateState({ ...initialState, volume: playerState.volume });
+	debouncedSaveQueue();
 	return previousState;
 }
 
@@ -709,6 +714,7 @@ export function restoreQueueState(state: {
 		queueIndex: previousQueueIndex,
 		currentTrack: previousQueue[previousQueueIndex],
 	});
+	debouncedSaveQueue();
 }
 
 export function removeFromQueue(
@@ -738,6 +744,7 @@ export function removeFromQueue(
 		originalQueue: newOriginalQueue,
 		queueIndex: newQueueIndex,
 	});
+	debouncedSaveQueue();
 
 	return { song: removedSong, index };
 }
@@ -778,6 +785,7 @@ export function moveInQueue(fromIndex: number, toIndex: number) {
 		queue: newQueue,
 		queueIndex: newQueueIndex,
 	});
+	debouncedSaveQueue();
 }
 
 // Re-insert a song at a specific index in the queue (for undo)
@@ -802,6 +810,7 @@ export function insertIntoQueue(song: Song, index: number) {
 		originalQueue: newOriginalQueue,
 		queueIndex: newQueueIndex,
 	});
+	debouncedSaveQueue();
 }
 
 // Shuffle array using Fisher-Yates algorithm
@@ -835,6 +844,7 @@ export function toggleShuffle() {
 			queue: newQueue,
 			queueIndex: 0,
 		});
+		debouncedSaveQueue();
 	} else {
 		// Disable shuffle: restore original queue order
 		const currentSong = currentTrack;
@@ -847,6 +857,7 @@ export function toggleShuffle() {
 			queue: originalQueue,
 			queueIndex: newIndex >= 0 ? newIndex : 0,
 		});
+		debouncedSaveQueue();
 	}
 }
 

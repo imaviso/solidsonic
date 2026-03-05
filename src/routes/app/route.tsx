@@ -5,6 +5,11 @@ import Player from "~/components/Player";
 import { SidebarInset, SidebarProvider } from "~/components/ui/sidebar";
 import { playlistListQueryOptions } from "~/lib/api";
 import { isAuthenticated } from "~/lib/auth";
+import {
+	enableQueueSync,
+	isQueueSyncEnabled,
+	restoreQueue,
+} from "~/lib/player";
 
 export const Route = createFileRoute("/app")({
 	beforeLoad: () => {
@@ -22,6 +27,11 @@ function AppLayout() {
 
 	onMount(() => {
 		setMounted(true);
+
+		if (!isQueueSyncEnabled()) {
+			enableQueueSync();
+			void restoreQueue();
+		}
 	});
 
 	return (
