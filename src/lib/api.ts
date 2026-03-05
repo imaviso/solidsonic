@@ -1,7 +1,7 @@
 import { keepPreviousData, queryOptions } from "@tanstack/solid-query";
 import { queryKeys } from "~/lib/query";
 import { getSettings } from "~/lib/settings";
-import { buildMediaUrl, fetchSubsonic } from "./subsonic";
+import { buildMediaUrl, fetchSubsonic, getDeviceId } from "./subsonic";
 
 // Subsonic API Types
 // ... (keep existing interfaces)
@@ -839,6 +839,231 @@ export async function savePlayQueue(options: {
 			data["subsonic-response"].error?.message || "Failed to save play queue",
 		);
 	}
+}
+
+// ============================================================================
+// Remote Control (OpenSubsonic extension)
+// ============================================================================
+
+export interface RemoteSession {
+	id: string;
+	pairingCode?: string;
+	expiresAt: string;
+	hostDeviceId: string;
+	hostDeviceName?: string;
+	controllerDeviceId?: string;
+	controllerDeviceName?: string;
+	connected: boolean;
+}
+
+export interface RemoteCommand {
+	id: number;
+	command: string;
+	payload?: string;
+	sourceDeviceId: string;
+	created: string;
+}
+
+export interface RemoteState {
+	stateJson: string;
+	updatedByDeviceId: string;
+	updatedAt: string;
+}
+
+export async function createRemoteSession(options?: {
+	deviceName?: string;
+	ttlSeconds?: number;
+}): Promise<RemoteSession> {
+	const params: Record<string, string> = {
+		deviceId: getDeviceId(),
+	};
+
+	if (options?.deviceName) {
+		params.deviceName = options.deviceName;
+	}
+
+	if (options?.ttlSeconds !== undefined) {
+		params.ttlSeconds = options.ttlSeconds.toString();
+	}
+
+	const response = await fetchSubsonic("createRemoteSession", params);
+	const data: SubsonicResponse<{ remoteSession?: RemoteSession }> =
+		await response.json();
+
+	if (data["subsonic-response"].status !== "ok") {
+		throw new Error(
+			data["subsonic-response"].error?.message ||
+				"Failed to create remote session",
+		);
+	}
+
+	const session = data["subsonic-response"].remoteSession;
+	if (!session) {
+		throw new Error("Remote session response missing");
+	}
+
+	return session;
+}
+
+export async function joinRemoteSession(
+	code: string,
+	options?: { deviceName?: string },
+): Promise<RemoteSession> {
+	const params: Record<string, string> = {
+		code,
+		deviceId: getDeviceId(),
+	};
+
+	if (options?.deviceName) {
+		params.deviceName = options.deviceName;
+	}
+
+	const response = await fetchSubsonic("joinRemoteSession", params);
+	const data: SubsonicResponse<{ remoteSession?: RemoteSession }> =
+		await response.json();
+
+	if (data["subsonic-response"].status !== "ok") {
+		throw new Error(
+			data["subsonic-response"].error?.message ||
+				"Failed to join remote session",
+		);
+	}
+
+	const session = data["subsonic-response"].remoteSession;
+	if (!session) {
+		throw new Error("Remote session response missing");
+	}
+
+	return session;
+}
+
+export async function getRemoteSession(
+	sessionId: string,
+): Promise<RemoteSession | null> {
+	const response = await fetchSubsonic("getRemoteSession", {
+		sessionId,
+		deviceId: getDeviceId(),
+	});
+
+	const data: SubsonicResponse<{ remoteSession?: RemoteSession }> =
+		await response.json();
+
+	if (data["subsonic-response"].status !== "ok") {
+		return null;
+	}
+
+	return data["subsonic-response"].remoteSession ?? null;
+}
+
+export async function closeRemoteSession(sessionId: string): Promise<void> {
+	const response = await fetchSubsonic("closeRemoteSession", {
+		sessionId,
+		deviceId: getDeviceId(),
+	});
+
+	const data: SubsonicResponse<Record<string, never>> = await response.json();
+	if (data["subsonic-response"].status !== "ok") {
+		throw new Error(
+			data["subsonic-response"].error?.message ||
+				"Failed to close remote session",
+		);
+	}
+}
+
+export async function sendRemoteCommand(options: {
+	sessionId: string;
+	command: string;
+	payload?: string;
+}): Promise<void> {
+	const params: Record<string, string> = {
+		sessionId: options.sessionId,
+		deviceId: getDeviceId(),
+		command: options.command,
+	};
+
+	if (options.payload) {
+		params.payload = options.payload;
+	}
+
+	const response = await fetchSubsonic("sendRemoteCommand", params);
+	const data: SubsonicResponse<Record<string, never>> = await response.json();
+
+	if (data["subsonic-response"].status !== "ok") {
+		throw new Error(
+			data["subsonic-response"].error?.message ||
+				"Failed to send remote command",
+		);
+	}
+}
+
+export async function getRemoteCommands(options: {
+	sessionId: string;
+	sinceId?: number;
+	limit?: number;
+}): Promise<RemoteCommand[]> {
+	const params: Record<string, string> = {
+		sessionId: options.sessionId,
+		deviceId: getDeviceId(),
+	};
+
+	if (options.sinceId !== undefined) {
+		params.sinceId = options.sinceId.toString();
+	}
+
+	if (options.limit !== undefined) {
+		params.limit = options.limit.toString();
+	}
+
+	const response = await fetchSubsonic("getRemoteCommands", params);
+	const data: SubsonicResponse<{
+		remoteCommands?: { command?: RemoteCommand[] | RemoteCommand };
+	}> = await response.json();
+
+	if (data["subsonic-response"].status !== "ok") {
+		throw new Error(
+			data["subsonic-response"].error?.message ||
+				"Failed to fetch remote commands",
+		);
+	}
+
+	return ensureArray(data["subsonic-response"].remoteCommands?.command);
+}
+
+export async function updateRemoteState(options: {
+	sessionId: string;
+	stateJson: string;
+}): Promise<void> {
+	const response = await fetchSubsonic("updateRemoteState", {
+		sessionId: options.sessionId,
+		deviceId: getDeviceId(),
+		stateJson: options.stateJson,
+	});
+
+	const data: SubsonicResponse<Record<string, never>> = await response.json();
+	if (data["subsonic-response"].status !== "ok") {
+		throw new Error(
+			data["subsonic-response"].error?.message ||
+				"Failed to update remote state",
+		);
+	}
+}
+
+export async function getRemoteState(
+	sessionId: string,
+): Promise<RemoteState | null> {
+	const response = await fetchSubsonic("getRemoteState", {
+		sessionId,
+		deviceId: getDeviceId(),
+	});
+
+	const data: SubsonicResponse<{ remoteState?: RemoteState }> =
+		await response.json();
+
+	if (data["subsonic-response"].status !== "ok") {
+		return null;
+	}
+
+	return data["subsonic-response"].remoteState ?? null;
 }
 
 // ============================================================================

@@ -3,9 +3,11 @@ import type { Song } from "./api";
 import {
 	getCoverArtUrl,
 	getPlayQueue,
+	getRemoteCommands,
 	getStreamUrl,
 	savePlayQueue,
 	scrobble,
+	updateRemoteState,
 } from "./api";
 import {
 	type AudioBackend,
@@ -217,6 +219,16 @@ function updateState(updates: Partial<PlayerState>) {
 let saveQueueTimeout: ReturnType<typeof setTimeout> | null = null;
 let queueSyncEnabled = false;
 
+const REMOTE_HOST_SESSION_STORAGE_KEY = "solidsonic_remote_host_session_id";
+let remoteHostSessionId: string | null = null;
+let remoteLastCommandId = 0;
+let remoteCommandPollTimer: ReturnType<typeof setInterval> | null = null;
+let remoteStateSyncTimer: ReturnType<typeof setInterval> | null = null;
+let remoteCommandPollInFlight = false;
+let remoteStateSyncInFlight = false;
+let remoteLastCommandPollAt: number | null = null;
+let remoteLastStatePushAt: number | null = null;
+
 // Save current queue to server (debounced)
 function debouncedSaveQueue() {
 	if (!queueSyncEnabled) return;
@@ -238,6 +250,257 @@ function debouncedSaveQueue() {
 			console.error("Failed to save play queue:", err);
 		});
 	}, 2000); // Save after 2 seconds of inactivity
+}
+
+function getPlayerStateSnapshot(): PlayerState {
+	return {
+		currentTrack: playerState.currentTrack,
+		queue: [...playerState.queue],
+		originalQueue: [...playerState.originalQueue],
+		queueIndex: playerState.queueIndex,
+		isPlaying: playerState.isPlaying,
+		volume: playerState.volume,
+		currentTime: playerState.currentTime,
+		duration: playerState.duration,
+		isLoading: playerState.isLoading,
+		shuffle: playerState.shuffle,
+		repeat: playerState.repeat,
+	};
+}
+
+async function pollRemoteCommands(): Promise<void> {
+	if (!remoteHostSessionId || remoteCommandPollInFlight) return;
+
+	remoteCommandPollInFlight = true;
+	try {
+		const commands = await getRemoteCommands({
+			sessionId: remoteHostSessionId,
+			sinceId: remoteLastCommandId,
+			limit: 100,
+		});
+
+		for (const command of commands) {
+			remoteLastCommandId = Math.max(remoteLastCommandId, command.id);
+			await applyRemoteCommand(command.command, command.payload);
+		}
+
+		remoteLastCommandPollAt = Date.now();
+	} catch (err) {
+		if (
+			err instanceof Error &&
+			err.message.toLowerCase().includes("remote session")
+		) {
+			stopRemoteHostSync();
+			return;
+		}
+
+		console.warn("Remote command polling failed:", err);
+	} finally {
+		remoteCommandPollInFlight = false;
+	}
+}
+
+async function pushRemoteState(): Promise<void> {
+	if (!remoteHostSessionId || remoteStateSyncInFlight) return;
+
+	remoteStateSyncInFlight = true;
+	try {
+		const snapshot = getPlayerStateSnapshot();
+		const state = {
+			isPlaying: snapshot.isPlaying,
+			currentTimeMs: Math.floor(snapshot.currentTime * 1000),
+			durationMs: Math.floor(snapshot.duration * 1000),
+			volume: snapshot.volume,
+			shuffle: snapshot.shuffle,
+			repeat: snapshot.repeat,
+			queueIndex: snapshot.queueIndex,
+			queueSongIds: snapshot.queue.map((song) => song.id),
+			currentTrack: snapshot.currentTrack
+				? {
+						id: snapshot.currentTrack.id,
+						title: snapshot.currentTrack.title,
+						artist: snapshot.currentTrack.artist,
+						album: snapshot.currentTrack.album,
+						coverArt: snapshot.currentTrack.coverArt,
+					}
+				: null,
+		};
+
+		await updateRemoteState({
+			sessionId: remoteHostSessionId,
+			stateJson: JSON.stringify(state),
+		});
+
+		remoteLastStatePushAt = Date.now();
+	} catch (err) {
+		if (
+			err instanceof Error &&
+			err.message.toLowerCase().includes("remote session")
+		) {
+			stopRemoteHostSync();
+			return;
+		}
+
+		console.warn("Remote state sync failed:", err);
+	} finally {
+		remoteStateSyncInFlight = false;
+	}
+}
+
+async function applyRemoteCommand(
+	command: string,
+	payloadJson?: string,
+): Promise<void> {
+	let payload: Record<string, unknown> | undefined;
+	if (payloadJson) {
+		try {
+			payload = JSON.parse(payloadJson) as Record<string, unknown>;
+		} catch {
+			payload = undefined;
+		}
+	}
+
+	switch (command) {
+		case "play":
+			play();
+			break;
+		case "pause":
+			pause();
+			break;
+		case "togglePlayPause":
+			togglePlayPause();
+			break;
+		case "next":
+			await playNext();
+			break;
+		case "previous":
+			await playPrevious();
+			break;
+		case "seek": {
+			const positionMs = payload?.positionMs;
+			if (typeof positionMs === "number") {
+				seek(positionMs / 1000);
+			}
+			break;
+		}
+		case "setVolume": {
+			const volume = payload?.volume;
+			if (typeof volume === "number") {
+				setVolume(Math.min(1, Math.max(0, volume)));
+			}
+			break;
+		}
+		case "setQueueIndex": {
+			const index = payload?.index;
+			if (typeof index === "number") {
+				const snapshot = getPlayerStateSnapshot();
+				const queueIndex = Math.trunc(index);
+				if (queueIndex >= 0 && queueIndex < snapshot.queue.length) {
+					const song = snapshot.queue[queueIndex];
+					await playSong(song, snapshot.queue, queueIndex);
+				}
+			}
+			break;
+		}
+		case "toggleShuffle":
+			toggleShuffle();
+			break;
+		case "setRepeat": {
+			const mode = payload?.mode;
+			if (mode === "off" || mode === "all" || mode === "one") {
+				setRepeat(mode);
+			}
+			break;
+		}
+		default:
+			console.debug("Ignoring unknown remote command:", command);
+	}
+}
+
+export function startRemoteHostSync(sessionId: string) {
+	remoteHostSessionId = sessionId;
+	remoteLastCommandId = 0;
+	remoteLastCommandPollAt = null;
+	remoteLastStatePushAt = null;
+
+	try {
+		localStorage.setItem(REMOTE_HOST_SESSION_STORAGE_KEY, sessionId);
+	} catch {
+		// Ignore localStorage failures
+	}
+
+	if (remoteCommandPollTimer) {
+		clearInterval(remoteCommandPollTimer);
+	}
+
+	if (remoteStateSyncTimer) {
+		clearInterval(remoteStateSyncTimer);
+	}
+
+	remoteCommandPollTimer = setInterval(() => {
+		void pollRemoteCommands();
+	}, 700);
+
+	remoteStateSyncTimer = setInterval(() => {
+		void pushRemoteState();
+	}, 1000);
+
+	void pollRemoteCommands();
+	void pushRemoteState();
+}
+
+export function stopRemoteHostSync() {
+	remoteHostSessionId = null;
+	remoteLastCommandId = 0;
+	remoteLastCommandPollAt = null;
+	remoteLastStatePushAt = null;
+
+	try {
+		localStorage.removeItem(REMOTE_HOST_SESSION_STORAGE_KEY);
+	} catch {
+		// Ignore localStorage failures
+	}
+
+	if (remoteCommandPollTimer) {
+		clearInterval(remoteCommandPollTimer);
+		remoteCommandPollTimer = null;
+	}
+
+	if (remoteStateSyncTimer) {
+		clearInterval(remoteStateSyncTimer);
+		remoteStateSyncTimer = null;
+	}
+}
+
+export function getRemoteHostSessionId(): string | null {
+	return remoteHostSessionId;
+}
+
+export interface RemoteHostSyncStatus {
+	isActive: boolean;
+	sessionId: string | null;
+	lastCommandPollAt: number | null;
+	lastStatePushAt: number | null;
+}
+
+export function getRemoteHostSyncStatus(): RemoteHostSyncStatus {
+	return {
+		isActive: remoteCommandPollTimer !== null && remoteStateSyncTimer !== null,
+		sessionId: remoteHostSessionId,
+		lastCommandPollAt: remoteLastCommandPollAt,
+		lastStatePushAt: remoteLastStatePushAt,
+	};
+}
+
+export function initRemoteHostSync() {
+	try {
+		const sessionId = localStorage.getItem(REMOTE_HOST_SESSION_STORAGE_KEY);
+		if (sessionId) {
+			startRemoteHostSync(sessionId);
+		}
+	} catch {
+		// Ignore localStorage failures
+	}
 }
 
 // Player actions

@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/solid-router";
+import { RemoteControlPanel } from "~/components/RemoteControlPanel";
 import {
 	Card,
 	CardContent,
@@ -136,6 +137,18 @@ function SettingsPage() {
 								</SwitchControl>
 							</Switch>
 						</div>
+					</CardContent>
+				</Card>
+
+				<Card>
+					<CardHeader>
+						<CardTitle>Remote Control</CardTitle>
+						<CardDescription>
+							Pair this player with your phone to control playback remotely.
+						</CardDescription>
+					</CardHeader>
+					<CardContent>
+						<RemoteControlPanel />
 					</CardContent>
 				</Card>
 			</div>

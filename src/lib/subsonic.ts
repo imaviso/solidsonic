@@ -1,7 +1,9 @@
 import { getCredentials, type SubsonicCredentials } from "./auth";
 
 const SUBSONIC_API_VERSION = "1.16.1";
-const SUBSONIC_CLIENT_ID = "solidsonic";
+const SUBSONIC_CLIENT_ID_PREFIX = "solidsonic";
+const DEVICE_ID_STORAGE_KEY = "solidsonic-device-id";
+let inMemoryDeviceId: string | null = null;
 
 export interface OpenSubsonicExtension {
 	name: string;
@@ -16,6 +18,47 @@ interface ParsedSubsonicError {
 	code?: number;
 	message: string;
 	helpUrl?: string;
+}
+
+function createDeviceId(): string {
+	if (
+		typeof crypto !== "undefined" &&
+		typeof crypto.randomUUID === "function"
+	) {
+		return crypto.randomUUID();
+	}
+
+	return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+}
+
+export function getDeviceId(): string {
+	if (typeof window === "undefined") {
+		return "server";
+	}
+
+	try {
+		const stored = localStorage.getItem(DEVICE_ID_STORAGE_KEY);
+		if (stored && stored.length > 0) {
+			return stored;
+		}
+
+		const created = createDeviceId();
+		localStorage.setItem(DEVICE_ID_STORAGE_KEY, created);
+		return created;
+	} catch {
+		if (!inMemoryDeviceId) {
+			inMemoryDeviceId = createDeviceId();
+		}
+
+		return inMemoryDeviceId;
+	}
+}
+
+function getClientId(): string {
+	const deviceId = getDeviceId();
+	return deviceId === "server"
+		? SUBSONIC_CLIENT_ID_PREFIX
+		: `${SUBSONIC_CLIENT_ID_PREFIX}:${deviceId}`;
 }
 
 // Generate a random salt for authentication
@@ -252,7 +295,7 @@ function addParams(
 function createBaseParams() {
 	return new URLSearchParams({
 		v: SUBSONIC_API_VERSION,
-		c: SUBSONIC_CLIENT_ID,
+		c: getClientId(),
 		f: "json",
 	});
 }

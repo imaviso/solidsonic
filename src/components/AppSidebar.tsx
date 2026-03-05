@@ -1,4 +1,5 @@
 import {
+	IconDeviceRemote,
 	IconDisc,
 	IconHome,
 	IconLayoutGrid,
@@ -73,6 +74,11 @@ const AppSidebar: Component = () => {
 			title: "Genres",
 			url: "/app/genres",
 			icon: IconLayoutGrid,
+		},
+		{
+			title: "Remote",
+			url: "/app/remote",
+			icon: IconDeviceRemote,
 		},
 	];
 

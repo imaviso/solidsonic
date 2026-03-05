@@ -14,6 +14,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppIndexRouteImport } from './routes/app/index'
 import { Route as AppSongsRouteImport } from './routes/app/songs'
 import { Route as AppSettingsRouteImport } from './routes/app/settings'
+import { Route as AppRemoteRouteImport } from './routes/app/remote'
 import { Route as AppPlaylistsIndexRouteImport } from './routes/app/playlists/index'
 import { Route as AppGenresIndexRouteImport } from './routes/app/genres/index'
 import { Route as AppArtistsIndexRouteImport } from './routes/app/artists/index'
@@ -46,6 +47,11 @@ const AppSongsRoute = AppSongsRouteImport.update({
 const AppSettingsRoute = AppSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => AppRouteRoute,
+} as any)
+const AppRemoteRoute = AppRemoteRouteImport.update({
+  id: '/remote',
+  path: '/remote',
   getParentRoute: () => AppRouteRoute,
 } as any)
 const AppPlaylistsIndexRoute = AppPlaylistsIndexRouteImport.update({
@@ -92,6 +98,7 @@ const AppAlbumsIdRoute = AppAlbumsIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/app': typeof AppRouteRouteWithChildren
+  '/app/remote': typeof AppRemoteRoute
   '/app/settings': typeof AppSettingsRoute
   '/app/songs': typeof AppSongsRoute
   '/app/': typeof AppIndexRoute
@@ -99,13 +106,14 @@ export interface FileRoutesByFullPath {
   '/app/artists/$id': typeof AppArtistsIdRoute
   '/app/genres/$genre': typeof AppGenresGenreRoute
   '/app/playlists/$id': typeof AppPlaylistsIdRoute
-  '/app/albums': typeof AppAlbumsIndexRoute
-  '/app/artists': typeof AppArtistsIndexRoute
-  '/app/genres': typeof AppGenresIndexRoute
-  '/app/playlists': typeof AppPlaylistsIndexRoute
+  '/app/albums/': typeof AppAlbumsIndexRoute
+  '/app/artists/': typeof AppArtistsIndexRoute
+  '/app/genres/': typeof AppGenresIndexRoute
+  '/app/playlists/': typeof AppPlaylistsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/app/remote': typeof AppRemoteRoute
   '/app/settings': typeof AppSettingsRoute
   '/app/songs': typeof AppSongsRoute
   '/app': typeof AppIndexRoute
@@ -122,6 +130,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/app': typeof AppRouteRouteWithChildren
+  '/app/remote': typeof AppRemoteRoute
   '/app/settings': typeof AppSettingsRoute
   '/app/songs': typeof AppSongsRoute
   '/app/': typeof AppIndexRoute
@@ -139,6 +148,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/app'
+    | '/app/remote'
     | '/app/settings'
     | '/app/songs'
     | '/app/'
@@ -146,13 +156,14 @@ export interface FileRouteTypes {
     | '/app/artists/$id'
     | '/app/genres/$genre'
     | '/app/playlists/$id'
-    | '/app/albums'
-    | '/app/artists'
-    | '/app/genres'
-    | '/app/playlists'
+    | '/app/albums/'
+    | '/app/artists/'
+    | '/app/genres/'
+    | '/app/playlists/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/app/remote'
     | '/app/settings'
     | '/app/songs'
     | '/app'
@@ -168,6 +179,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/app'
+    | '/app/remote'
     | '/app/settings'
     | '/app/songs'
     | '/app/'
@@ -223,31 +235,38 @@ declare module '@tanstack/solid-router' {
       preLoaderRoute: typeof AppSettingsRouteImport
       parentRoute: typeof AppRouteRoute
     }
+    '/app/remote': {
+      id: '/app/remote'
+      path: '/remote'
+      fullPath: '/app/remote'
+      preLoaderRoute: typeof AppRemoteRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
     '/app/playlists/': {
       id: '/app/playlists/'
       path: '/playlists'
-      fullPath: '/app/playlists'
+      fullPath: '/app/playlists/'
       preLoaderRoute: typeof AppPlaylistsIndexRouteImport
       parentRoute: typeof AppRouteRoute
     }
     '/app/genres/': {
       id: '/app/genres/'
       path: '/genres'
-      fullPath: '/app/genres'
+      fullPath: '/app/genres/'
       preLoaderRoute: typeof AppGenresIndexRouteImport
       parentRoute: typeof AppRouteRoute
     }
     '/app/artists/': {
       id: '/app/artists/'
       path: '/artists'
-      fullPath: '/app/artists'
+      fullPath: '/app/artists/'
       preLoaderRoute: typeof AppArtistsIndexRouteImport
       parentRoute: typeof AppRouteRoute
     }
     '/app/albums/': {
       id: '/app/albums/'
       path: '/albums'
-      fullPath: '/app/albums'
+      fullPath: '/app/albums/'
       preLoaderRoute: typeof AppAlbumsIndexRouteImport
       parentRoute: typeof AppRouteRoute
     }
@@ -283,6 +302,7 @@ declare module '@tanstack/solid-router' {
 }
 
 interface AppRouteRouteChildren {
+  AppRemoteRoute: typeof AppRemoteRoute
   AppSettingsRoute: typeof AppSettingsRoute
   AppSongsRoute: typeof AppSongsRoute
   AppIndexRoute: typeof AppIndexRoute
@@ -297,6 +317,7 @@ interface AppRouteRouteChildren {
 }
 
 const AppRouteRouteChildren: AppRouteRouteChildren = {
+  AppRemoteRoute: AppRemoteRoute,
   AppSettingsRoute: AppSettingsRoute,
   AppSongsRoute: AppSongsRoute,
   AppIndexRoute: AppIndexRoute,

@@ -6,10 +6,11 @@ import {
 } from "@tanstack/solid-router";
 import { render } from "solid-js/web";
 import { createIDBPersister } from "./lib/persistence";
+import { initRemoteHostSync } from "./lib/player";
 import { createAppQueryClient } from "./lib/query";
 import "~/lib/settings"; // Initialize settings (theme, etc.)
 import { routeTree } from "./routeTree.gen";
-import "@fontsource-variable/geist";
+import "@fontsource-variable/geist/index.css";
 import "./styles.css";
 
 const queryClient = createAppQueryClient();
@@ -17,6 +18,8 @@ const queryClient = createAppQueryClient();
 const persister = createIDBPersister();
 
 const browserHistory = createBrowserHistory();
+
+initRemoteHostSync();
 
 // Set up a Router instance
 const router = createRouter({
