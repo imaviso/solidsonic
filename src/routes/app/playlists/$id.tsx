@@ -198,15 +198,17 @@ function PlaylistDetailPage() {
 				when={!playlist.isLoading && playlist.data}
 				fallback={<div>Loading...</div>}
 			>
-				<div class="flex items-end gap-6 pb-6 border-b">
-					<div class="size-32 bg-muted rounded-lg shadow-sm flex items-center justify-center overflow-hidden">
+				<div class="flex flex-col md:flex-row items-center md:items-end gap-6 pb-6 border-b text-center md:text-left">
+					<div class="size-40 md:size-32 bg-muted rounded-lg shadow-sm flex shrink-0 items-center justify-center overflow-hidden">
 						<CoverArt id={playlist.data?.coverArt} class="size-full" />
 					</div>
 					<div class="flex flex-col gap-2 flex-1">
 						<span class="text-sm font-medium text-muted-foreground uppercase">
 							Playlist
 						</span>
-						<h1 class="text-4xl font-bold">{playlist.data?.name}</h1>
+						<h1 class="text-3xl md:text-4xl font-bold">
+							{playlist.data?.name}
+						</h1>
 						<p class="text-muted-foreground">
 							{playlist.data?.songCount} songs •{" "}
 							{Math.floor((playlist.data?.duration || 0) / 60)} mins
@@ -236,8 +238,8 @@ function PlaylistDetailPage() {
 							<TableHead class="w-[50px]">#</TableHead>
 							<TableHead class="w-[48px]"></TableHead>
 							<TableHead>Title</TableHead>
-							<TableHead>Artist</TableHead>
-							<TableHead>Album</TableHead>
+							<TableHead class="hidden md:table-cell">Artist</TableHead>
+							<TableHead class="hidden md:table-cell">Album</TableHead>
 							<TableHead class="text-right">
 								<IconClock class="size-4 ml-auto" />
 							</TableHead>
@@ -269,7 +271,7 @@ function PlaylistDetailPage() {
 											{song.title}
 										</span>
 									</TableCell>
-									<TableCell>
+									<TableCell class="hidden md:table-cell">
 										<Show when={song.artistId} fallback={song.artist}>
 											<Link
 												to="/app/artists/$id"
@@ -281,7 +283,7 @@ function PlaylistDetailPage() {
 											</Link>
 										</Show>
 									</TableCell>
-									<TableCell>
+									<TableCell class="hidden md:table-cell">
 										<Show when={song.albumId} fallback={song.album}>
 											<Link
 												to="/app/albums/$id"

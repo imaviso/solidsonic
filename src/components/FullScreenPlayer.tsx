@@ -471,8 +471,8 @@ const FullScreenPlayer: Component<FullScreenPlayerProps> = (props) => {
 						{/* Left Side: Artwork / Content */}
 						<div
 							class={cn(
-								"relative w-full max-w-[500px] md:max-w-[600px] lg:landscape:max-w-[500px] portrait:max-w-[80vw]",
-								"h-[300px] md:h-[450px] lg:h-[500px] portrait:h-[60vh] portrait:max-h-[800px]",
+								"relative w-full max-w-[300px] md:max-w-[600px] lg:landscape:max-w-[500px] portrait:max-w-[80vw]",
+								"aspect-square md:aspect-auto md:h-[450px] lg:h-[500px]",
 								"transition-all duration-500 flex items-center justify-center overflow-hidden rounded-2xl",
 								view() === "artwork" ? "scale-100" : "scale-100",
 							)}

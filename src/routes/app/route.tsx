@@ -2,7 +2,11 @@ import { createFileRoute, Outlet, redirect } from "@tanstack/solid-router";
 import { createSignal, onMount, Show, Suspense } from "solid-js";
 import AppSidebar from "~/components/AppSidebar";
 import Player from "~/components/Player";
-import { SidebarInset, SidebarProvider } from "~/components/ui/sidebar";
+import {
+	SidebarInset,
+	SidebarProvider,
+	SidebarTrigger,
+} from "~/components/ui/sidebar";
 import { playlistListQueryOptions } from "~/lib/api";
 import { isAuthenticated } from "~/lib/auth";
 import {
@@ -38,7 +42,12 @@ function AppLayout() {
 		<Show when={mounted()}>
 			<SidebarProvider>
 				<AppSidebar />
-				<SidebarInset class="h-svh overflow-hidden">
+				<SidebarInset class="h-svh overflow-hidden flex flex-col">
+					{/* Mobile Header */}
+					<div class="md:hidden flex items-center h-14 px-4 border-b shrink-0 bg-background">
+						<SidebarTrigger />
+						<span class="ml-4 font-semibold">SolidSonic</span>
+					</div>
 					<div class="flex flex-1 flex-col gap-4 p-4 overflow-hidden min-h-0 h-full">
 						<Suspense
 							fallback={

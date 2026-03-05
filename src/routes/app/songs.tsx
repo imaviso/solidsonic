@@ -127,12 +127,12 @@ function SongsPage() {
 
 			<div ref={scrollContainerRef} class="flex-1 overflow-auto">
 				{/* Header */}
-				<div class="grid grid-cols-[40px_48px_1fr_1fr_1fr_80px] gap-4 px-4 py-2 text-sm font-medium text-muted-foreground border-b sticky top-0 bg-background z-10">
+				<div class="grid grid-cols-[40px_48px_1fr_80px] md:grid-cols-[40px_48px_1fr_1fr_1fr_80px] gap-4 px-4 py-2 text-sm font-medium text-muted-foreground border-b sticky top-0 bg-background z-10">
 					<div>#</div>
 					<div></div>
 					<div>Title</div>
-					<div>Artist</div>
-					<div>Album</div>
+					<div class="hidden md:block">Artist</div>
+					<div class="hidden md:block">Album</div>
 					<div class="text-right">
 						<IconClock class="size-4 ml-auto" />
 					</div>
@@ -164,7 +164,7 @@ function SongsPage() {
 									>
 										<button
 											type="button"
-											class="w-full h-full grid grid-cols-[40px_48px_1fr_1fr_1fr_80px] gap-4 px-4 items-center group cursor-pointer hover:bg-muted/50 border-0 bg-transparent text-left"
+											class="w-full h-full grid grid-cols-[40px_48px_1fr_80px] md:grid-cols-[40px_48px_1fr_1fr_1fr_80px] gap-4 px-4 items-center group cursor-pointer hover:bg-muted/50 border-0 bg-transparent text-left"
 											onClick={() => handlePlaySong(virtualRow.index)}
 											onKeyDown={(e) => {
 												if (e.key === "Enter" || e.key === " ") {
@@ -194,7 +194,7 @@ function SongsPage() {
 													{song.title}
 												</span>
 											</div>
-											<div class="truncate text-muted-foreground">
+											<div class="truncate text-muted-foreground hidden md:block">
 												<Show when={song.artistId} fallback={song.artist}>
 													<Link
 														to="/app/artists/$id"
@@ -206,7 +206,7 @@ function SongsPage() {
 													</Link>
 												</Show>
 											</div>
-											<div class="truncate text-muted-foreground">
+											<div class="truncate text-muted-foreground hidden md:block">
 												<Show when={song.albumId} fallback={song.album}>
 													<Link
 														to="/app/albums/$id"

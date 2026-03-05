@@ -129,13 +129,13 @@ const Player: Component = () => {
 				isOpen={isFullScreen()}
 				onClose={() => setIsFullScreen(false)}
 			/>
-			<div class="flex h-20 shrink-0 items-center border-t bg-background px-4">
+			<div class="flex h-16 md:h-20 shrink-0 items-center justify-between md:justify-start border-t bg-background px-2 md:px-4">
 				{/* Track Info */}
 				{/* biome-ignore lint/a11y: content contains interactive elements (links) */}
 				<div
 					role="button"
 					tabIndex={0}
-					class="flex w-1/3 items-center gap-4 group cursor-pointer text-left focus:outline-none"
+					class="flex flex-1 md:w-1/3 items-center gap-3 md:gap-4 group cursor-pointer text-left focus:outline-none min-w-0 pr-2"
 					onClick={() => setIsFullScreen(true)}
 					onKeyDown={(e) => {
 						if (e.key === "Enter" || e.key === " ") {
@@ -143,11 +143,13 @@ const Player: Component = () => {
 						}
 					}}
 				>
-					<div class="relative">
-						<div class="flex aspect-square size-12 items-center justify-center rounded-md bg-muted overflow-hidden transition-transform group-hover:scale-105">
+					<div class="relative shrink-0">
+						<div class="flex aspect-square size-10 md:size-12 items-center justify-center rounded-md bg-muted overflow-hidden transition-transform group-hover:scale-105">
 							<Show
 								when={!!player.currentTrack}
-								fallback={<IconMusic class="size-6 text-muted-foreground" />}
+								fallback={
+									<IconMusic class="size-5 md:size-6 text-muted-foreground" />
+								}
 							>
 								<CoverArt
 									id={player.currentTrack?.coverArt}
@@ -156,7 +158,7 @@ const Player: Component = () => {
 							</Show>
 						</div>
 						{/* Expand overlay hint */}
-						<div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-md">
+						<div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity hidden md:flex items-center justify-center rounded-md">
 							<IconMusic class="size-4 text-white" />
 						</div>
 					</div>
@@ -184,8 +186,29 @@ const Player: Component = () => {
 					</div>
 				</div>
 
+				{/* Mobile Play Button */}
+				<div class="flex md:hidden shrink-0">
+					<Button
+						variant="ghost"
+						size="icon"
+						class="h-10 w-10 rounded-full"
+						onClick={(e) => {
+							e.stopPropagation();
+							player.togglePlayPause();
+						}}
+						disabled={!player.currentTrack}
+					>
+						<Show
+							when={player.isPlaying}
+							fallback={<IconPlayerPlayFilled class="size-5" />}
+						>
+							<IconPlayerPauseFilled class="size-5" />
+						</Show>
+					</Button>
+				</div>
+
 				{/* Controls */}
-				<div class="flex flex-1 flex-col items-center justify-center gap-2">
+				<div class="hidden md:flex flex-1 flex-col items-center justify-center gap-2">
 					<div class="flex items-center gap-2">
 						<Button
 							variant="ghost"
@@ -262,7 +285,7 @@ const Player: Component = () => {
 
 				{/* Volume */}
 				<div
-					class="flex w-1/3 justify-end items-center gap-2"
+					class="hidden md:flex w-1/3 justify-end items-center gap-2"
 					onWheel={(e) => {
 						e.preventDefault();
 						handleVolumeScroll(e, player.volume, player.setVolume);

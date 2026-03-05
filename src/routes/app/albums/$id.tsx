@@ -82,15 +82,17 @@ function AlbumDetailPage() {
 			>
 				<ContextMenu>
 					<ContextMenuTrigger>
-						<div class="flex items-end gap-6 pb-6 border-b">
-							<div class="size-32 bg-muted rounded-lg shadow-sm flex items-center justify-center overflow-hidden">
+						<div class="flex flex-col md:flex-row items-center md:items-end gap-6 pb-6 border-b text-center md:text-left">
+							<div class="size-40 md:size-32 bg-muted rounded-lg shadow-sm flex shrink-0 items-center justify-center overflow-hidden">
 								<CoverArt id={album.data?.album.coverArt} class="size-full" />
 							</div>
 							<div class="flex flex-col gap-2">
 								<span class="text-sm font-medium text-muted-foreground uppercase">
 									Album
 								</span>
-								<h1 class="text-4xl font-bold">{album.data?.album.name}</h1>
+								<h1 class="text-3xl md:text-4xl font-bold">
+									{album.data?.album.name}
+								</h1>
 								<p class="text-muted-foreground">
 									{album.data?.album.artist} •{" "}
 									{album.data?.album.year || "Unknown Year"} •{" "}
@@ -174,7 +176,7 @@ function AlbumDetailPage() {
 						<TableRow>
 							<TableHead class="w-[50px]">#</TableHead>
 							<TableHead>Title</TableHead>
-							<TableHead>Artist</TableHead>
+							<TableHead class="hidden md:table-cell">Artist</TableHead>
 							<TableHead class="text-right">
 								<IconClock class="size-4 ml-auto" />
 							</TableHead>
@@ -204,7 +206,7 @@ function AlbumDetailPage() {
 												{song.title}
 											</span>
 										</TableCell>
-										<TableCell>
+										<TableCell class="hidden md:table-cell">
 											<Show when={song.artistId} fallback={song.artist}>
 												<Link
 													to="/app/artists/$id"

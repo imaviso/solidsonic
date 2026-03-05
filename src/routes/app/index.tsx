@@ -274,7 +274,7 @@ function StarredSongsSection(props: {
 								<ContextMenuTrigger>
 									<button
 										type="button"
-										class="grid grid-cols-[30px_40px_1fr_1fr_60px] gap-3 px-3 py-2 items-center rounded-md hover:bg-muted/50 group cursor-pointer text-sm w-full text-left"
+										class="grid grid-cols-[30px_40px_1fr_60px] md:grid-cols-[30px_40px_1fr_1fr_60px] gap-3 px-3 py-2 items-center rounded-md hover:bg-muted/50 group cursor-pointer text-sm w-full text-left"
 										onClick={() => handlePlaySong(song, i())}
 									>
 										<div class="text-muted-foreground text-xs group-hover:text-primary flex justify-center">
@@ -295,7 +295,7 @@ function StarredSongsSection(props: {
 												{song.title}
 											</span>
 										</div>
-										<div class="truncate text-muted-foreground">
+										<div class="truncate text-muted-foreground hidden md:block">
 											{song.artist}
 										</div>
 										<div class="text-right font-mono text-xs text-muted-foreground">
