@@ -1,4 +1,4 @@
-import { PersistQueryClientProvider } from "@tanstack/solid-query-persist-client";
+import { QueryClientProvider } from "@tanstack/solid-query";
 import {
 	createBrowserHistory,
 	createRouter,
@@ -6,7 +6,6 @@ import {
 } from "@tanstack/solid-router";
 import { render } from "solid-js/web";
 import { initDynamicThemeWatcher } from "./lib/dynamic-theme";
-import { createIDBPersister } from "./lib/persistence";
 import { initRemoteHostSync } from "./lib/player";
 import { createAppQueryClient } from "./lib/query";
 import "~/lib/settings"; // Initialize settings (theme, etc.)
@@ -16,8 +15,6 @@ import "@fontsource-variable/google-sans-code/index.css";
 import "./styles.css";
 
 const queryClient = createAppQueryClient();
-
-const persister = createIDBPersister();
 
 const browserHistory = createBrowserHistory();
 
@@ -48,15 +45,9 @@ const rootElement = document.getElementById("app");
 if (rootElement && !rootElement.innerHTML) {
 	render(
 		() => (
-			<PersistQueryClientProvider
-				client={queryClient}
-				persistOptions={{
-					persister,
-					maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
-				}}
-			>
+			<QueryClientProvider client={queryClient}>
 				<RouterProvider router={router} />
-			</PersistQueryClientProvider>
+			</QueryClientProvider>
 		),
 		rootElement,
 	);

@@ -572,7 +572,7 @@ const FullScreenPlayer: Component<FullScreenPlayerProps> = (props) => {
 									<SliderTrack class="h-2 bg-primary/20 transition-colors rounded-full overflow-hidden flex items-center">
 										<SliderFill class="h-1.5 group-hover:h-2 bg-primary/80 group-hover:bg-primary transition-[height,background-color] rounded-full" />
 									</SliderTrack>
-									<SliderThumb class="size-3 group-hover:scale-125 transition-[transform,opacity] opacity-0 group-hover:opacity-100 border-2 border-primary bg-background ring-offset-background top-[-2px]" />
+									<SliderThumb class="size-3 group-hover:scale-125 transition-[transform,opacity] opacity-0 group-hover:opacity-100 border-2 border-primary bg-primary-foreground ring-offset-background top-[-2px]" />
 								</Slider>
 								<div class="flex justify-between text-xs font-medium text-muted-foreground">
 									<span>{formatTime(seekValue())}</span>
@@ -690,7 +690,7 @@ const FullScreenPlayer: Component<FullScreenPlayerProps> = (props) => {
 										<SliderTrack class="h-1 bg-primary/20 rounded-full overflow-hidden">
 											<SliderFill class="bg-primary" />
 										</SliderTrack>
-										<SliderThumb class="size-4 bg-primary transition-transform hover:scale-110 border-none shadow-[0_1px_3px_0_rgba(0,0,0,0.1),_0_1px_2px_-1px_rgba(0,0,0,0.1)] top-[-4px]" />
+										<SliderThumb class="size-4 bg-primary-foreground border-2 border-primary transition-transform hover:scale-110 shadow-[0_1px_3px_0_rgba(0,0,0,0.1),_0_1px_2px_-1px_rgba(0,0,0,0.1)] top-[-6px]" />
 									</Slider>
 								</div>
 								<div class="flex items-center gap-2">
