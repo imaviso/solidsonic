@@ -31,7 +31,7 @@ const SwitchControl = <T extends ValidComponent = "input">(
 			/>
 			<SwitchPrimitive.Control
 				class={cn(
-					"inline-flex h-8 w-14 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent bg-input transition-[color,background-color,box-shadow] data-[disabled]:cursor-not-allowed data-[checked]:bg-primary data-[disabled]:opacity-50",
+					"inline-flex h-8 w-14 shrink-0 cursor-pointer items-center rounded-full border-2 border-muted-foreground/50 bg-muted-foreground/20 transition-[color,background-color,box-shadow,border-color] data-[disabled]:cursor-not-allowed data-[checked]:bg-primary data-[checked]:border-transparent data-[disabled]:opacity-50",
 					local.class,
 				)}
 				{...others}
@@ -53,7 +53,7 @@ const SwitchThumb = <T extends ValidComponent = "div">(
 	return (
 		<SwitchPrimitive.Thumb
 			class={cn(
-				"pointer-events-none block size-6 translate-x-0.5 rounded-full bg-background shadow-[0_1px_3px_0_rgba(0,0,0,0.1),_0_1px_2px_-1px_rgba(0,0,0,0.1)] ring-0 transition-transform data-[checked]:translate-x-[26px] data-[checked]:size-6",
+				"pointer-events-none block size-4 translate-x-1 rounded-full bg-muted-foreground shadow-[0_1px_3px_0_rgba(0,0,0,0.1),_0_1px_2px_-1px_rgba(0,0,0,0.1)] ring-0 transition-[transform,width,height] data-[checked]:size-6 data-[checked]:translate-x-[26px] data-[checked]:bg-background",
 				local.class,
 			)}
 			{...others}

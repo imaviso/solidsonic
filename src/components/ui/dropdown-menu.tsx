@@ -51,7 +51,7 @@ const DropdownMenuItem = <T extends ValidComponent = "div">(
 	return (
 		<DropdownMenuPrimitive.Item
 			class={cn(
-				"relative flex cursor-default select-none items-center rounded-full py-2 pl-10 pr-4 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+				"relative flex cursor-default select-none items-center gap-2 rounded-full py-2 px-4 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
 				props.class,
 			)}
 			{...rest}
