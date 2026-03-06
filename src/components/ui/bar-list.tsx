@@ -69,7 +69,7 @@ const BarList = <T,>(rawProps: BarListProps<T>) => {
 							<div class="grow">
 								<div
 									class={cn(
-										"flex h-8 items-center rounded-md bg-secondary px-2",
+										"flex h-10 items-center rounded-r-full bg-secondary px-3",
 									)}
 									style={{
 										width: `${widths()[idx()]}%`,

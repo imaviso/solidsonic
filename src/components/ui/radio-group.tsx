@@ -39,7 +39,7 @@ const RadioGroupItem = <T extends ValidComponent = "div">(
 			{...others}
 		>
 			<RadioGroupPrimitive.ItemInput />
-			<RadioGroupPrimitive.ItemControl class="aspect-square size-4 rounded-full border border-primary text-primary ring-offset-background focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
+			<RadioGroupPrimitive.ItemControl class="aspect-square size-5 rounded-full border-2 border-primary text-primary ring-offset-background focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
 				<RadioGroupPrimitive.ItemIndicator class="flex h-full items-center justify-center ">
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
@@ -49,7 +49,7 @@ const RadioGroupItem = <T extends ValidComponent = "div">(
 						stroke-width="2"
 						stroke-linecap="round"
 						stroke-linejoin="round"
-						class="size-2.5 fill-current text-current"
+						class="size-3 fill-current text-current"
 					>
 						<path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
 					</svg>

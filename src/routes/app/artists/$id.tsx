@@ -4,7 +4,6 @@ import { createSignal, For, Show } from "solid-js";
 import CoverArt from "~/components/CoverArt";
 import { ErrorComponent } from "~/components/ErrorComponent";
 import { Button } from "~/components/ui/button";
-import { Card, CardContent } from "~/components/ui/card";
 import { artistInfo2QueryOptions, artistQueryOptions } from "~/lib/api";
 import { usePlayer } from "~/lib/player";
 
@@ -47,8 +46,8 @@ function ArtistDetailPage() {
 				fallback={<div>Loading...</div>}
 			>
 				{/* Header with artist info */}
-				<div class="flex flex-col items-center gap-4 pb-6 border-b text-center sm:flex-row sm:items-end sm:text-left sm:gap-6">
-					<div class="size-28 sm:size-32 bg-muted rounded-full shadow-sm flex items-center justify-center overflow-hidden">
+				<div class="flex flex-col items-center gap-4 pb-6 border-b-2 border-muted/50 text-center sm:flex-row sm:items-end sm:text-left sm:gap-6">
+					<div class="size-28 sm:size-32 bg-muted rounded-full shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),_0_2px_4px_-2px_rgba(0,0,0,0.1)] flex items-center justify-center overflow-hidden">
 						<Show
 							when={artistInfo.data?.info.largeImageUrl}
 							fallback={
@@ -106,7 +105,7 @@ function ArtistDetailPage() {
 										class="flex-shrink-0 group"
 									>
 										<div class="w-24 text-center">
-											<div class="size-24 bg-muted rounded-full shadow-sm flex items-center justify-center overflow-hidden mb-2">
+											<div class="size-24 bg-muted rounded-full shadow-[0_1px_3px_0_rgba(0,0,0,0.1),_0_1px_2px_-1px_rgba(0,0,0,0.1)] flex items-center justify-center overflow-hidden mb-2">
 												<Show
 													when={similarArtist.largeImageUrl}
 													fallback={
@@ -145,22 +144,22 @@ function ArtistDetailPage() {
 									params={{ id: album.id }}
 									class="block group"
 								>
-									<Card class="border-0 shadow-none bg-transparent">
-										<CardContent class="p-0">
+									<div class="block">
+										<div class="aspect-square w-full relative overflow-hidden rounded-2xl shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),_0_2px_4px_-2px_rgba(0,0,0,0.1)] transition-transform hover:-translate-y-1 hover:shadow-[0_8px_10px_-5px_rgba(0,0,0,0.2),_0_16px_24px_2px_rgba(0,0,0,0.14)] bg-muted/30">
 											<CoverArt
 												id={album.coverArt}
-												class="aspect-square rounded-md shadow-sm"
+												class="h-full w-full object-cover"
 											/>
-											<div class="pt-2">
-												<h3 class="font-medium truncate group-hover:underline">
-													{album.name}
-												</h3>
-												<p class="text-xs text-muted-foreground truncate">
-													{album.year}
-												</p>
-											</div>
-										</CardContent>
-									</Card>
+										</div>
+										<div class="pt-3 px-1">
+											<h3 class="font-bold text-base truncate group-hover:text-primary transition-colors">
+												{album.name}
+											</h3>
+											<p class="text-sm font-medium text-muted-foreground truncate opacity-80">
+												{album.year}
+											</p>
+										</div>
+									</div>
 								</Link>
 							)}
 						</For>

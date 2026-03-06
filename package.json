@@ -23,8 +23,11 @@
 		"@corvu/drawer": "^0.2.4",
 		"@corvu/otp-field": "^0.1.4",
 		"@corvu/resizable": "^0.2.5",
-		"@fontsource-variable/geist": "^5.2.8",
+		"@fontsource-variable/google-sans": "^5.2.1",
+		"@fontsource-variable/google-sans-code": "^5.2.3",
 		"@kobalte/core": "^0.13.11",
+		"@material/material-color-utilities": "^0.4.0",
+		"@material/web": "^2.4.1",
 		"@tabler/icons-solidjs": "^3.36.1",
 		"@tailwindcss/postcss": "^4.1.13",
 		"@tanstack/router-plugin": "^1.131.35",
@@ -55,7 +58,7 @@
 		"@biomejs/biome": "2.3.11",
 		"@types/node": "^25.0.10",
 		"@typescript/native-preview": "^7.0.0-dev.20260202.1",
-		"vite": "npm:rolldown-vite@latest",
+		"vite": "npm:rolldown-vite@^7.3.1",
 		"vite-plugin-solid": "^2.11.9"
 	}
 }

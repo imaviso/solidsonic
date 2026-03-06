@@ -107,7 +107,7 @@ const AppSidebar: Component = () => {
 					<SidebarTrigger class="size-8 text-sidebar-foreground/70 hover:text-sidebar-foreground" />
 				</div>
 				<div class="flex items-center gap-2 px-3 pt-3 pb-2 text-sidebar-foreground group-data-[collapsible=icon]:hidden">
-					<div class="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground shadow-sm">
+					<div class="flex aspect-square size-8 items-center justify-center rounded-xl bg-sidebar-primary text-sidebar-primary-foreground shadow-[0_1px_3px_0_rgba(0,0,0,0.1),_0_1px_2px_-1px_rgba(0,0,0,0.1)]">
 						<IconMusic class="size-4" />
 					</div>
 					<div class="grid flex-1 text-left text-sm leading-tight">
@@ -187,7 +187,7 @@ const AppSidebar: Component = () => {
 					</SidebarGroupContent>
 				</SidebarGroup>
 			</SidebarContent>
-			<SidebarFooter class="h-20 border-t border-border p-2">
+			<SidebarFooter class="h-20 border-t-2 border-border p-2">
 				<SidebarMenu class="my-auto">
 					<SidebarMenuItem>
 						<DropdownMenu>
@@ -196,8 +196,8 @@ const AppSidebar: Component = () => {
 								class="h-10"
 								tooltip="Account"
 							>
-								<Avatar class="size-6 rounded-md">
-									<AvatarFallback class="rounded-md bg-sidebar-primary text-sidebar-primary-foreground text-[11px] font-semibold">
+								<Avatar class="size-6 rounded-full">
+									<AvatarFallback class="rounded-full bg-sidebar-primary text-sidebar-primary-foreground text-[11px] font-semibold">
 										{userInitials()}
 									</AvatarFallback>
 								</Avatar>

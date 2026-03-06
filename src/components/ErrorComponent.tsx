@@ -31,7 +31,7 @@ export function ErrorComponent(props: ErrorComponentProps) {
 					<h1 class="text-4xl font-thin tracking-tight text-foreground select-none">
 						Something went wrong
 					</h1>
-					<p class="text-sm text-muted-foreground max-w-[500px] mx-auto leading-relaxed font-mono bg-muted/50 p-4 rounded-md border border-destructive/20 break-all">
+					<p class="text-sm text-muted-foreground max-w-[500px] mx-auto leading-relaxed font-mono bg-destructive/10 p-4 rounded-xl border-none break-all">
 						{props.error.message}
 					</p>
 				</div>

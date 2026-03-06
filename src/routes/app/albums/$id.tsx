@@ -82,8 +82,8 @@ function AlbumDetailPage() {
 			>
 				<ContextMenu>
 					<ContextMenuTrigger>
-						<div class="flex flex-col md:flex-row items-center md:items-end gap-6 pb-6 border-b text-center md:text-left">
-							<div class="size-40 md:size-32 bg-muted rounded-lg shadow-sm flex shrink-0 items-center justify-center overflow-hidden">
+						<div class="flex flex-col md:flex-row items-center md:items-end gap-6 pb-6 border-b-2 border-muted/50 text-center md:text-left">
+							<div class="size-40 md:size-32 bg-muted rounded-[1.5rem] shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),_0_2px_4px_-2px_rgba(0,0,0,0.1)] flex shrink-0 items-center justify-center overflow-hidden">
 								<CoverArt id={album.data?.album.coverArt} class="size-full" />
 							</div>
 							<div class="flex flex-col gap-2">
@@ -164,7 +164,7 @@ function AlbumDetailPage() {
 								when={album.data?.album.starred}
 								fallback={<IconStar class="mr-2 size-4" />}
 							>
-								<IconStarFilled class="mr-2 size-4 text-yellow-500" />
+								<IconStarFilled class="mr-2 size-4 text-warning" />
 							</Show>
 							{album.data?.album.starred ? "Unstar" : "Star"}
 						</ContextMenuItem>
@@ -278,7 +278,7 @@ function AlbumDetailPage() {
 													when={song.starred}
 													fallback={<IconStar class="mr-2 size-4" />}
 												>
-													<IconStarFilled class="mr-2 size-4 text-yellow-500" />
+													<IconStarFilled class="mr-2 size-4 text-warning" />
 												</Show>
 												{song.starred ? "Unstar" : "Star"}
 											</ContextMenuItem>

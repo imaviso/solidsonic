@@ -165,7 +165,7 @@ export function SearchCommand(props: SearchCommandProps = {}) {
 				type="button"
 				onClick={() => setOpen(true)}
 				class={cn(
-					"flex min-h-11 items-center gap-2 px-3 py-1.5 text-sm text-muted-foreground border rounded-md hover:bg-muted transition-colors text-left group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+					"flex min-h-12 items-center gap-2 px-4 py-2 text-base text-muted-foreground bg-muted/50 rounded-xl hover:bg-muted transition-colors text-left group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
 					props.triggerClass ?? "w-40 md:w-64",
 				)}
 			>
@@ -174,7 +174,7 @@ export function SearchCommand(props: SearchCommandProps = {}) {
 					Search library...
 				</span>
 				<Show when={props.showShortcut !== false}>
-					<kbd class="ml-auto pointer-events-none hidden md:inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">
+					<kbd class="ml-auto pointer-events-none hidden md:inline-flex h-6 select-none items-center gap-1 rounded-full bg-background px-2 font-mono text-xs font-medium text-muted-foreground opacity-100 shadow-sm">
 						<span class="text-xs">⌘</span>K
 					</kbd>
 				</Show>
@@ -228,7 +228,7 @@ export function SearchCommand(props: SearchCommandProps = {}) {
 										}
 										class="group"
 									>
-										<div class="mr-2 flex items-center justify-center size-8 rounded-md bg-muted/50 text-muted-foreground">
+										<div class="mr-2 flex items-center justify-center size-8 rounded-full bg-muted/50 text-muted-foreground">
 											<Show when={item.type === "artist"}>
 												<IconUser class="size-4" />
 											</Show>
@@ -314,7 +314,7 @@ export function SearchCommand(props: SearchCommandProps = {}) {
 										>
 											<CoverArt
 												id={album.coverArt}
-												class="mr-3 size-10 rounded-md object-cover shadow-sm"
+												class="mr-3 size-10 rounded-md object-cover shadow-[0_1px_3px_0_rgba(0,0,0,0.1),_0_1px_2px_-1px_rgba(0,0,0,0.1)]"
 											/>
 											<div class="flex flex-col">
 												<span class="font-medium">{album.name}</span>
@@ -346,7 +346,7 @@ export function SearchCommand(props: SearchCommandProps = {}) {
 										>
 											<CoverArt
 												id={song.coverArt}
-												class="mr-3 size-10 rounded-md object-cover shadow-sm"
+												class="mr-3 size-10 rounded-md object-cover shadow-[0_1px_3px_0_rgba(0,0,0,0.1),_0_1px_2px_-1px_rgba(0,0,0,0.1)]"
 											/>
 											<div class="flex flex-col">
 												<span class="font-medium">{song.title}</span>

@@ -131,7 +131,7 @@ function SongsPage() {
 
 			<div ref={scrollContainerRef} class="flex-1 overflow-auto">
 				{/* Header */}
-				<div class="grid grid-cols-[28px_40px_minmax(0,1fr)_52px] sm:grid-cols-[40px_48px_minmax(0,1fr)_80px] md:grid-cols-[40px_48px_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_80px] gap-2 sm:gap-4 px-2 sm:px-4 py-2 text-sm font-medium text-muted-foreground border-b sticky top-0 bg-background z-10">
+				<div class="grid grid-cols-[28px_40px_minmax(0,1fr)_52px] sm:grid-cols-[40px_48px_minmax(0,1fr)_80px] md:grid-cols-[40px_48px_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_80px] gap-2 sm:gap-4 px-2 sm:px-4 py-3 text-xs uppercase tracking-wider font-bold text-muted-foreground border-b-2 sticky top-0 bg-background/95 backdrop-blur z-10">
 					<div>#</div>
 					<div></div>
 					<div>Title</div>
@@ -168,7 +168,7 @@ function SongsPage() {
 									>
 										<button
 											type="button"
-											class="w-full h-full grid grid-cols-[28px_40px_minmax(0,1fr)_52px] sm:grid-cols-[40px_48px_minmax(0,1fr)_80px] md:grid-cols-[40px_48px_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_80px] gap-2 sm:gap-4 px-2 sm:px-4 items-center group cursor-pointer hover:bg-muted/50 border-0 bg-transparent text-left rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+											class="w-full h-full grid grid-cols-[28px_40px_minmax(0,1fr)_52px] sm:grid-cols-[40px_48px_minmax(0,1fr)_80px] md:grid-cols-[40px_48px_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_80px] gap-2 sm:gap-4 px-2 sm:px-4 items-center group cursor-pointer hover:bg-primary/5 transition-colors border-0 bg-transparent text-left rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
 											onClick={() => handlePlaySong(virtualRow.index)}
 											onKeyDown={(e) => {
 												if (e.key === "Enter" || e.key === " ") {
@@ -185,7 +185,7 @@ function SongsPage() {
 											<CoverArt
 												id={song.coverArt}
 												size={80}
-												class="size-10 rounded shadow-sm"
+												class="size-10 rounded-md shadow-[0_1px_3px_0_rgba(0,0,0,0.1),_0_1px_2px_-1px_rgba(0,0,0,0.1)]"
 											/>
 											<div class="font-medium truncate">
 												<span
@@ -298,7 +298,7 @@ function SongsPage() {
 												when={song.starred}
 												fallback={<IconStar class="mr-2 size-4" />}
 											>
-												<IconStarFilled class="mr-2 size-4 text-yellow-500" />
+												<IconStarFilled class="mr-2 size-4 text-warning" />
 											</Show>
 											{song.starred ? "Unstar" : "Star"}
 										</ContextMenuItem>

@@ -37,7 +37,7 @@ const SliderTrack = <T extends ValidComponent = "div">(
 	return (
 		<SliderPrimitive.Track
 			class={cn(
-				"relative h-2 w-full grow rounded-full bg-secondary",
+				"relative h-4 w-full grow rounded-full bg-secondary overflow-hidden",
 				local.class,
 			)}
 			{...others}
@@ -78,7 +78,7 @@ const SliderThumb = <T extends ValidComponent = "span">(
 	return (
 		<SliderPrimitive.Thumb
 			class={cn(
-				"top-[-6px] block size-5 rounded-full border-2 border-primary bg-background ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+				"top-[-4px] block size-6 rounded-full border-none shadow-[0_1px_3px_0_rgba(0,0,0,0.1),_0_1px_2px_-1px_rgba(0,0,0,0.1)] bg-primary ring-offset-background transition-transform hover:scale-110 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
 				local.class,
 			)}
 			{...others}

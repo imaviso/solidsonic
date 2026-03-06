@@ -8,7 +8,6 @@ import { createFileRoute, Link } from "@tanstack/solid-router";
 import { For, Show } from "solid-js";
 import { createStore } from "solid-js/store";
 import { AddToPlaylistDialog } from "~/components/AddToPlaylistDialog";
-import { Card, CardContent } from "~/components/ui/card";
 import {
 	ContextMenu,
 	ContextMenuContent,
@@ -63,16 +62,14 @@ function GenresPage() {
 										}}
 										class="block group"
 									>
-										<Card class="h-full hover:bg-muted/50 transition-colors">
-											<CardContent class="p-4 sm:p-6 flex flex-col items-center justify-center text-center gap-2">
-												<span class="font-semibold text-base sm:text-lg group-hover:underline">
-													{genre.value}
-												</span>
-												<span class="text-xs text-muted-foreground">
-													{genre.albumCount} albums
-												</span>
-											</CardContent>
-										</Card>
+										<div class="flex flex-col items-center justify-center text-center gap-2 h-full aspect-[2/1] bg-muted/30 hover:bg-muted/50 rounded-2xl transition-[transform,box-shadow,background-color] hover:-translate-y-1 shadow-[0_1px_3px_0_rgba(0,0,0,0.1),_0_1px_2px_-1px_rgba(0,0,0,0.1)] hover:shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),_0_2px_4px_-2px_rgba(0,0,0,0.1)] p-4 sm:p-6">
+											<span class="font-bold text-base sm:text-lg group-hover:text-primary transition-colors">
+												{genre.value}
+											</span>
+											<span class="text-sm font-medium text-muted-foreground opacity-80">
+												{genre.albumCount} albums
+											</span>
+										</div>
 									</Link>
 								</ContextMenuTrigger>
 								<ContextMenuContent>

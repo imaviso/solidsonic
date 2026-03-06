@@ -201,7 +201,7 @@ const LyricsView: Component = () => {
 								<button
 									type="button"
 									class={cn(
-										"text-lg sm:text-2xl md:text-3xl lg:text-5xl font-bold transition-all duration-700 cursor-pointer px-4 sm:px-8 py-2 outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-lg w-full text-center bg-transparent border-0 select-none",
+										"text-lg sm:text-2xl md:text-3xl lg:text-5xl font-bold transition-[color,transform,opacity,filter] duration-700 cursor-pointer px-4 sm:px-8 py-2 outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-lg w-full text-center bg-transparent border-0 select-none",
 										i() === currentLineIndex()
 											? "text-primary scale-100 opacity-100 blur-0"
 											: "text-muted-foreground/40 scale-95 opacity-40 blur-[2px] hover:opacity-70 hover:blur-0",
@@ -248,23 +248,16 @@ const QueueView: Component = () => {
 							if (i() === player.queueIndex) activeRef = el;
 						}}
 						class={cn(
-							"group flex items-center gap-3 p-2 rounded-lg transition-colors hover:bg-muted/50",
+							"group flex items-center gap-3 p-2 rounded-lg transition-colors hover:bg-primary/5",
 							i() === player.queueIndex && "bg-muted/30",
 						)}
 					>
-						{/* biome-ignore lint/a11y: content contains interactive elements */}
-						<div
-							role="button"
-							tabIndex={0}
+						<button
+							type="button"
 							class="flex-1 flex items-center gap-3 text-left min-w-0 cursor-pointer outline-none"
 							onClick={() => player.playSong(song, player.queue, i())}
-							onKeyDown={(e) => {
-								if (e.key === "Enter" || e.key === " ") {
-									player.playSong(song, player.queue, i());
-								}
-							}}
 						>
-							<div class="relative size-12 flex-none rounded overflow-hidden shadow-sm">
+							<div class="relative size-12 flex-none rounded-md overflow-hidden shadow-[0_1px_3px_0_rgba(0,0,0,0.1),_0_1px_2px_-1px_rgba(0,0,0,0.1)]">
 								<CoverArt
 									id={song.coverArt}
 									class="w-full h-full object-cover"
@@ -304,7 +297,7 @@ const QueueView: Component = () => {
 									</Show>
 								</div>
 							</div>
-						</div>
+						</button>
 
 						<div class="flex items-center gap-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity focus-within:opacity-100">
 							<div class="text-xs text-muted-foreground font-mono mr-2">
@@ -316,6 +309,7 @@ const QueueView: Component = () => {
 										variant="ghost"
 										size="icon"
 										class="size-11 md:size-8 text-muted-foreground hover:text-foreground"
+										aria-label="Move Up"
 										onClick={(e) => {
 											e.stopPropagation();
 											player.moveInQueue(i(), i() - 1);
@@ -333,6 +327,7 @@ const QueueView: Component = () => {
 										variant="ghost"
 										size="icon"
 										class="size-11 md:size-8 text-muted-foreground hover:text-foreground"
+										aria-label="Move Down"
 										onClick={(e) => {
 											e.stopPropagation();
 											player.moveInQueue(i(), i() + 1);
@@ -350,6 +345,7 @@ const QueueView: Component = () => {
 										variant="ghost"
 										size="icon"
 										class="size-11 md:size-8 text-destructive/70 hover:text-destructive hover:bg-destructive/10"
+										aria-label="Remove from Queue"
 										onClick={(e) => {
 											e.stopPropagation();
 											player.removeFromQueue(i());
@@ -408,21 +404,22 @@ const FullScreenPlayer: Component<FullScreenPlayerProps> = (props) => {
 		<Portal>
 			<div
 				class={cn(
-					"fixed inset-0 z-[100] bg-background/95 backdrop-blur-xl transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]",
+					"fixed inset-0 z-[100] bg-background/95 backdrop-blur-xl transition-[transform,opacity] duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]",
 					props.isOpen
 						? "translate-y-0 opacity-100"
 						: "translate-y-full opacity-0 pointer-events-none",
 				)}
 			>
 				{/* Dynamic Background */}
-				<div class="absolute inset-0 z-0 overflow-hidden opacity-30 pointer-events-none transition-opacity duration-1000">
+				<div class="absolute inset-0 z-0 overflow-hidden opacity-40 pointer-events-none transition-opacity duration-1000">
 					<Show when={!!player.currentTrack}>
 						<CoverArt
 							id={player.currentTrack?.coverArt}
-							class="w-full h-full object-cover blur-3xl scale-150 animate-pulse-slow"
+							class="w-full h-full object-cover blur-[100px] scale-150 saturate-150 animate-pulse-slow"
 						/>
 					</Show>
-					<div class="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent" />
+					<div class="absolute inset-0 bg-background/60" />
+					<div class="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent" />
 				</div>
 
 				{/* Content Container */}
@@ -433,6 +430,7 @@ const FullScreenPlayer: Component<FullScreenPlayerProps> = (props) => {
 							variant="ghost"
 							size="icon"
 							class="size-11 sm:size-10 rounded-full"
+							aria-label="Close"
 							onClick={props.onClose}
 						>
 							<IconChevronDown class="size-6" />
@@ -473,7 +471,7 @@ const FullScreenPlayer: Component<FullScreenPlayerProps> = (props) => {
 							class={cn(
 								"relative w-full max-w-[300px] md:max-w-[600px] lg:landscape:max-w-[500px] portrait:max-w-[80vw]",
 								"aspect-square md:aspect-auto md:h-[450px] lg:h-[500px]",
-								"transition-all duration-500 flex items-center justify-center overflow-hidden rounded-2xl",
+								"transition-transform duration-500 flex items-center justify-center overflow-hidden rounded-2xl",
 								view() === "artwork" ? "scale-100" : "scale-100",
 							)}
 						>
@@ -481,7 +479,7 @@ const FullScreenPlayer: Component<FullScreenPlayerProps> = (props) => {
 
 							<div
 								class={cn(
-									"absolute inset-0 transition-all duration-500 flex items-center justify-center",
+									"absolute inset-0 transition-[transform,opacity] duration-500 flex items-center justify-center",
 									view() === "artwork"
 										? "opacity-100 scale-100 translate-y-0"
 										: "opacity-0 scale-90 translate-y-10 pointer-events-none",
@@ -498,7 +496,7 @@ const FullScreenPlayer: Component<FullScreenPlayerProps> = (props) => {
 							{/* Lyrics View */}
 							<div
 								class={cn(
-									"absolute inset-0 transition-all duration-500",
+									"absolute inset-0 transition-[transform,opacity] duration-500",
 									view() === "lyrics"
 										? "opacity-100 translate-x-0"
 										: view() === "artwork"
@@ -512,7 +510,7 @@ const FullScreenPlayer: Component<FullScreenPlayerProps> = (props) => {
 							{/* Queue View */}
 							<div
 								class={cn(
-									"absolute inset-0 transition-all duration-500",
+									"absolute inset-0 transition-[transform,opacity] duration-500",
 									view() === "queue"
 										? "opacity-100 translate-x-0"
 										: "opacity-0 translate-x-10 pointer-events-none",
@@ -526,10 +524,10 @@ const FullScreenPlayer: Component<FullScreenPlayerProps> = (props) => {
 						<div class="flex flex-col w-full max-w-md md:max-w-2xl lg:landscape:max-w-md gap-6 lg:gap-8">
 							{/* Track Info */}
 							<div class="space-y-1 text-center lg:landscape:text-left">
-								<h2 class="text-2xl md:text-3xl font-bold leading-tight line-clamp-2">
+								<h2 class="text-3xl md:text-4xl lg:text-5xl font-black tracking-tight leading-none line-clamp-2 mb-2">
 									{player.currentTrack?.title ?? "Not Playing"}
 								</h2>
-								<h3 class="text-lg md:text-xl text-muted-foreground font-medium line-clamp-1">
+								<h3 class="text-xl md:text-2xl text-primary font-bold line-clamp-1 opacity-90">
 									<Show
 										when={player.currentTrack?.artistId}
 										fallback={player.currentTrack?.artist ?? "Select a song"}
@@ -537,14 +535,14 @@ const FullScreenPlayer: Component<FullScreenPlayerProps> = (props) => {
 										<Link
 											to="/app/artists/$id"
 											params={{ id: player.currentTrack?.artistId ?? "" }}
-											class="hover:underline hover:text-foreground"
+											class="hover:underline hover:text-primary/80"
 											onClick={() => props.onClose()}
 										>
 											{player.currentTrack?.artist}
 										</Link>
 									</Show>
 								</h3>
-								<p class="text-sm text-muted-foreground/60 line-clamp-1">
+								<p class="text-sm md:text-base font-medium text-muted-foreground uppercase tracking-widest line-clamp-1 mt-2 opacity-75">
 									<Show
 										when={player.currentTrack?.albumId}
 										fallback={player.currentTrack?.album}
@@ -571,10 +569,10 @@ const FullScreenPlayer: Component<FullScreenPlayerProps> = (props) => {
 									onChangeEnd={handleSeekCommit}
 									class="w-full cursor-pointer"
 								>
-									<SliderTrack class="h-1.5 bg-primary/20 group-hover:h-2 transition-all rounded-full overflow-hidden">
-										<SliderFill class="bg-primary/80 group-hover:bg-primary transition-colors" />
+									<SliderTrack class="h-2 bg-primary/20 transition-colors rounded-full overflow-hidden flex items-center">
+										<SliderFill class="h-1.5 group-hover:h-2 bg-primary/80 group-hover:bg-primary transition-[height,background-color] rounded-full" />
 									</SliderTrack>
-									<SliderThumb class="size-3 group-hover:size-4 transition-all opacity-0 group-hover:opacity-100 border-2 border-primary bg-background ring-offset-background top-[-3px] group-hover:top-[-4px]" />
+									<SliderThumb class="size-3 group-hover:scale-125 transition-[transform,opacity] opacity-0 group-hover:opacity-100 border-2 border-primary bg-background ring-offset-background top-[-2px]" />
 								</Slider>
 								<div class="flex justify-between text-xs font-medium text-muted-foreground">
 									<span>{formatTime(seekValue())}</span>
@@ -591,6 +589,7 @@ const FullScreenPlayer: Component<FullScreenPlayerProps> = (props) => {
 										"size-11 sm:size-10 text-muted-foreground hover:text-foreground",
 										player.shuffle && "text-primary",
 									)}
+									aria-label="Toggle Shuffle"
 									onClick={player.toggleShuffle}
 								>
 									<IconArrowsShuffle class="size-5" />
@@ -601,13 +600,15 @@ const FullScreenPlayer: Component<FullScreenPlayerProps> = (props) => {
 										variant="ghost"
 										size="icon"
 										class="size-11 sm:size-12 hover:scale-110 transition-transform"
+										aria-label="Previous Track"
 										onClick={player.playPrevious}
 									>
 										<IconPlayerSkipBackFilled class="size-6 sm:size-8" />
 									</Button>
 									<Button
 										size="icon"
-										class="size-12 sm:size-16 rounded-full hover:scale-105 transition-transform shadow-lg"
+										class="size-12 sm:size-16 rounded-full hover:scale-105 transition-transform shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),_0_2px_4px_-2px_rgba(0,0,0,0.1)]"
+										aria-label={player.isPlaying ? "Pause" : "Play"}
 										onClick={player.togglePlayPause}
 									>
 										<Show
@@ -623,6 +624,7 @@ const FullScreenPlayer: Component<FullScreenPlayerProps> = (props) => {
 										variant="ghost"
 										size="icon"
 										class="size-11 sm:size-12 hover:scale-110 transition-transform"
+										aria-label="Next Track"
 										onClick={player.playNext}
 									>
 										<IconPlayerSkipForwardFilled class="size-6 sm:size-8" />
@@ -636,6 +638,7 @@ const FullScreenPlayer: Component<FullScreenPlayerProps> = (props) => {
 										"size-11 sm:size-10 text-muted-foreground hover:text-foreground",
 										player.repeat !== "off" && "text-primary",
 									)}
+									aria-label="Toggle Repeat"
 									onClick={player.toggleRepeat}
 								>
 									<Show
@@ -657,6 +660,7 @@ const FullScreenPlayer: Component<FullScreenPlayerProps> = (props) => {
 										variant="ghost"
 										size="icon"
 										class="size-11 sm:size-8 p-0"
+										aria-label={player.volume === 0 ? "Unmute" : "Mute"}
 										onClick={() =>
 											player.setVolume(player.volume === 0 ? 1 : 0)
 										}
@@ -686,7 +690,7 @@ const FullScreenPlayer: Component<FullScreenPlayerProps> = (props) => {
 										<SliderTrack class="h-1 bg-primary/20 rounded-full overflow-hidden">
 											<SliderFill class="bg-primary" />
 										</SliderTrack>
-										<SliderThumb class="size-3 border-primary bg-background shadow-sm top-[-4px]" />
+										<SliderThumb class="size-4 bg-primary transition-transform hover:scale-110 border-none shadow-[0_1px_3px_0_rgba(0,0,0,0.1),_0_1px_2px_-1px_rgba(0,0,0,0.1)] top-[-4px]" />
 									</Slider>
 								</div>
 								<div class="flex items-center gap-2">
@@ -697,6 +701,7 @@ const FullScreenPlayer: Component<FullScreenPlayerProps> = (props) => {
 											"size-11 sm:size-10 text-muted-foreground",
 											view() === "lyrics" && "text-primary bg-muted",
 										)}
+										aria-label="Toggle Lyrics View"
 										onClick={() =>
 											setView(view() === "lyrics" ? "artwork" : "lyrics")
 										}
@@ -710,6 +715,7 @@ const FullScreenPlayer: Component<FullScreenPlayerProps> = (props) => {
 											"size-11 sm:size-10 text-muted-foreground",
 											view() === "queue" && "text-primary bg-muted",
 										)}
+										aria-label="Toggle Queue View"
 										onClick={() =>
 											setView(view() === "queue" ? "artwork" : "queue")
 										}

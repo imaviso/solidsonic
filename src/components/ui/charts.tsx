@@ -163,7 +163,7 @@ function showTooltip(context: ChartContext) {
 		return;
 	}
 
-	el.className = `p-2 bg-card text-card-foreground rounded-lg border shadow-sm text-sm ${
+	el.className = `p-3 bg-popover text-popover-foreground rounded-xl border-none shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),_0_2px_4px_-2px_rgba(0,0,0,0.1)] text-sm ${
 		model.yAlign ?? `no-transform`
 	}`;
 

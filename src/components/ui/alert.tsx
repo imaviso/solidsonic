@@ -8,13 +8,13 @@ import { splitProps } from "solid-js";
 import { cn } from "~/lib/utils";
 
 const alertVariants = cva(
-	"relative w-full rounded-lg border p-4 [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 [&>svg]:text-foreground [&>svg~*]:pl-7",
+	"relative w-full rounded-2xl bg-muted/50 p-4 [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 [&>svg]:text-foreground [&>svg~*]:pl-7 shadow-[0_1px_3px_0_rgba(0,0,0,0.1),_0_1px_2px_-1px_rgba(0,0,0,0.1)]",
 	{
 		variants: {
 			variant: {
 				default: "bg-background text-foreground",
 				destructive:
-					"border-destructive/50 text-destructive dark:border-destructive [&>svg]:text-destructive",
+					"bg-destructive/20 text-destructive [&>svg]:text-destructive",
 			},
 		},
 		defaultVariants: {

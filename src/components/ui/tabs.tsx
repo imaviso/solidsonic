@@ -19,7 +19,7 @@ const TabsList = <T extends ValidComponent = "div">(
 	return (
 		<TabsPrimitive.List
 			class={cn(
-				"inline-flex h-10 items-center justify-center rounded-md bg-muted p-1 text-muted-foreground",
+				"inline-flex h-12 items-center justify-center rounded-full bg-muted/50 p-1 text-muted-foreground",
 				local.class,
 			)}
 			{...others}
@@ -39,7 +39,7 @@ const TabsTrigger = <T extends ValidComponent = "button">(
 	return (
 		<TabsPrimitive.Trigger
 			class={cn(
-				"inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[selected]:bg-background data-[selected]:text-foreground data-[selected]:shadow-sm",
+				"inline-flex items-center justify-center whitespace-nowrap rounded-full px-6 py-2 text-sm font-medium ring-offset-background transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[selected]:bg-background data-[selected]:text-primary data-[selected]:shadow-[0_1px_3px_0_rgba(0,0,0,0.1),_0_1px_2px_-1px_rgba(0,0,0,0.1)]",
 				local.class,
 			)}
 			{...others}
@@ -79,7 +79,7 @@ const TabsIndicator = <T extends ValidComponent = "div">(
 	return (
 		<TabsPrimitive.Indicator
 			class={cn(
-				"duration-250ms absolute transition-all data-[orientation=horizontal]:-bottom-px data-[orientation=vertical]:-right-px data-[orientation=horizontal]:h-[2px] data-[orientation=vertical]:w-[2px]",
+				"duration-250ms absolute transition data-[orientation=horizontal]:-bottom-px data-[orientation=vertical]:-right-px data-[orientation=horizontal]:h-[2px] data-[orientation=vertical]:w-[2px]",
 				local.class,
 			)}
 			{...others}

@@ -17,7 +17,7 @@ const AccordionItem = <T extends ValidComponent = "div">(
 ) => {
 	const [local, others] = splitProps(props as AccordionItemProps, ["class"]);
 	return (
-		<AccordionPrimitive.Item class={cn("border-b", local.class)} {...others} />
+		<AccordionPrimitive.Item class={cn("border-b-2 border-muted/50 mb-2 last:border-0", local.class)} {...others} />
 	);
 };
 
@@ -38,7 +38,7 @@ const AccordionTrigger = <T extends ValidComponent = "button">(
 		<AccordionPrimitive.Header class="flex">
 			<AccordionPrimitive.Trigger
 				class={cn(
-					"flex flex-1 items-center justify-between py-4 font-medium transition-all hover:underline [&[data-expanded]>svg]:rotate-180",
+					"flex flex-1 items-center justify-between py-4 font-medium transition hover:underline [&[data-expanded]>svg]:rotate-180",
 					local.class,
 				)}
 				{...others}
@@ -77,7 +77,7 @@ const AccordionContent = <T extends ValidComponent = "div">(
 	return (
 		<AccordionPrimitive.Content
 			class={cn(
-				"animate-accordion-up overflow-hidden text-sm transition-all data-[expanded]:animate-accordion-down",
+				"animate-accordion-up overflow-hidden text-sm transition data-[expanded]:animate-accordion-down",
 				local.class,
 			)}
 			{...others}

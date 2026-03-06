@@ -20,7 +20,7 @@ export interface Settings {
 const SETTINGS_STORAGE_KEY = "solidsonic-settings";
 
 const defaultSettings: Settings = {
-	dynamicPlayerBackground: false,
+	dynamicPlayerBackground: true,
 	theme: "system",
 	maxBitRate: 0,
 	scrobblingEnabled: true,

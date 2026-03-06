@@ -4,7 +4,6 @@ import { createFileRoute, Link } from "@tanstack/solid-router";
 import { createSignal, For, Show } from "solid-js";
 import { PlaylistDialog } from "~/components/PlaylistDialog";
 import { Button } from "~/components/ui/button";
-import { Card, CardContent } from "~/components/ui/card";
 import { playlistListQueryOptions } from "~/lib/api";
 import { queryKeys } from "~/lib/query";
 
@@ -59,21 +58,19 @@ function PlaylistsPage() {
 								params={{ id: playlist.id }}
 								class="block group"
 							>
-								<Card class="h-full border-0 shadow-none bg-muted/40 hover:bg-muted/60 transition-colors">
-									<CardContent class="p-4 sm:p-6 flex flex-col items-center justify-center text-center gap-4 h-full aspect-square">
-										<div class="p-4 rounded-full bg-background shadow-sm">
-											<IconPlaylist class="size-8 text-primary" />
-										</div>
-										<div>
-											<h3 class="font-semibold truncate w-full max-w-[150px]">
-												{playlist.name}
-											</h3>
-											<p class="text-xs text-muted-foreground">
-												{playlist.songCount} songs
-											</p>
-										</div>
-									</CardContent>
-								</Card>
+								<div class="flex flex-col items-center justify-center text-center gap-4 h-full aspect-square bg-muted/30 hover:bg-muted/50 rounded-2xl transition-[transform,box-shadow,background-color] hover:-translate-y-1 shadow-[0_1px_3px_0_rgba(0,0,0,0.1),_0_1px_2px_-1px_rgba(0,0,0,0.1)] hover:shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),_0_2px_4px_-2px_rgba(0,0,0,0.1)] p-4 sm:p-6">
+									<div class="p-5 rounded-full bg-background shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),_0_2px_4px_-2px_rgba(0,0,0,0.1)] text-primary group-hover:scale-110 transition-transform">
+										<IconPlaylist class="size-8" />
+									</div>
+									<div class="w-full">
+										<h3 class="font-bold text-base truncate w-full max-w-[150px] mx-auto group-hover:text-primary transition-colors">
+											{playlist.name}
+										</h3>
+										<p class="text-sm font-medium text-muted-foreground opacity-80">
+											{playlist.songCount} songs
+										</p>
+									</div>
+								</div>
 							</Link>
 						)}
 					</For>

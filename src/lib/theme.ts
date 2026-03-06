@@ -1,4 +1,5 @@
 import { createSignal } from "solid-js";
+import { onThemeModeChanged } from "./dynamic-theme";
 
 export type Theme = "light" | "dark" | "system";
 
@@ -23,6 +24,9 @@ function applyThemeClass(theme: Theme) {
 
 	root.classList.remove("light", "dark");
 	root.classList.add(effectiveTheme);
+
+	// Re-apply dynamic theme colors for the new light/dark mode
+	onThemeModeChanged();
 }
 
 function applyThemeWithTransition(theme: Theme) {

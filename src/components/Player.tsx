@@ -129,7 +129,7 @@ const Player: Component = () => {
 				isOpen={isFullScreen()}
 				onClose={() => setIsFullScreen(false)}
 			/>
-			<div class="flex h-16 md:h-20 shrink-0 items-center justify-between md:justify-start border-t bg-background px-2 md:px-4">
+			<div class="flex h-16 md:h-20 shrink-0 items-center justify-between md:justify-start border-t-2 border-border bg-background px-2 md:px-4">
 				{/* Track Info */}
 				{/* biome-ignore lint/a11y: content contains interactive elements (links) */}
 				<div
@@ -144,7 +144,7 @@ const Player: Component = () => {
 					}}
 				>
 					<div class="relative shrink-0">
-						<div class="flex aspect-square size-10 md:size-12 items-center justify-center rounded-md bg-muted overflow-hidden transition-transform group-hover:scale-105">
+						<div class="flex aspect-square size-10 md:size-12 items-center justify-center rounded-md bg-muted overflow-hidden transition-transform group-hover:scale-105 shadow-[0_1px_3px_0_rgba(0,0,0,0.1),_0_1px_2px_-1px_rgba(0,0,0,0.1)]">
 							<Show
 								when={!!player.currentTrack}
 								fallback={
@@ -192,6 +192,7 @@ const Player: Component = () => {
 						variant="ghost"
 						size="icon"
 						class="h-11 w-11 rounded-full"
+						aria-label={player.isPlaying ? "Pause" : "Play"}
 						onClick={(e) => {
 							e.stopPropagation();
 							player.togglePlayPause();
@@ -213,7 +214,8 @@ const Player: Component = () => {
 						<Button
 							variant="ghost"
 							size="icon"
-							class={cn("h-8 w-8", player.shuffle && "text-primary")}
+							class={cn("h-11 w-11", player.shuffle && "text-primary")}
+							aria-label="Toggle Shuffle"
 							onClick={player.toggleShuffle}
 						>
 							<IconArrowsShuffle class="size-4" />
@@ -221,14 +223,16 @@ const Player: Component = () => {
 						<Button
 							variant="ghost"
 							size="icon"
-							class="h-8 w-8"
+							class="h-11 w-11"
+							aria-label="Previous Track"
 							onClick={player.playPrevious}
 						>
 							<IconPlayerSkipBackFilled class="size-4" />
 						</Button>
 						<Button
 							size="icon"
-							class="h-9 w-9 rounded-full"
+							class="h-11 w-11 rounded-full"
+							aria-label={player.isPlaying ? "Pause" : "Play"}
 							onClick={player.togglePlayPause}
 							disabled={!player.currentTrack}
 						>
@@ -242,7 +246,8 @@ const Player: Component = () => {
 						<Button
 							variant="ghost"
 							size="icon"
-							class="h-8 w-8"
+							class="h-11 w-11"
+							aria-label="Next Track"
 							onClick={player.playNext}
 						>
 							<IconPlayerSkipForwardFilled class="size-4" />
@@ -250,7 +255,8 @@ const Player: Component = () => {
 						<Button
 							variant="ghost"
 							size="icon"
-							class={cn("h-8 w-8", player.repeat !== "off" && "text-primary")}
+							class={cn("h-11 w-11", player.repeat !== "off" && "text-primary")}
+							aria-label="Toggle Repeat"
 							onClick={player.toggleRepeat}
 						>
 							<Show
@@ -294,7 +300,8 @@ const Player: Component = () => {
 					<Button
 						variant="ghost"
 						size="icon"
-						class="h-8 w-8"
+						class="h-11 w-11"
+						aria-label={player.volume === 0 ? "Unmute" : "Mute"}
 						onClick={() => player.setVolume(player.volume === 0 ? 1 : 0)}
 					>
 						<Show

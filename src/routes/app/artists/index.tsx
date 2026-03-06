@@ -117,7 +117,7 @@ function ArtistsPage() {
 															<div class="w-full max-w-[160px] aspect-square mx-auto">
 																<CoverArt
 																	id={artist.coverArt}
-																	class="h-full w-full object-cover rounded-full shadow-sm"
+																	class="h-full w-full object-cover rounded-full shadow-[0_1px_3px_0_rgba(0,0,0,0.1),_0_1px_2px_-1px_rgba(0,0,0,0.1)]"
 																/>
 															</div>
 															<div

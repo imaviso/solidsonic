@@ -23,8 +23,13 @@ export const Route = createFileRoute("/app/settings")({
 });
 
 function SettingsPage() {
-	const { settings, setTheme, setMaxBitRate, setScrobblingEnabled } =
-		useSettings();
+	const {
+		settings,
+		setTheme,
+		setMaxBitRate,
+		setScrobblingEnabled,
+		setDynamicPlayerBackground,
+	} = useSettings();
 
 	return (
 		<div class="container max-w-2xl py-6 sm:py-8 space-y-6 sm:space-y-8 h-full overflow-y-auto">
@@ -76,6 +81,24 @@ function SettingsPage() {
 								</SelectTrigger>
 								<SelectContent />
 							</Select>
+						</div>
+
+						<div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+							<div class="space-y-0.5">
+								<Label>Dynamic Colors</Label>
+								<p class="text-sm text-muted-foreground">
+									Adapt the UI color scheme to the currently playing track's
+									cover art.
+								</p>
+							</div>
+							<Switch
+								checked={settings.dynamicPlayerBackground}
+								onChange={setDynamicPlayerBackground}
+							>
+								<SwitchControl>
+									<SwitchThumb />
+								</SwitchControl>
+							</Switch>
 						</div>
 					</CardContent>
 				</Card>

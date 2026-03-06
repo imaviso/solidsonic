@@ -14,7 +14,8 @@ export default {
 		},
 		extend: {
 			fontFamily: {
-				sans: ["Geist Variable", ...defaultTheme.fontFamily.sans],
+				sans: ["Google Sans", ...defaultTheme.fontFamily.sans],
+				mono: ["Google Sans Code", ...defaultTheme.fontFamily.mono],
 			},
 			colors: {
 				border: "hsl(var(--border))",

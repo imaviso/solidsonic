@@ -359,7 +359,7 @@ function LoginPage() {
 
 							{/* Server Error Message */}
 							<Show when={serverError()}>
-								<div class="p-3 rounded-md bg-destructive/10 border border-destructive/20 text-destructive text-sm">
+								<div class="p-3 rounded-2xl bg-destructive/10 border-none text-destructive text-sm">
 									{serverError()}
 								</div>
 							</Show>

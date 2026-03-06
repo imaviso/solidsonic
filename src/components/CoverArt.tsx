@@ -7,6 +7,7 @@ interface CoverArtProps {
 	id?: string;
 	size?: number;
 	class?: string;
+	loading?: "lazy" | "eager";
 }
 
 const CoverArt: Component<CoverArtProps> = (props) => {
@@ -62,7 +63,7 @@ const CoverArt: Component<CoverArtProps> = (props) => {
 						"h-full w-full object-cover transition-opacity duration-300",
 						isLoaded() ? "opacity-100" : "opacity-0",
 					)}
-					loading="eager"
+					loading={props.loading ?? "lazy"}
 					onload={() => {
 						setIsLoaded(true);
 						setIsLoading(false);

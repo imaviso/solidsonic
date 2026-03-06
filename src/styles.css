@@ -4,29 +4,34 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
+    /* M3 Light Theme */
+    --background: 270 20% 99%;
+    --foreground: 270 10% 11%;
 
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
+    /* Surface Container Low */
+    --muted: 270 10% 96%;
+    --muted-foreground: 270 5% 35%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
+    --popover: 270 20% 99%;
+    --popover-foreground: 270 10% 11%;
 
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
+    --border: 270 10% 85%;
+    --input: 270 10% 85%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
+    --card: 270 20% 99%;
+    --card-foreground: 270 10% 11%;
 
-    --primary: 240 5.9% 10%;
-    --primary-foreground: 0 0% 98%;
+    /* M3 Primary */
+    --primary: 260 80% 60%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
+    /* M3 Secondary Container */
+    --secondary: 260 30% 90%;
+    --secondary-foreground: 260 30% 20%;
 
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
+    /* M3 Tertiary Container */
+    --accent: 310 30% 90%;
+    --accent-foreground: 310 30% 20%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
@@ -43,36 +48,40 @@
     --error: 0 93% 94%;
     --error-foreground: 0 84% 60%;
 
-    --ring: 240 5.9% 10%;
+    --ring: 260 80% 60%;
 
-    --radius: 0.5rem;
+    --radius: 1rem; /* M3 Medium shape */
   }
 
   .dark,
   [data-kb-theme="dark"] {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
+    /* M3 Dark Theme */
+    --background: 270 10% 8%; 
+    --foreground: 270 10% 90%;
 
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
+    /* Surface Container Low */
+    --muted: 270 10% 12%;
+    --muted-foreground: 270 10% 75%;
 
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
+    --accent: 310 20% 15%;
+    --accent-foreground: 310 20% 90%;
 
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 270 10% 8%;
+    --popover-foreground: 270 10% 90%;
 
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
+    --border: 270 10% 25%;
+    --input: 270 10% 25%;
 
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
+    --card: 270 10% 8%;
+    --card-foreground: 270 10% 90%;
 
-    --primary: 0 0% 98%;
-    --primary-foreground: 240 5.9% 10%;
+    /* M3 Primary Dark */
+    --primary: 260 85% 75%;
+    --primary-foreground: 260 85% 20%;
 
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
+    /* M3 Secondary Container Dark */
+    --secondary: 260 20% 20%;
+    --secondary-foreground: 260 20% 90%;
 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
@@ -89,9 +98,9 @@
     --error: 0 93% 94%;
     --error-foreground: 0 84% 60%;
 
-    --ring: 240 4.9% 83.9%;
+    --ring: 260 85% 75%;
 
-    --radius: 0.5rem;
+    --radius: 1rem; /* M3 Medium shape */
   }
 }
 

@@ -198,8 +198,8 @@ function PlaylistDetailPage() {
 				when={!playlist.isLoading && playlist.data}
 				fallback={<div>Loading...</div>}
 			>
-				<div class="flex flex-col md:flex-row items-center md:items-end gap-6 pb-6 border-b text-center md:text-left">
-					<div class="size-40 md:size-32 bg-muted rounded-lg shadow-sm flex shrink-0 items-center justify-center overflow-hidden">
+				<div class="flex flex-col md:flex-row items-center md:items-end gap-6 pb-6 border-b-2 border-muted/50 text-center md:text-left">
+					<div class="size-40 md:size-32 bg-muted rounded-[1.5rem] shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),_0_2px_4px_-2px_rgba(0,0,0,0.1)] flex shrink-0 items-center justify-center overflow-hidden">
 						<CoverArt id={playlist.data?.coverArt} class="size-full" />
 					</div>
 					<div class="flex flex-col gap-2 flex-1">
@@ -264,7 +264,7 @@ function PlaylistDetailPage() {
 											<CoverArt
 												id={song.coverArt}
 												size={80}
-												class="size-10 rounded shadow-sm"
+												class="size-10 rounded-md shadow-[0_1px_3px_0_rgba(0,0,0,0.1),_0_1px_2px_-1px_rgba(0,0,0,0.1)]"
 											/>
 										</TableCell>
 										<TableCell class="font-medium">

@@ -5,12 +5,14 @@ import {
 	RouterProvider,
 } from "@tanstack/solid-router";
 import { render } from "solid-js/web";
+import { initDynamicThemeWatcher } from "./lib/dynamic-theme";
 import { createIDBPersister } from "./lib/persistence";
 import { initRemoteHostSync } from "./lib/player";
 import { createAppQueryClient } from "./lib/query";
 import "~/lib/settings"; // Initialize settings (theme, etc.)
 import { routeTree } from "./routeTree.gen";
-import "@fontsource-variable/geist/index.css";
+import "@fontsource-variable/google-sans/index.css";
+import "@fontsource-variable/google-sans-code/index.css";
 import "./styles.css";
 
 const queryClient = createAppQueryClient();
@@ -20,6 +22,7 @@ const persister = createIDBPersister();
 const browserHistory = createBrowserHistory();
 
 initRemoteHostSync();
+initDynamicThemeWatcher();
 
 // Set up a Router instance
 const router = createRouter({

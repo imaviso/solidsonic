@@ -208,17 +208,17 @@ function AlbumsPage() {
 															class="block group h-full"
 														>
 															<div class="flex flex-col">
-																<div class="aspect-square w-full relative overflow-hidden rounded-md shadow-sm bg-muted">
+																<div class="aspect-square w-full relative overflow-hidden rounded-2xl shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),_0_2px_4px_-2px_rgba(0,0,0,0.1)] transition-transform hover:-translate-y-1 hover:shadow-[0_8px_10px_-5px_rgba(0,0,0,0.2),_0_16px_24px_2px_rgba(0,0,0,0.14)] bg-muted/30">
 																	<CoverArt
 																		id={album.coverArt}
 																		class="h-full w-full object-cover"
 																	/>
 																</div>
-																<div class="pt-2">
-																	<h3 class="font-medium text-sm truncate group-hover:underline">
+																<div class="pt-3 px-1">
+																	<h3 class="font-bold text-base truncate group-hover:text-primary transition-colors">
 																		{album.name}
 																	</h3>
-																	<p class="text-xs text-muted-foreground truncate">
+																	<p class="text-sm font-medium text-muted-foreground truncate opacity-80">
 																		{album.artist}
 																	</p>
 																</div>
@@ -303,7 +303,7 @@ function AlbumsPage() {
 																when={album.starred}
 																fallback={<IconStar class="mr-2 size-4" />}
 															>
-																<IconStarFilled class="mr-2 size-4 text-yellow-500" />
+																<IconStarFilled class="mr-2 size-4 text-warning" />
 															</Show>
 															{album.starred ? "Unstar" : "Star"}
 														</ContextMenuItem>

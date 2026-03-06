@@ -5,13 +5,17 @@ import { splitProps } from "solid-js";
 
 import { cn } from "~/lib/utils";
 
-const calloutVariants = cva("rounded-md border-l-4 p-2 pl-4", {
+const calloutVariants = cva("rounded-2xl p-4 shadow-[0_1px_3px_0_rgba(0,0,0,0.1),_0_1px_2px_-1px_rgba(0,0,0,0.1)]", {
 	variants: {
 		variant: {
-			default: "border-info-foreground bg-info text-info-foreground",
-			success: "border-success-foreground bg-success text-success-foreground",
-			warning: "border-warning-foreground bg-warning text-warning-foreground",
-			error: "border-error-foreground bg-error text-error-foreground",
+			default:
+				"bg-muted/50 text-foreground",
+			success:
+				"bg-success/20 text-success-foreground",
+			warning:
+				"bg-warning/20 text-warning-foreground",
+			error:
+				"bg-error/20 text-error-foreground",
 		},
 	},
 	defaultVariants: {

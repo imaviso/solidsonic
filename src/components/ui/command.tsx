@@ -14,7 +14,7 @@ const Command: Component<ParentProps<CommandPrimitive.CommandRootProps>> = (prop
     <CommandPrimitive.CommandRoot
       shouldFilter={local.shouldFilter ?? true}
       class={cn(
-        "flex size-full flex-col overflow-hidden rounded-md bg-popover text-popover-foreground blur-none",
+        "flex size-full flex-col overflow-hidden rounded-xl bg-popover text-popover-foreground blur-none",
         local.class
       )}
       {...others}
@@ -27,8 +27,8 @@ const CommandDialog: Component<ParentProps<DialogRootProps & { shouldFilter?: bo
 
   return (
     <Dialog {...others}>
-      <DialogContent class="overflow-hidden p-0">
-        <Command shouldFilter={local.shouldFilter} class="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-input-wrapper]_svg]:size-5 [&_[cmdk-input]]:h-12 [&_[cmdk-item]]:px-2 [&_[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:size-5">
+      <DialogContent class="overflow-hidden p-0 bg-transparent shadow-none border-none sm:rounded-xl [&>button]:hidden">
+        <Command shouldFilter={local.shouldFilter} class="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-input-wrapper]_svg]:size-5 [&_[cmdk-input]]:h-12 [&_[cmdk-item]]:px-2 [&_[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:size-5 shadow-[0_8px_10px_-5px_rgba(0,0,0,0.2),_0_16px_24px_2px_rgba(0,0,0,0.14),_0_6px_30px_5px_rgba(0,0,0,0.12)]">
           {local.children}
         </Command>
       </DialogContent>
@@ -56,7 +56,7 @@ const CommandInput: Component<VoidProps<CommandPrimitive.CommandInputProps>> = (
       </svg>
       <CommandPrimitive.CommandInput
         class={cn(
-          "flex h-10 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50",
+          "flex h-12 w-full rounded-xl bg-transparent py-3 text-base outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50",
           local.class
         )}
         {...others}
@@ -114,7 +114,7 @@ const CommandItem: Component<ParentProps<CommandPrimitive.CommandItemProps>> = (
     <CommandPrimitive.CommandItem
       cmdk-item=""
       class={cn(
-        "relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none aria-selected:bg-accent aria-selected:text-accent-foreground data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50",
+        "relative flex cursor-default select-none items-center rounded-full px-4 py-2.5 text-sm outline-none aria-selected:bg-accent aria-selected:text-accent-foreground data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50",
         local.class
       )}
       {...others}

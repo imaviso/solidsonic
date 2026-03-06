@@ -16,7 +16,6 @@ import { createStore } from "solid-js/store";
 import { AddToPlaylistDialog } from "~/components/AddToPlaylistDialog";
 import CoverArt from "~/components/CoverArt";
 import { Badge } from "~/components/ui/badge";
-import { Card, CardContent } from "~/components/ui/card";
 import {
 	Carousel,
 	CarouselContent,
@@ -75,15 +74,13 @@ function AlbumCarouselSkeleton() {
 					{(_) => (
 						<CarouselItem class="basis-[160px] md:basis-[200px]">
 							<div class="block">
-								<Card class="border-0 shadow-none bg-transparent">
-									<CardContent class="p-0">
-										<div class="aspect-square rounded-md bg-muted animate-pulse" />
-										<div class="pt-2 space-y-2">
-											<div class="h-4 w-3/4 bg-muted animate-pulse rounded" />
-											<div class="h-3 w-1/2 bg-muted animate-pulse rounded" />
-										</div>
-									</CardContent>
-								</Card>
+								<div class="block">
+									<div class="aspect-square rounded-xl bg-muted/30 animate-pulse" />
+									<div class="pt-3 space-y-2">
+										<div class="h-4 w-3/4 bg-muted/40 animate-pulse rounded" />
+										<div class="h-3 w-1/2 bg-muted/40 animate-pulse rounded" />
+									</div>
+								</div>
 							</div>
 						</CarouselItem>
 					)}
@@ -135,24 +132,22 @@ function AlbumSection(props: {
 													params={{ id: album.id }}
 													class="block group"
 												>
-													<Card class="border-0 shadow-none bg-transparent">
-														<CardContent class="p-0">
-															<div class="aspect-square w-full relative overflow-hidden rounded-md shadow-sm bg-muted">
-																<CoverArt
-																	id={album.coverArt}
-																	class="h-full w-full object-cover"
-																/>
-															</div>
-															<div class="pt-2">
-																<h3 class="font-medium truncate group-hover:underline">
-																	{album.name}
-																</h3>
-																<p class="text-xs text-muted-foreground truncate">
-																	{album.artist}
-																</p>
-															</div>
-														</CardContent>
-													</Card>
+													<div class="block">
+														<div class="aspect-square w-full relative overflow-hidden rounded-2xl shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),_0_2px_4px_-2px_rgba(0,0,0,0.1)] transition-transform hover:-translate-y-1 hover:shadow-[0_8px_10px_-5px_rgba(0,0,0,0.2),_0_16px_24px_2px_rgba(0,0,0,0.14)] bg-muted/30">
+															<CoverArt
+																id={album.coverArt}
+																class="h-full w-full object-cover"
+															/>
+														</div>
+														<div class="pt-3 px-1">
+															<h3 class="font-bold text-base truncate group-hover:text-primary transition-colors">
+																{album.name}
+															</h3>
+															<p class="text-sm font-medium text-muted-foreground truncate opacity-80">
+																{album.artist}
+															</p>
+														</div>
+													</div>
 												</Link>
 											</ContextMenuTrigger>
 											<ContextMenuContent>
@@ -217,7 +212,7 @@ function AlbumSection(props: {
 														when={album.starred}
 														fallback={<IconStar class="mr-2 size-4" />}
 													>
-														<IconStarFilled class="mr-2 size-4 text-yellow-500" />
+														<IconStarFilled class="mr-2 size-4 text-warning" />
 													</Show>
 													{album.starred ? "Unstar" : "Star"}
 												</ContextMenuItem>
@@ -274,7 +269,7 @@ function StarredSongsSection(props: {
 								<ContextMenuTrigger>
 									<button
 										type="button"
-										class="grid grid-cols-[24px_36px_minmax(0,1fr)_52px] sm:grid-cols-[30px_40px_minmax(0,1fr)_60px] md:grid-cols-[30px_40px_minmax(0,1fr)_minmax(0,1fr)_60px] gap-2 sm:gap-3 px-2 sm:px-3 py-2 items-center rounded-md hover:bg-muted/50 group cursor-pointer text-sm w-full text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+										class="grid grid-cols-[24px_36px_minmax(0,1fr)_52px] sm:grid-cols-[30px_40px_minmax(0,1fr)_60px] md:grid-cols-[30px_40px_minmax(0,1fr)_minmax(0,1fr)_60px] gap-2 sm:gap-3 px-2 sm:px-3 py-2 items-center rounded-lg transition-colors hover:bg-primary/5 group cursor-pointer text-sm w-full text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
 										onClick={() => handlePlaySong(song, i())}
 									>
 										<div class="text-muted-foreground text-xs group-hover:text-primary flex justify-center">
@@ -284,7 +279,7 @@ function StarredSongsSection(props: {
 										<CoverArt
 											id={song.coverArt}
 											size={80}
-											class="size-10 rounded shadow-sm"
+											class="size-10 rounded-md shadow-[0_1px_3px_0_rgba(0,0,0,0.1),_0_1px_2px_-1px_rgba(0,0,0,0.1)]"
 										/>
 										<div class="font-medium truncate">
 											<span
@@ -365,7 +360,7 @@ function StarredSongsSection(props: {
 											when={song.starred}
 											fallback={<IconStar class="mr-2 size-4" />}
 										>
-											<IconStarFilled class="mr-2 size-4 text-yellow-500" />
+											<IconStarFilled class="mr-2 size-4 text-warning" />
 										</Show>
 										{song.starred ? "Unstar" : "Star"}
 									</ContextMenuItem>

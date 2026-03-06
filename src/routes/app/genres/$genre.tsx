@@ -159,7 +159,7 @@ function GenreDetailPage() {
 												<CoverArt
 													id={song.coverArt}
 													size={80}
-													class="size-10 rounded shadow-sm"
+													class="size-10 rounded-md shadow-[0_1px_3px_0_rgba(0,0,0,0.1),_0_1px_2px_-1px_rgba(0,0,0,0.1)]"
 												/>
 											</TableCell>
 											<TableCell class="font-medium">
@@ -273,7 +273,7 @@ function GenreDetailPage() {
 													when={song.starred}
 													fallback={<IconStar class="mr-2 size-4" />}
 												>
-													<IconStarFilled class="mr-2 size-4 text-yellow-500" />
+													<IconStarFilled class="mr-2 size-4 text-warning" />
 												</Show>
 												{song.starred ? "Unstar" : "Star"}
 											</ContextMenuItem>

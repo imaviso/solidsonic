@@ -137,7 +137,7 @@ export function AddToPlaylistDialog(props: AddToPlaylistDialogProps) {
 							</Button>
 						}
 					>
-						<div class="flex flex-col gap-2 p-4 border rounded-md bg-muted/30">
+						<div class="flex flex-col gap-2 p-4 border-2 border-border rounded-xl bg-muted/30">
 							<span class="text-sm font-medium">New Playlist Name</span>
 							<div class="flex flex-col gap-2 sm:flex-row">
 								<Input
