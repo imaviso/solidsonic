@@ -27,7 +27,7 @@ const DatePickerInput = (props: DatePickerPrimitive.InputProps) => {
 	return (
 		<DatePickerPrimitive.Input
 			class={cn(
-				"h-12 w-full rounded-t-xl border-b-2 border-b-input bg-muted/50 px-4 py-2 text-base transition-[border-color,background-color] placeholder:text-muted-foreground focus-visible:outline-none focus-visible:border-b-primary focus-visible:bg-muted disabled:cursor-not-allowed disabled:opacity-50",
+				"h-12 w-full rounded-t-none border-b-2 border-b-input bg-muted/50 px-4 py-2 text-base transition-[border-color,background-color] placeholder:text-muted-foreground focus-visible:outline-none focus-visible:border-b-primary focus-visible:bg-muted disabled:cursor-not-allowed disabled:opacity-50",
 				local.class,
 			)}
 			{...others}
@@ -45,7 +45,7 @@ const DatePickerTrigger = (props: DatePickerPrimitive.TriggerProps) => {
 	return (
 		<DatePickerPrimitive.Trigger
 			class={cn(
-				"flex min-h-12 min-w-12 items-center justify-center rounded-full bg-transparent hover:bg-accent transition-colors focus-visible:outline-none focus-visible:bg-accent disabled:cursor-not-allowed disabled:opacity-50 [&>svg]:size-5",
+				"flex min-h-12 min-w-12 items-center justify-center rounded-none bg-transparent hover:bg-accent transition-colors focus-visible:outline-none focus-visible:bg-accent disabled:cursor-not-allowed disabled:opacity-50 [&>svg]:size-5",
 				local.class,
 			)}
 			{...others}
@@ -80,7 +80,7 @@ const DatePickerContent = (props: DatePickerPrimitive.ContentProps) => {
 	return (
 		<DatePickerPrimitive.Content
 			class={cn(
-				"z-50 rounded-xl bg-popover p-3 text-popover-foreground shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),_0_2px_4px_-2px_rgba(0,0,0,0.1)] outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
+				"z-50 rounded-none bg-popover p-3 text-popover-foreground shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),_0_2px_4px_-2px_rgba(0,0,0,0.1)] outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
 				local.class,
 			)}
 			{...others}
@@ -242,7 +242,7 @@ const DatePickerTableCell = (props: DatePickerPrimitive.TableCellProps) => {
 	return (
 		<DatePickerPrimitive.TableCell
 			class={cn(
-				"flex-1 p-0 text-center text-sm has-[[data-range-end]]:rounded-r-md has-[[data-range-start]]:rounded-l-md has-[[data-in-range]]:bg-accent has-[[data-outside-range][data-in-range]]:bg-accent/50 has-[[data-in-range]]:first-of-type:rounded-l-md has-[[data-in-range]]:last-of-type:rounded-r-md",
+				"flex-1 p-0 text-center text-sm has-[[data-range-end]]:rounded-r-none has-[[data-range-start]]:rounded-l-none has-[[data-in-range]]:bg-accent has-[[data-outside-range][data-in-range]]:bg-accent/50 has-[[data-in-range]]:first-of-type:rounded-l-none has-[[data-in-range]]:last-of-type:rounded-r-none",
 				local.class,
 			)}
 			{...others}

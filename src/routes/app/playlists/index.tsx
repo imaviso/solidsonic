@@ -21,12 +21,13 @@ function PlaylistsPage() {
 
 	return (
 		<div class="flex flex-col gap-6 h-full overflow-y-auto">
-			<div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+			<div class="panel-surface flex flex-col gap-4 border border-border px-5 py-5 sm:flex-row sm:items-end sm:justify-between sm:px-6">
 				<div>
-					<h2 class="text-2xl sm:text-3xl font-bold tracking-tight">
-						Playlists
-					</h2>
-					<p class="text-muted-foreground">Your curated collections</p>
+					<div class="panel-heading mb-3">Collections</div>
+					<h2 class="page-title">Playlists</h2>
+					<p class="mt-2 text-muted-foreground">
+						Your curated collections and queue-ready listening sets.
+					</p>
 				</div>
 				<Button
 					class="h-11 sm:h-10 w-full sm:w-auto"
@@ -46,7 +47,7 @@ function PlaylistsPage() {
 				}}
 			/>
 
-			<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+			<div class="grid grid-cols-1 gap-px border border-border bg-border sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
 				<Show
 					when={!playlists.isLoading}
 					fallback={<div class="col-span-full text-center">Loading...</div>}
@@ -58,12 +59,13 @@ function PlaylistsPage() {
 								params={{ id: playlist.id }}
 								class="block group"
 							>
-								<div class="flex flex-col items-center justify-center text-center gap-4 h-full aspect-square bg-muted/30 hover:bg-muted/50 rounded-2xl transition-[transform,box-shadow,background-color] hover:-translate-y-1 shadow-[0_1px_3px_0_rgba(0,0,0,0.1),_0_1px_2px_-1px_rgba(0,0,0,0.1)] hover:shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),_0_2px_4px_-2px_rgba(0,0,0,0.1)] p-4 sm:p-6">
-									<div class="p-5 rounded-full bg-background shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),_0_2px_4px_-2px_rgba(0,0,0,0.1)] text-primary group-hover:scale-110 transition-transform">
+								<div class="metric-panel flex h-full aspect-square flex-col items-center justify-center gap-4 border border-transparent bg-background p-4 text-center transition-all group-hover:bg-accent/40 sm:p-6">
+									<div class="flex size-16 items-center justify-center border border-border bg-main-content text-primary transition-transform group-hover:-translate-y-1">
 										<IconPlaylist class="size-8" />
 									</div>
 									<div class="w-full">
-										<h3 class="font-bold text-base truncate w-full max-w-[150px] mx-auto group-hover:text-primary transition-colors">
+										<div class="panel-heading mb-2">Playlist</div>
+										<h3 class="mx-auto w-full max-w-[150px] truncate text-base font-bold transition-colors group-hover:text-primary">
 											{playlist.name}
 										</h3>
 										<p class="text-sm font-medium text-muted-foreground opacity-80">

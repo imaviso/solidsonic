@@ -17,7 +17,7 @@ const TextField = <T extends ValidComponent = "div">(
 	const [local, others] = splitProps(props as TextFieldRootProps, ["class"]);
 	return (
 		<TextFieldPrimitive.Root
-			class={cn("flex flex-col gap-1", local.class)}
+			class={cn("flex flex-col gap-2", local.class)}
 			{...others}
 		/>
 	);
@@ -27,28 +27,28 @@ type TextFieldInputProps<T extends ValidComponent = "input"> =
 	TextFieldPrimitive.TextFieldInputProps<T> & {
 		class?: string | undefined;
 		type?:
-			| "button"
-			| "checkbox"
-			| "color"
-			| "date"
-			| "datetime-local"
-			| "email"
-			| "file"
-			| "hidden"
-			| "image"
-			| "month"
-			| "number"
-			| "password"
-			| "radio"
-			| "range"
-			| "reset"
-			| "search"
-			| "submit"
-			| "tel"
-			| "text"
-			| "time"
-			| "url"
-			| "week";
+		| "button"
+		| "checkbox"
+		| "color"
+		| "date"
+		| "datetime-local"
+		| "email"
+		| "file"
+		| "hidden"
+		| "image"
+		| "month"
+		| "number"
+		| "password"
+		| "radio"
+		| "range"
+		| "reset"
+		| "search"
+		| "submit"
+		| "tel"
+		| "text"
+		| "time"
+		| "url"
+		| "week";
 	};
 
 const TextFieldInput = <T extends ValidComponent = "input">(
@@ -66,7 +66,7 @@ const TextFieldInput = <T extends ValidComponent = "input">(
 		<TextFieldPrimitive.Input
 			type={local.type}
 			class={cn(
-				"flex h-12 w-full rounded-t-xl border-b-2 border-b-input bg-muted/50 px-4 py-2 text-base transition-[border-color,background-color] file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:border-b-primary focus-visible:bg-muted disabled:cursor-not-allowed disabled:opacity-50 data-[invalid]:border-error data-[invalid]:text-error-foreground",
+				"flex h-12 w-full rounded-none border border-input bg-background/80 px-4 py-2 text-sm transition-[border-color,background-color,box-shadow] file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0 focus-visible:border-foreground disabled:cursor-not-allowed disabled:opacity-50 data-[invalid]:border-error data-[invalid]:text-error-foreground",
 				local.class,
 			)}
 			{...others}
@@ -86,7 +86,7 @@ const TextFieldTextArea = <T extends ValidComponent = "textarea">(
 	return (
 		<TextFieldPrimitive.TextArea
 			class={cn(
-				"flex min-h-[80px] w-full rounded-t-xl border-b-2 border-b-input bg-muted/50 px-4 py-2 text-base transition-[border-color,background-color] placeholder:text-muted-foreground focus-visible:outline-none focus-visible:border-b-primary focus-visible:bg-muted disabled:cursor-not-allowed disabled:opacity-50",
+				"flex min-h-[120px] w-full rounded-none border border-input bg-background/80 px-4 py-3 text-sm transition-[border-color,background-color,box-shadow] placeholder:text-muted-foreground/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0 focus-visible:border-foreground disabled:cursor-not-allowed disabled:opacity-50",
 				local.class,
 			)}
 			{...others}
@@ -95,13 +95,13 @@ const TextFieldTextArea = <T extends ValidComponent = "textarea">(
 };
 
 const labelVariants = cva(
-	"text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
+	"font-mono text-[0.72rem] font-medium uppercase tracking-[0.16em] leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
 	{
 		variants: {
 			variant: {
 				label: "data-[invalid]:text-destructive",
-				description: "font-normal text-muted-foreground",
-				error: "text-xs text-destructive",
+				description: "font-sans text-sm normal-case tracking-normal text-muted-foreground",
+				error: "font-sans text-xs normal-case tracking-normal text-destructive",
 			},
 		},
 		defaultVariants: {

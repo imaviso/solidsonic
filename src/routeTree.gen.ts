@@ -106,10 +106,10 @@ export interface FileRoutesByFullPath {
   '/app/artists/$id': typeof AppArtistsIdRoute
   '/app/genres/$genre': typeof AppGenresGenreRoute
   '/app/playlists/$id': typeof AppPlaylistsIdRoute
-  '/app/albums/': typeof AppAlbumsIndexRoute
-  '/app/artists/': typeof AppArtistsIndexRoute
-  '/app/genres/': typeof AppGenresIndexRoute
-  '/app/playlists/': typeof AppPlaylistsIndexRoute
+  '/app/albums': typeof AppAlbumsIndexRoute
+  '/app/artists': typeof AppArtistsIndexRoute
+  '/app/genres': typeof AppGenresIndexRoute
+  '/app/playlists': typeof AppPlaylistsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -156,10 +156,10 @@ export interface FileRouteTypes {
     | '/app/artists/$id'
     | '/app/genres/$genre'
     | '/app/playlists/$id'
-    | '/app/albums/'
-    | '/app/artists/'
-    | '/app/genres/'
-    | '/app/playlists/'
+    | '/app/albums'
+    | '/app/artists'
+    | '/app/genres'
+    | '/app/playlists'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -245,28 +245,28 @@ declare module '@tanstack/solid-router' {
     '/app/playlists/': {
       id: '/app/playlists/'
       path: '/playlists'
-      fullPath: '/app/playlists/'
+      fullPath: '/app/playlists'
       preLoaderRoute: typeof AppPlaylistsIndexRouteImport
       parentRoute: typeof AppRouteRoute
     }
     '/app/genres/': {
       id: '/app/genres/'
       path: '/genres'
-      fullPath: '/app/genres/'
+      fullPath: '/app/genres'
       preLoaderRoute: typeof AppGenresIndexRouteImport
       parentRoute: typeof AppRouteRoute
     }
     '/app/artists/': {
       id: '/app/artists/'
       path: '/artists'
-      fullPath: '/app/artists/'
+      fullPath: '/app/artists'
       preLoaderRoute: typeof AppArtistsIndexRouteImport
       parentRoute: typeof AppRouteRoute
     }
     '/app/albums/': {
       id: '/app/albums/'
       path: '/albums'
-      fullPath: '/app/albums/'
+      fullPath: '/app/albums'
       preLoaderRoute: typeof AppAlbumsIndexRouteImport
       parentRoute: typeof AppRouteRoute
     }

@@ -38,7 +38,7 @@ const PaginationItem = <T extends ValidComponent = "button">(
 				buttonVariants({
 					variant: "ghost",
 				}),
-				"size-10 data-[current]:border",
+				"size-11 data-[current]:border",
 				local.class,
 			)}
 			{...others}
@@ -59,7 +59,7 @@ const PaginationEllipsis = <T extends ValidComponent = "div">(
 	]);
 	return (
 		<PaginationPrimitive.Ellipsis
-			class={cn("flex size-10 items-center justify-center", local.class)}
+			class={cn("flex size-11 items-center justify-center", local.class)}
 			{...others}
 		>
 			<svg

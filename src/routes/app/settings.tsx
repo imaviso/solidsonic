@@ -32,10 +32,13 @@ function SettingsPage() {
 	} = useSettings();
 
 	return (
-		<div class="container max-w-2xl py-6 sm:py-8 space-y-6 sm:space-y-8 h-full overflow-y-auto">
-			<div>
-				<h2 class="text-2xl sm:text-3xl font-bold tracking-tight">Settings</h2>
-				<p class="text-muted-foreground">Manage your player preferences</p>
+		<div class="container max-w-4xl space-y-6 py-6 sm:space-y-8 sm:py-8 h-full overflow-y-auto">
+			<div class="panel-surface border border-border px-5 py-5 sm:px-6">
+				<div class="panel-heading mb-3">System Configuration</div>
+				<h2 class="page-title">Settings</h2>
+				<p class="mt-2 text-muted-foreground">
+					Manage playback, appearance, and remote control preferences.
+				</p>
 			</div>
 
 			<div class="grid gap-6">

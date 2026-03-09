@@ -8,26 +8,27 @@ import { splitProps } from "solid-js";
 import { cn } from "~/lib/utils";
 
 const buttonVariants = cva(
-	"inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+	"inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-none border border-transparent font-mono text-[0.72rem] font-medium uppercase tracking-[0.16em] ring-offset-background transition-[background-color,border-color,color,transform,box-shadow] duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
 	{
 		variants: {
 			variant: {
 				default:
-					"bg-primary text-primary-foreground hover:bg-primary/90 hover:shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),_0_2px_4px_-2px_rgba(0,0,0,0.1)] active:scale-[0.98]", // Filled button
+					"border-primary bg-primary text-primary-foreground shadow-[inset_0_1px_0_hsl(var(--foreground)/0.14)] hover:-translate-y-px hover:bg-primary/92 hover:shadow-[0_0_0_1px_hsl(var(--primary)),3px_3px_0_0_hsl(var(--border))] active:translate-y-0 active:shadow-[inset_0_1px_0_hsl(var(--foreground)/0.14)]",
 				destructive:
-					"bg-destructive text-destructive-foreground hover:bg-destructive/90 hover:shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),_0_2px_4px_-2px_rgba(0,0,0,0.1)] active:scale-[0.98]",
+					"border-destructive bg-destructive text-destructive-foreground hover:-translate-y-px hover:bg-destructive/92 hover:shadow-[0_0_0_1px_hsl(var(--destructive)),3px_3px_0_0_hsl(var(--border))] active:translate-y-0",
 				outline:
-					"border-2 border-input hover:bg-accent hover:text-accent-foreground active:scale-[0.98]", // Outlined button
+					"border-border bg-transparent text-foreground hover:-translate-y-px hover:border-foreground hover:bg-accent/70 hover:shadow-[3px_3px_0_0_hsl(var(--border))] active:translate-y-0 active:shadow-none",
 				secondary:
-					"bg-secondary text-secondary-foreground hover:bg-secondary/80 hover:shadow-[0_1px_3px_0_rgba(0,0,0,0.1),_0_1px_2px_-1px_rgba(0,0,0,0.1)] active:scale-[0.98]", // Tonal button
-				ghost: "hover:bg-accent hover:text-accent-foreground active:bg-accent/80", // Text button
-				link: "text-primary underline-offset-4 hover:underline",
+					"border-border bg-secondary/70 text-secondary-foreground hover:-translate-y-px hover:bg-secondary hover:shadow-[3px_3px_0_0_hsl(var(--border))] active:translate-y-0 active:shadow-none",
+				ghost:
+					"text-muted-foreground hover:border-border hover:bg-accent/60 hover:text-foreground active:bg-accent",
+				link: "border-transparent p-0 font-mono text-[0.72rem] text-primary underline-offset-4 hover:text-foreground hover:underline",
 			},
 			size: {
-				default: "h-10 px-6 py-2", // Wider padding for M3
-				sm: "h-9 px-4 text-xs",
-				lg: "h-11 px-8",
-				icon: "size-10",
+				default: "h-11 px-5 py-2",
+				sm: "h-9 px-3 text-[0.68rem]",
+				lg: "h-12 px-7 text-[0.74rem]",
+				icon: "size-10 p-0",
 			},
 		},
 		defaultVariants: {
@@ -38,10 +39,10 @@ const buttonVariants = cva(
 );
 type ButtonProps<T extends ValidComponent = "button"> =
 	ButtonPrimitive.ButtonRootProps<T> &
-		VariantProps<typeof buttonVariants> & {
-			class?: string | undefined;
-			children?: JSX.Element;
-		};
+	VariantProps<typeof buttonVariants> & {
+		class?: string | undefined;
+		children?: JSX.Element;
+	};
 
 const Button = <T extends ValidComponent = "button">(
 	props: PolymorphicProps<T, ButtonProps<T>>,

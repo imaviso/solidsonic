@@ -10,8 +10,8 @@ import { initRemoteHostSync } from "./lib/player";
 import { createAppQueryClient } from "./lib/query";
 import "~/lib/settings"; // Initialize settings (theme, etc.)
 import { routeTree } from "./routeTree.gen";
-import "@fontsource-variable/google-sans/index.css";
-import "@fontsource-variable/google-sans-code/index.css";
+import "@fontsource-variable/geist/index.css";
+import "@fontsource-variable/geist-mono/index.css";
 import "./styles.css";
 
 const queryClient = createAppQueryClient();

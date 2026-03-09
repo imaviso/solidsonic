@@ -17,8 +17,12 @@ export const queryKeys = {
 		list: (type: string, size: number, offset: number) =>
 			["albums", "list", type, size, offset] as const,
 		detail: (id: string) => ["albums", "detail", id] as const,
+		infiniteByType: (type: string, size: number) =>
+			["albums", "list", type, "infinite", size] as const,
 		infiniteNewest: (size: number) =>
 			["albums", "list", "newest", "infinite", size] as const,
+		infiniteAll: (size: number) =>
+			["albums", "list", "all", "infinite", size] as const,
 	},
 	artists: {
 		all: ["artists"] as const,

@@ -35,7 +35,7 @@ const DeltaBar: Component<DeltaBarProps> = (rawProps) => {
 	return (
 		<div
 			class={cn(
-				"relative flex h-2 w-full items-center rounded-full bg-secondary",
+				"relative flex h-2 w-full items-center rounded-none bg-secondary",
 				local.class,
 			)}
 			{...others}
@@ -43,21 +43,21 @@ const DeltaBar: Component<DeltaBarProps> = (rawProps) => {
 			<div class="flex h-full w-1/2 justify-end">
 				<Show when={local.value < 0}>
 					<div
-						class={cn("rounded-l-full", barColor())}
+						class={cn("rounded-l-none", barColor())}
 						style={{ width: `${Math.abs(local.value)}%` }}
 					/>
 				</Show>
 			</div>
 			<div
 				class={cn(
-					"z-10 h-4 w-1 rounded-full ring-2 ring-background",
+					"z-10 h-4 w-1 rounded-none ring-2 ring-background",
 					barColor(),
 				)}
 			/>
 			<div class="flex h-full w-1/2 justify-start">
 				<Show when={local.value > 0}>
 					<div
-						class={cn("rounded-r-full", barColor())}
+						class={cn("rounded-r-none", barColor())}
 						style={{ width: `${Math.abs(local.value)}%` }}
 					/>
 				</Show>

@@ -117,6 +117,10 @@ function getThemeMappings(): ThemeMapping[] {
 		{ variable: "--background", getter: (s) => s.surface },
 		{ variable: "--foreground", getter: (s) => s.onSurface },
 
+		{ variable: "--sidebar", getter: (s) => s.surface },
+		{ variable: "--main-content", getter: (s) => s.surfaceContainerLow },
+		{ variable: "--cards", getter: (s) => s.surface },
+
 		{ variable: "--muted", getter: (s) => s.surfaceContainerLow },
 		{ variable: "--muted-foreground", getter: (s) => s.onSurfaceVariant },
 

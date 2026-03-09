@@ -17,7 +17,7 @@ const AccordionItem = <T extends ValidComponent = "div">(
 ) => {
 	const [local, others] = splitProps(props as AccordionItemProps, ["class"]);
 	return (
-		<AccordionPrimitive.Item class={cn("border-b-2 border-muted/50 mb-2 last:border-0", local.class)} {...others} />
+		<AccordionPrimitive.Item class={cn("border-b border-border/50 mb-2 last:border-0", local.class)} {...others} />
 	);
 };
 

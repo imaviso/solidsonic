@@ -5,7 +5,7 @@ import { splitProps } from "solid-js";
 
 import { cn } from "~/lib/utils";
 
-const calloutVariants = cva("rounded-2xl p-4 shadow-[0_1px_3px_0_rgba(0,0,0,0.1),_0_1px_2px_-1px_rgba(0,0,0,0.1)]", {
+const calloutVariants = cva("rounded-none p-4 shadow-[0_1px_3px_0_rgba(0,0,0,0.1),_0_1px_2px_-1px_rgba(0,0,0,0.1)]", {
 	variants: {
 		variant: {
 			default:

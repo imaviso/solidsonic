@@ -17,7 +17,7 @@ const Avatar = <T extends ValidComponent = "span">(
 	return (
 		<ImagePrimitive.Root
 			class={cn(
-				"relative flex size-10 shrink-0 overflow-hidden rounded-full",
+				"relative flex size-10 shrink-0 overflow-hidden rounded-none",
 				local.class,
 			)}
 			{...others}

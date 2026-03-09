@@ -30,7 +30,7 @@ const DropdownMenuContent = <T extends ValidComponent = "div">(
 		<DropdownMenuPrimitive.Portal>
 			<DropdownMenuPrimitive.Content
 				class={cn(
-					"z-50 min-w-32 origin-[var(--kb-menu-content-transform-origin)] animate-content-hide overflow-hidden rounded-xl bg-popover p-1.5 text-popover-foreground shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),_0_2px_4px_-2px_rgba(0,0,0,0.1)] data-[expanded]:animate-content-show",
+					"panel-surface z-50 min-w-48 origin-[var(--kb-menu-content-transform-origin)] animate-content-hide overflow-hidden rounded-none border border-border bg-popover p-1.5 text-popover-foreground shadow-[8px_8px_0_0_hsl(var(--border)/0.45)] data-[expanded]:animate-content-show",
 					props.class,
 				)}
 				{...rest}
@@ -51,7 +51,7 @@ const DropdownMenuItem = <T extends ValidComponent = "div">(
 	return (
 		<DropdownMenuPrimitive.Item
 			class={cn(
-				"relative flex cursor-default select-none items-center gap-2 rounded-full py-2 px-4 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+				"relative flex cursor-default select-none items-center gap-2 rounded-none border-b border-border/50 px-3 py-3 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 last:border-b-0",
 				props.class,
 			)}
 			{...rest}
@@ -63,7 +63,7 @@ const DropdownMenuShortcut: Component<ComponentProps<"span">> = (props) => {
 	const [, rest] = splitProps(props, ["class"]);
 	return (
 		<span
-			class={cn("ml-auto text-xs tracking-widest opacity-60", props.class)}
+			class={cn("mono-meta ml-auto opacity-60", props.class)}
 			{...rest}
 		/>
 	);
@@ -76,7 +76,7 @@ const DropdownMenuLabel: Component<
 	return (
 		<div
 			class={cn(
-				"px-2 py-1.5 text-sm font-semibold",
+				"panel-heading px-3 py-2 text-muted-foreground",
 				props.inset && "pl-8",
 				props.class,
 			)}
@@ -96,7 +96,7 @@ const DropdownMenuSeparator = <T extends ValidComponent = "hr">(
 	const [, rest] = splitProps(props as DropdownMenuSeparatorProps, ["class"]);
 	return (
 		<DropdownMenuPrimitive.Separator
-			class={cn("-mx-1 my-1 h-px bg-muted", props.class)}
+			class={cn("-mx-1 my-1 h-px bg-border", props.class)}
 			{...rest}
 		/>
 	);
@@ -118,7 +118,7 @@ const DropdownMenuSubTrigger = <T extends ValidComponent = "div">(
 	return (
 		<DropdownMenuPrimitive.SubTrigger
 			class={cn(
-				"flex cursor-default select-none items-center rounded-full px-4 py-2 text-sm outline-none focus:bg-accent data-[state=open]:bg-accent",
+				"flex cursor-default select-none items-center rounded-none border-b border-border/50 px-3 py-3 text-sm outline-none focus:bg-accent data-[state=open]:bg-accent",
 				props.class,
 			)}
 			{...rest}
@@ -152,7 +152,7 @@ const DropdownMenuSubContent = <T extends ValidComponent = "div">(
 	return (
 		<DropdownMenuPrimitive.SubContent
 			class={cn(
-				"z-50 min-w-32 origin-[var(--kb-menu-content-transform-origin)] overflow-hidden rounded-xl bg-popover p-1 text-popover-foreground shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),_0_2px_4px_-2px_rgba(0,0,0,0.1)] animate-in",
+				"panel-surface z-50 min-w-48 origin-[var(--kb-menu-content-transform-origin)] overflow-hidden rounded-none border border-border bg-popover p-1 text-popover-foreground shadow-[8px_8px_0_0_hsl(var(--border)/0.45)] animate-in",
 				props.class,
 			)}
 			{...rest}
@@ -176,7 +176,7 @@ const DropdownMenuCheckboxItem = <T extends ValidComponent = "div">(
 	return (
 		<DropdownMenuPrimitive.CheckboxItem
 			class={cn(
-				"relative flex cursor-default select-none items-center rounded-full py-2 pl-10 pr-4 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+				"relative flex cursor-default select-none items-center rounded-none border-b border-border/50 py-3 pl-9 pr-3 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 last:border-b-0",
 				props.class,
 			)}
 			{...rest}
@@ -213,7 +213,7 @@ const DropdownMenuGroupLabel = <T extends ValidComponent = "span">(
 	const [, rest] = splitProps(props as DropdownMenuGroupLabelProps, ["class"]);
 	return (
 		<DropdownMenuPrimitive.GroupLabel
-			class={cn("px-2 py-1.5 text-sm font-semibold", props.class)}
+			class={cn("panel-heading px-3 py-2 text-muted-foreground", props.class)}
 			{...rest}
 		/>
 	);
@@ -235,7 +235,7 @@ const DropdownMenuRadioItem = <T extends ValidComponent = "div">(
 	return (
 		<DropdownMenuPrimitive.RadioItem
 			class={cn(
-				"relative flex cursor-default select-none items-center rounded-full py-2 pl-10 pr-4 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+				"relative flex cursor-default select-none items-center rounded-none border-b border-border/50 py-3 pl-9 pr-3 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 last:border-b-0",
 				props.class,
 			)}
 			{...rest}

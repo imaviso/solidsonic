@@ -429,7 +429,7 @@ export function RemoteControlPanel() {
 				</div>
 
 				<Show when={hostSession()}>
-					<div class="space-y-2 rounded-2xl bg-muted/50 p-3">
+					<div class="space-y-2 rounded-none border border-border bg-muted/30 p-3 shadow-sm">
 						<p class="text-sm text-muted-foreground">Pairing code</p>
 						<p class="text-xl font-mono tracking-widest sm:text-2xl">
 							{hostSession()?.pairingCode ?? "(joined)"}
@@ -472,7 +472,7 @@ export function RemoteControlPanel() {
 				</div>
 
 				<Show when={controllerSession()}>
-					<div class="space-y-4 rounded-2xl bg-muted/50 p-3 pb-24 sm:p-4 md:pb-3">
+					<div class="space-y-4 rounded-none border border-border bg-muted/30 p-3 pb-24 shadow-sm sm:p-4 md:pb-3">
 						<div class="flex flex-col items-start justify-between gap-2 sm:flex-row sm:items-center">
 							<p class="text-sm font-medium">Controller Connected</p>
 							<Button
@@ -588,10 +588,10 @@ export function RemoteControlPanel() {
 								onChange={(value) => setSeekDraftMs(value[0] ?? 0)}
 								onChangeEnd={handleSeekCommit}
 							>
-								<SliderTrack class="relative h-1 w-full grow overflow-hidden rounded-full bg-secondary">
+								<SliderTrack class="relative h-1 w-full grow overflow-hidden rounded-none bg-secondary">
 									<SliderFill class="absolute h-full bg-primary" />
 								</SliderTrack>
-								<SliderThumb class="block h-4 w-4 rounded-full border-2 border-primary bg-background" />
+								<SliderThumb class="block h-4 w-4 rounded-none border-2 border-primary bg-background" />
 							</Slider>
 							<div class="hidden grid-cols-2 gap-2 md:grid">
 								<Button
@@ -700,7 +700,7 @@ export function RemoteControlPanel() {
 							</p>
 						</div>
 
-						<div class="sticky bottom-0 rounded-2xl bg-background/95 p-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),_0_2px_4px_-2px_rgba(0,0,0,0.1)] backdrop-blur md:hidden">
+						<div class="sticky bottom-0 rounded-t-none border-t border-border bg-background/95 p-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] shadow-md backdrop-blur md:hidden">
 							<div class="grid grid-cols-5 gap-1.5">
 								<Button
 									variant="outline"

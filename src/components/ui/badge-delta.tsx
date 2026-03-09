@@ -16,9 +16,9 @@ type DeltaType =
 const badgeDeltaVariants = cva("", {
 	variants: {
 		variant: {
-			success: "bg-success text-success-foreground hover:bg-success",
-			warning: "bg-warning text-warning-foreground hover:bg-warning",
-			error: "bg-error text-error-foreground hover:bg-error",
+			success: "bg-success/20 text-success hover:bg-success/30",
+			warning: "bg-warning/20 text-warning hover:bg-warning/30",
+			error: "bg-error/20 text-error hover:bg-error/30",
 		},
 	},
 });

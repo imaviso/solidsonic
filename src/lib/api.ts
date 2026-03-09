@@ -75,6 +75,7 @@ export interface SubsonicResponse<T> {
 }
 
 export type AlbumListType =
+	| "all"
 	| "random"
 	| "newest"
 	| "highest"

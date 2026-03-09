@@ -46,29 +46,30 @@ function ArtistDetailPage() {
 				fallback={<div>Loading...</div>}
 			>
 				{/* Header with artist info */}
-				<div class="flex flex-col items-center gap-4 pb-6 border-b-2 border-muted/50 text-center sm:flex-row sm:items-end sm:text-left sm:gap-6">
-					<div class="size-28 sm:size-32 bg-muted rounded-full shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),_0_2px_4px_-2px_rgba(0,0,0,0.1)] flex items-center justify-center overflow-hidden">
+				<div class="flex flex-col items-center gap-6 pb-8 border-b-[6px] border-foreground text-center sm:flex-row sm:items-end sm:text-left sm:gap-10">
+					<div class="size-48 sm:size-56 bg-muted rounded-none border border-border flex items-center justify-center overflow-hidden">
 						<Show
 							when={artistInfo.data?.info.largeImageUrl}
 							fallback={
-								<CoverArt id={artist.data?.artist.coverArt} class="size-full" />
+								<CoverArt
+									id={artist.data?.artist.coverArt}
+									class="size-full grayscale-[0.2]"
+								/>
 							}
 						>
 							<img
 								src={artistInfo.data?.info.largeImageUrl}
 								alt={artist.data?.artist.name}
-								class="size-full object-cover"
+								class="size-full object-cover grayscale-[0.2]"
 							/>
 						</Show>
 					</div>
 					<div class="flex flex-col gap-2">
-						<span class="text-sm font-medium text-muted-foreground uppercase">
-							Artist
-						</span>
-						<h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold break-words">
+						<span class="panel-heading text-muted-foreground">Artist</span>
+						<h1 class="page-title break-words text-foreground">
 							{artist.data?.artist.name}
 						</h1>
-						<p class="text-muted-foreground">
+						<p class="mt-2 text-muted-foreground md:mt-3">
 							{artist.data?.albums.length} albums
 						</p>
 					</div>
@@ -77,7 +78,7 @@ function ArtistDetailPage() {
 				{/* Biography */}
 				<Show when={biography()}>
 					<div class="space-y-2">
-						<h2 class="text-2xl font-bold">About</h2>
+						<h2 class="section-title">About</h2>
 						<p class="text-muted-foreground leading-relaxed">{displayBio()}</p>
 						<Show when={shouldTruncate()}>
 							<Button
@@ -95,7 +96,7 @@ function ArtistDetailPage() {
 				{/* Similar Artists */}
 				<Show when={artistInfo.data?.similarArtists.length}>
 					<div class="space-y-4">
-						<h2 class="text-2xl font-bold">Similar Artists</h2>
+						<h2 class="section-title">Similar Artists</h2>
 						<div class="flex gap-4 overflow-x-auto pb-2">
 							<For each={artistInfo.data?.similarArtists}>
 								{(similarArtist) => (
@@ -105,7 +106,7 @@ function ArtistDetailPage() {
 										class="flex-shrink-0 group"
 									>
 										<div class="w-24 text-center">
-											<div class="size-24 bg-muted rounded-full shadow-[0_1px_3px_0_rgba(0,0,0,0.1),_0_1px_2px_-1px_rgba(0,0,0,0.1)] flex items-center justify-center overflow-hidden mb-2">
+											<div class="size-24 bg-muted rounded-none border border-border shadow-sm flex items-center justify-center overflow-hidden mb-2">
 												<Show
 													when={similarArtist.largeImageUrl}
 													fallback={
@@ -134,28 +135,28 @@ function ArtistDetailPage() {
 				</Show>
 
 				{/* Albums */}
-				<div>
-					<h2 class="text-2xl font-bold mb-4">Albums</h2>
-					<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+				<div class="mt-8">
+					<h2 class="section-title mb-6">Albums</h2>
+					<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6 lg:gap-8">
 						<For each={artist.data?.albums}>
 							{(album) => (
 								<Link
 									to="/app/albums/$id"
 									params={{ id: album.id }}
-									class="block group"
+									class="block group border-2 border-transparent hover:border-foreground transition-colors"
 								>
 									<div class="block">
-										<div class="aspect-square w-full relative overflow-hidden rounded-2xl shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),_0_2px_4px_-2px_rgba(0,0,0,0.1)] transition-transform hover:-translate-y-1 hover:shadow-[0_8px_10px_-5px_rgba(0,0,0,0.2),_0_16px_24px_2px_rgba(0,0,0,0.14)] bg-muted/30">
+										<div class="aspect-square w-full relative overflow-hidden rounded-none bg-muted/30">
 											<CoverArt
 												id={album.coverArt}
-												class="h-full w-full object-cover"
+												class="h-full w-full object-cover grayscale-[0.2] group-hover:grayscale-0 transition-all"
 											/>
 										</div>
-										<div class="pt-3 px-1">
-											<h3 class="font-bold text-base truncate group-hover:text-primary transition-colors">
+										<div class="pt-3 pb-2 px-1 border-t-2 border-transparent group-hover:border-foreground transition-colors">
+											<h3 class="truncate text-lg font-semibold tracking-tight group-hover:text-foreground transition-colors">
 												{album.name}
 											</h3>
-											<p class="text-sm font-medium text-muted-foreground truncate opacity-80">
+											<p class="truncate text-sm text-muted-foreground opacity-80">
 												{album.year}
 											</p>
 										</div>

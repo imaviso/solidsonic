@@ -15,7 +15,6 @@ import { For, Show } from "solid-js";
 import { createStore } from "solid-js/store";
 import { AddToPlaylistDialog } from "~/components/AddToPlaylistDialog";
 import CoverArt from "~/components/CoverArt";
-import { Badge } from "~/components/ui/badge";
 import {
 	Carousel,
 	CarouselContent,
@@ -61,6 +60,201 @@ function formatDuration(seconds?: number) {
 	return `${mins}:${secs.toString().padStart(2, "0")}`;
 }
 
+function DashboardOverview() {
+	const newest = useQuery(() => albumListQueryOptions("newest", 5));
+	const starred = useQuery(() => starredQueryOptions());
+	const genres = useQuery(() => genreListQueryOptions());
+
+	return (
+		<div class="grid gap-px border border-border bg-border lg:grid-cols-[minmax(0,1.35fr)_repeat(3,minmax(0,0.6fr))]">
+			<div class="panel-surface bg-background px-5 py-5 sm:px-6">
+				<div class="panel-heading mb-3">Overview</div>
+				<h1 class="page-title">Dashboard</h1>
+				<p class="mt-2 max-w-xl text-muted-foreground">
+					A compact control surface for new arrivals, saved tracks, and the
+					library lanes you return to most often.
+				</p>
+			</div>
+			<div class="metric-panel bg-background px-4 py-4">
+				<div class="panel-heading">New arrivals</div>
+				<div class="mt-3 text-2xl font-semibold tracking-[-0.04em]">
+					{newest.data?.length ?? 0}
+				</div>
+				<div class="mt-1 text-sm text-muted-foreground">
+					Fresh albums staged now
+				</div>
+			</div>
+			<div class="metric-panel bg-background px-4 py-4">
+				<div class="panel-heading">Favorites</div>
+				<div class="mt-3 text-2xl font-semibold tracking-[-0.04em]">
+					{starred.data?.songs?.length ?? 0}
+				</div>
+				<div class="mt-1 text-sm text-muted-foreground">
+					Pinned songs in rotation
+				</div>
+			</div>
+			<div class="metric-panel bg-background px-4 py-4">
+				<div class="panel-heading">Genres</div>
+				<div class="mt-3 text-2xl font-semibold tracking-[-0.04em]">
+					{genres.data?.length ?? 0}
+				</div>
+				<div class="mt-1 text-sm text-muted-foreground">
+					Browse lanes available
+				</div>
+			</div>
+		</div>
+	);
+}
+
+function NewArrivalsEditorial(props: {
+	onAddToPlaylist: (albumId: string) => void;
+}) {
+	const albums = useQuery(() => albumListQueryOptions("newest", 5));
+	const player = usePlayer();
+	const navigate = useNavigate();
+
+	const AlbumCard = (p: {
+		album: any;
+		class?: string;
+		featured?: boolean;
+		hideArtist?: boolean;
+	}) => {
+		return (
+			<ContextMenu>
+				<ContextMenuTrigger>
+					<Link
+						to="/app/albums/$id"
+						params={{ id: p.album.id }}
+						class={`block group border-2 border-transparent hover:border-foreground transition-colors ${p.class || ""}`}
+					>
+						<div class="relative overflow-hidden bg-muted/30">
+							<CoverArt
+								id={p.album.coverArt}
+								class="w-full h-full object-cover aspect-square grayscale-[0.2] group-hover:grayscale-0 transition-all"
+							/>
+						</div>
+						<div class="pt-3 pb-2 px-1 border-t-2 border-transparent group-hover:border-foreground transition-colors">
+							<h3
+								class={`truncate font-semibold tracking-tight ${p.featured ? "text-xl sm:text-2xl" : "text-base sm:text-lg"}`}
+							>
+								{p.album.name}
+							</h3>
+							<Show when={!p.hideArtist}>
+								<p class="truncate text-sm text-muted-foreground">
+									{p.album.artist}
+								</p>
+							</Show>
+						</div>
+					</Link>
+				</ContextMenuTrigger>
+				<ContextMenuContent class="rounded-none border-2 border-border shadow-none">
+					<ContextMenuItem
+						onSelect={async () => {
+							try {
+								const data = await getAlbum(p.album.id);
+								player.playAlbum(data.songs);
+							} catch (e) {
+								console.error("Failed to play album", e);
+							}
+						}}
+					>
+						<IconPlayerPlay class="mr-2 size-4" />
+						Play
+					</ContextMenuItem>
+					<ContextMenuItem
+						onSelect={async () => {
+							try {
+								const data = await getAlbum(p.album.id);
+								player.addToQueue(data.songs);
+							} catch (e) {
+								console.error("Failed to add album to queue", e);
+							}
+						}}
+					>
+						<IconList class="mr-2 size-4" />
+						Add to Queue
+					</ContextMenuItem>
+					<ContextMenuItem onSelect={() => props.onAddToPlaylist(p.album.id)}>
+						<IconPlaylistAdd class="mr-2 size-4" />
+						Add to Playlist...
+					</ContextMenuItem>
+					<ContextMenuSeparator />
+					<ContextMenuItem
+						onSelect={() => {
+							if (p.album.artistId) {
+								navigate({
+									to: "/app/artists/$id",
+									params: { id: p.album.artistId },
+								});
+							}
+						}}
+						disabled={!p.album.artistId}
+					>
+						<IconUser class="mr-2 size-4" />
+						Go to Artist
+					</ContextMenuItem>
+					<ContextMenuSeparator />
+					<ContextMenuItem
+						onSelect={() => {
+							if (p.album.starred) {
+								unstar({ albumId: p.album.id });
+							} else {
+								star({ albumId: p.album.id });
+							}
+						}}
+					>
+						<Show
+							when={p.album.starred}
+							fallback={<IconStar class="mr-2 size-4" />}
+						>
+							<IconStarFilled class="mr-2 size-4 text-warning" />
+						</Show>
+						{p.album.starred ? "Unstar" : "Star"}
+					</ContextMenuItem>
+				</ContextMenuContent>
+			</ContextMenu>
+		);
+	};
+
+	return (
+		<div class="panel-surface flex h-full min-w-0 flex-col border border-border">
+			<div class="shell-divider px-5 py-5 sm:px-6">
+				<div class="panel-heading mb-3">Arrival Queue</div>
+				<h2 class="page-title text-foreground">New arrivals</h2>
+				<p class="mt-2 text-muted-foreground">
+					Latest additions surfaced in a compact listening queue.
+				</p>
+			</div>
+
+			<Show
+				when={!albums.isLoading}
+				fallback={
+					<div class="h-96 bg-muted animate-pulse m-4 border border-border sm:m-6" />
+				}
+			>
+				<Show when={albums.data && albums.data.length > 0}>
+					<div class="grid flex-1 grid-cols-1 gap-4 p-4 md:grid-cols-12 md:gap-5 sm:p-6">
+						<div class="md:col-span-7 xl:col-span-8">
+							<Show when={albums.data?.[0]}>
+								<AlbumCard album={albums.data![0]} featured class="h-full" />
+							</Show>
+						</div>
+
+						<div class="grid content-start grid-cols-2 gap-4 md:col-span-5 md:grid-cols-1 xl:col-span-4">
+							<Show when={albums.data?.[1]}>
+								<AlbumCard album={albums.data![1]} />
+							</Show>
+							<Show when={albums.data?.[2]}>
+								<AlbumCard album={albums.data![2]} />
+							</Show>
+						</div>
+					</div>
+				</Show>
+			</Show>
+		</div>
+	);
+}
+
 function AlbumCarouselSkeleton() {
 	return (
 		<Carousel
@@ -75,10 +269,10 @@ function AlbumCarouselSkeleton() {
 						<CarouselItem class="basis-[160px] md:basis-[200px]">
 							<div class="block">
 								<div class="block">
-									<div class="aspect-square rounded-xl bg-muted/30 animate-pulse" />
+									<div class="aspect-square rounded-none bg-muted/30 animate-pulse" />
 									<div class="pt-3 space-y-2">
-										<div class="h-4 w-3/4 bg-muted/40 animate-pulse rounded" />
-										<div class="h-3 w-1/2 bg-muted/40 animate-pulse rounded" />
+										<div class="h-4 w-3/4 bg-muted/40 animate-pulse rounded-none" />
+										<div class="h-3 w-1/2 bg-muted/40 animate-pulse rounded-none" />
 									</div>
 								</div>
 							</div>
@@ -94,6 +288,8 @@ function AlbumCarouselSkeleton() {
 
 function AlbumSection(props: {
 	title: string;
+	label: string;
+	description: string;
 	type: AlbumListType;
 	onAddToPlaylist: (albumId: string) => void;
 }) {
@@ -102,131 +298,138 @@ function AlbumSection(props: {
 	const navigate = useNavigate();
 
 	return (
-		<div class="min-w-0">
-			<div class="mb-4 px-1">
-				<h2 class="text-2xl font-bold tracking-tight">{props.title}</h2>
+		<div class="panel-surface min-w-0 border border-border">
+			<div class="shell-divider px-5 py-5 sm:px-6">
+				<div class="panel-heading mb-3">{props.label}</div>
+				<h2 class="section-title">{props.title}</h2>
+				<p class="mt-2 text-sm text-muted-foreground">{props.description}</p>
 			</div>
-			<Show when={!albums.isLoading} fallback={<AlbumCarouselSkeleton />}>
-				<Show
-					when={albums.data && albums.data.length > 0}
-					fallback={
-						<div class="text-muted-foreground text-sm italic px-1">
-							No albums found.
-						</div>
-					}
-				>
-					<Carousel
-						opts={{
-							align: "start",
-						}}
-						class="w-full md:w-auto md:mx-12"
+			<div class="p-4 sm:p-5">
+				<Show when={!albums.isLoading} fallback={<AlbumCarouselSkeleton />}>
+					<Show
+						when={albums.data && albums.data.length > 0}
+						fallback={
+							<div class="px-1 text-sm italic text-muted-foreground">
+								No albums found.
+							</div>
+						}
 					>
-						<CarouselContent>
-							<For each={albums.data}>
-								{(album) => (
-									<CarouselItem class="basis-[160px] md:basis-[200px]">
-										<ContextMenu>
-											<ContextMenuTrigger>
-												<Link
-													to="/app/albums/$id"
-													params={{ id: album.id }}
-													class="block group"
-												>
-													<div class="block">
-														<div class="aspect-square w-full relative overflow-hidden rounded-2xl shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),_0_2px_4px_-2px_rgba(0,0,0,0.1)] transition-transform hover:-translate-y-1 hover:shadow-[0_8px_10px_-5px_rgba(0,0,0,0.2),_0_16px_24px_2px_rgba(0,0,0,0.14)] bg-muted/30">
-															<CoverArt
-																id={album.coverArt}
-																class="h-full w-full object-cover"
-															/>
-														</div>
-														<div class="pt-3 px-1">
-															<h3 class="font-bold text-base truncate group-hover:text-primary transition-colors">
-																{album.name}
-															</h3>
-															<p class="text-sm font-medium text-muted-foreground truncate opacity-80">
-																{album.artist}
-															</p>
-														</div>
-													</div>
-												</Link>
-											</ContextMenuTrigger>
-											<ContextMenuContent>
-												<ContextMenuItem
-													onSelect={async () => {
-														try {
-															const data = await getAlbum(album.id);
-															player.playAlbum(data.songs);
-														} catch (e) {
-															console.error("Failed to play album", e);
-														}
-													}}
-												>
-													<IconPlayerPlay class="mr-2 size-4" />
-													Play
-												</ContextMenuItem>
-												<ContextMenuItem
-													onSelect={async () => {
-														try {
-															const data = await getAlbum(album.id);
-															player.addToQueue(data.songs);
-														} catch (e) {
-															console.error("Failed to add album to queue", e);
-														}
-													}}
-												>
-													<IconList class="mr-2 size-4" />
-													Add to Queue
-												</ContextMenuItem>
-												<ContextMenuItem
-													onSelect={() => props.onAddToPlaylist(album.id)}
-												>
-													<IconPlaylistAdd class="mr-2 size-4" />
-													Add to Playlist...
-												</ContextMenuItem>
-												<ContextMenuSeparator />
-												<ContextMenuItem
-													onSelect={() => {
-														if (album.artistId) {
-															navigate({
-																to: "/app/artists/$id",
-																params: { id: album.artistId },
-															});
-														}
-													}}
-													disabled={!album.artistId}
-												>
-													<IconUser class="mr-2 size-4" />
-													Go to Artist
-												</ContextMenuItem>
-												<ContextMenuSeparator />
-												<ContextMenuItem
-													onSelect={() => {
-														if (album.starred) {
-															unstar({ albumId: album.id });
-														} else {
-															star({ albumId: album.id });
-														}
-													}}
-												>
-													<Show
-														when={album.starred}
-														fallback={<IconStar class="mr-2 size-4" />}
+						<Carousel
+							opts={{
+								align: "start",
+							}}
+							class="w-full md:w-auto md:mx-12"
+						>
+							<CarouselContent>
+								<For each={albums.data}>
+									{(album) => (
+										<CarouselItem class="basis-[160px] md:basis-[200px]">
+											<ContextMenu>
+												<ContextMenuTrigger>
+													<Link
+														to="/app/albums/$id"
+														params={{ id: album.id }}
+														class="block group"
 													>
-														<IconStarFilled class="mr-2 size-4 text-warning" />
-													</Show>
-													{album.starred ? "Unstar" : "Star"}
-												</ContextMenuItem>
-											</ContextMenuContent>
-										</ContextMenu>
-									</CarouselItem>
-								)}
-							</For>
-						</CarouselContent>
-						<CarouselPrevious class="hidden md:flex" />
-						<CarouselNext class="hidden md:flex" />
-					</Carousel>
+														<div class="block">
+															<div class="aspect-square w-full relative overflow-hidden rounded-none border-2 border-transparent bg-muted/30 transition-colors group-hover:border-foreground">
+																<CoverArt
+																	id={album.coverArt}
+																	class="h-full w-full object-cover grayscale-[0.2] group-hover:grayscale-0 transition-all"
+																/>
+															</div>
+															<div class="pt-3 px-1">
+																<h3 class="truncate text-lg font-semibold tracking-tight group-hover:text-foreground transition-colors">
+																	{album.name}
+																</h3>
+																<p class="truncate text-sm text-muted-foreground opacity-80">
+																	{album.artist}
+																</p>
+															</div>
+														</div>
+													</Link>
+												</ContextMenuTrigger>
+												<ContextMenuContent>
+													<ContextMenuItem
+														onSelect={async () => {
+															try {
+																const data = await getAlbum(album.id);
+																player.playAlbum(data.songs);
+															} catch (e) {
+																console.error("Failed to play album", e);
+															}
+														}}
+													>
+														<IconPlayerPlay class="mr-2 size-4" />
+														Play
+													</ContextMenuItem>
+													<ContextMenuItem
+														onSelect={async () => {
+															try {
+																const data = await getAlbum(album.id);
+																player.addToQueue(data.songs);
+															} catch (e) {
+																console.error(
+																	"Failed to add album to queue",
+																	e,
+																);
+															}
+														}}
+													>
+														<IconList class="mr-2 size-4" />
+														Add to Queue
+													</ContextMenuItem>
+													<ContextMenuItem
+														onSelect={() => props.onAddToPlaylist(album.id)}
+													>
+														<IconPlaylistAdd class="mr-2 size-4" />
+														Add to Playlist...
+													</ContextMenuItem>
+													<ContextMenuSeparator />
+													<ContextMenuItem
+														onSelect={() => {
+															if (album.artistId) {
+																navigate({
+																	to: "/app/artists/$id",
+																	params: { id: album.artistId },
+																});
+															}
+														}}
+														disabled={!album.artistId}
+													>
+														<IconUser class="mr-2 size-4" />
+														Go to Artist
+													</ContextMenuItem>
+													<ContextMenuSeparator />
+													<ContextMenuItem
+														onSelect={() => {
+															if (album.starred) {
+																unstar({ albumId: album.id });
+															} else {
+																star({ albumId: album.id });
+															}
+														}}
+													>
+														<Show
+															when={album.starred}
+															fallback={<IconStar class="mr-2 size-4" />}
+														>
+															<IconStarFilled class="mr-2 size-4 text-warning" />
+														</Show>
+														{album.starred ? "Unstar" : "Star"}
+													</ContextMenuItem>
+												</ContextMenuContent>
+											</ContextMenu>
+										</CarouselItem>
+									)}
+								</For>
+							</CarouselContent>
+							<CarouselPrevious class="hidden md:flex" />
+							<CarouselNext class="hidden md:flex" />
+						</Carousel>
+					</Show>
 				</Show>
-			</Show>
+			</div>
 		</div>
 	);
 }
@@ -249,51 +452,57 @@ function StarredSongsSection(props: {
 	};
 
 	return (
-		<div class="min-w-0">
-			<h2 class="text-2xl font-bold tracking-tight mb-4 px-1">
-				Favorite Songs
-			</h2>
+		<div class="panel-surface flex h-full min-w-0 flex-col border border-border">
+			<div class="shell-divider px-5 py-5 sm:px-6">
+				<div class="panel-heading mb-3">Pinned Tracks</div>
+				<h2 class="section-title">Favorite Songs</h2>
+				<p class="mt-2 text-sm text-muted-foreground">
+					Fast access to songs you revisit often.
+				</p>
+			</div>
 			<Show
 				when={!starred.isLoading}
 				fallback={
-					<div class="space-y-2 px-1">
-						<div class="h-10 bg-muted animate-pulse rounded" />
-						<div class="h-10 bg-muted animate-pulse rounded" />
+					<div class="space-y-2 p-4 sm:p-5">
+						<div class="h-10 bg-muted animate-pulse rounded-none" />
+						<div class="h-10 bg-muted animate-pulse rounded-none" />
 					</div>
 				}
 			>
-				<div class="flex flex-col gap-1 px-1">
+				<div class="flex flex-1 flex-col gap-1 p-4 sm:p-5">
 					<For each={starred.data?.songs?.slice(0, 5) ?? []}>
 						{(song, i) => (
 							<ContextMenu>
 								<ContextMenuTrigger>
 									<button
 										type="button"
-										class="grid grid-cols-[24px_36px_minmax(0,1fr)_52px] sm:grid-cols-[30px_40px_minmax(0,1fr)_60px] md:grid-cols-[30px_40px_minmax(0,1fr)_minmax(0,1fr)_60px] gap-2 sm:gap-3 px-2 sm:px-3 py-2 items-center rounded-lg transition-colors hover:bg-primary/5 group cursor-pointer text-sm w-full text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+										class="grid grid-cols-[24px_36px_minmax(0,1fr)_52px] sm:grid-cols-[30px_40px_minmax(0,1fr)_60px] md:grid-cols-[30px_40px_minmax(0,1fr)_minmax(0,1fr)_60px] gap-2 sm:gap-3 px-2 sm:px-3 py-2 items-center rounded-none transition-colors hover:bg-foreground hover:text-background group cursor-pointer text-sm w-full text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring border-b border-border/50"
 										onClick={() => handlePlaySong(song, i())}
 									>
-										<div class="text-muted-foreground text-xs group-hover:text-primary flex justify-center">
+										<div class="text-muted-foreground text-xs group-hover:text-background flex justify-center font-bold">
 											<span class="group-hover:hidden">{i() + 1}</span>
 											<IconPlayerPlayFilled class="size-3 hidden group-hover:block" />
 										</div>
 										<CoverArt
 											id={song.coverArt}
 											size={80}
-											class="size-10 rounded-md shadow-[0_1px_3px_0_rgba(0,0,0,0.1),_0_1px_2px_-1px_rgba(0,0,0,0.1)]"
+											class="size-10 rounded-none border-2 border-transparent group-hover:border-background object-cover grayscale-[0.2] group-hover:grayscale-0 transition-all"
 										/>
-										<div class="font-medium truncate">
+										<div class="truncate text-base font-semibold tracking-tight">
 											<span
 												class={
-													currentTrack?.id === song.id ? "text-primary" : ""
+													currentTrack?.id === song.id
+														? "text-primary group-hover:text-background"
+														: ""
 												}
 											>
 												{song.title}
 											</span>
 										</div>
-										<div class="truncate text-muted-foreground hidden md:block">
+										<div class="hidden truncate text-muted-foreground group-hover:text-background/80 md:block">
 											{song.artist}
 										</div>
-										<div class="text-right font-mono text-xs text-muted-foreground">
+										<div class="text-right font-mono font-bold text-xs text-muted-foreground group-hover:text-background/80">
 											{formatDuration(song.duration)}
 										</div>
 									</button>
@@ -374,10 +583,10 @@ function StarredSongsSection(props: {
 						</div>
 					</Show>
 					<Show when={(starred.data?.songs?.length ?? 0) > 5}>
-						<div class="pt-2">
+						<div class="pt-3">
 							<Link
 								to="/app/songs"
-								class="text-xs text-primary hover:underline"
+								class="panel-heading text-primary hover:text-foreground"
 							>
 								View all songs
 							</Link>
@@ -393,22 +602,27 @@ function GenreSection() {
 	const genres = useQuery(() => genreListQueryOptions());
 
 	return (
-		<div class="min-w-0">
-			<h2 class="text-2xl font-bold tracking-tight mb-4 px-1">Genres</h2>
+		<div class="panel-surface min-w-0 border border-border">
+			<div class="shell-divider px-5 py-5 sm:px-6">
+				<div class="panel-heading mb-3">Browse Lanes</div>
+				<h2 class="section-title">Genres</h2>
+				<p class="mt-2 text-sm text-muted-foreground">
+					Jump into catalog slices without leaving the dashboard.
+				</p>
+			</div>
 			<Show
 				when={!genres.isLoading}
-				fallback={<div class="h-10 bg-muted animate-pulse rounded" />}
+				fallback={
+					<div class="m-4 h-10 rounded-none bg-muted animate-pulse sm:m-5" />
+				}
 			>
-				<div class="flex flex-wrap gap-2 px-1">
+				<div class="flex flex-wrap gap-3 p-4 sm:p-5">
 					<For each={genres.data?.slice(0, 20) ?? []}>
 						{(genre) => (
 							<Link to="/app/genres/$genre" params={{ genre: genre.value }}>
-								<Badge
-									variant="secondary"
-									class="text-sm px-3 py-1 hover:bg-secondary/80 cursor-pointer"
-								>
+								<div class="cursor-pointer rounded-none border-2 border-border px-4 py-2 text-sm font-medium tracking-[0.04em] transition-colors hover:border-foreground hover:bg-foreground hover:text-background">
 									{genre.value}
-								</Badge>
+								</div>
 							</Link>
 						)}
 					</For>
@@ -447,33 +661,42 @@ function DashboardPage() {
 	};
 
 	return (
-		<div class="flex flex-col gap-8 md:gap-10 pb-10 h-full overflow-y-auto">
-			<AlbumSection
-				title="New Arrivals"
-				type="newest"
-				onAddToPlaylist={handleAddAlbumToPlaylist}
-			/>
-			<StarredSongsSection onAddToPlaylist={handleAddSongToPlaylist} />
-			<AlbumSection
-				title="Recently Played"
-				type="recent"
-				onAddToPlaylist={handleAddAlbumToPlaylist}
-			/>
-			<AlbumSection
-				title="Most Played"
-				type="frequent"
-				onAddToPlaylist={handleAddAlbumToPlaylist}
-			/>
-			<AlbumSection
-				title="Favorites"
-				type="starred"
-				onAddToPlaylist={handleAddAlbumToPlaylist}
-			/>
-			<AlbumSection
-				title="Quick Picks"
-				type="random"
-				onAddToPlaylist={handleAddAlbumToPlaylist}
-			/>
+		<div class="flex h-full flex-col gap-4 overflow-y-auto px-2 py-3 md:px-6 md:py-6">
+			<DashboardOverview />
+			<div class="grid gap-4 xl:grid-cols-[minmax(0,1.25fr)_minmax(0,0.9fr)]">
+				<NewArrivalsEditorial onAddToPlaylist={handleAddAlbumToPlaylist} />
+				<StarredSongsSection onAddToPlaylist={handleAddSongToPlaylist} />
+			</div>
+			<div class="grid gap-4 lg:grid-cols-2">
+				<AlbumSection
+					title="Recently Played"
+					label="Playback History"
+					description="Resume albums you touched most recently."
+					type="recent"
+					onAddToPlaylist={handleAddAlbumToPlaylist}
+				/>
+				<AlbumSection
+					title="Most Played"
+					label="Listener Pattern"
+					description="Your heaviest rotation, surfaced as a working set."
+					type="frequent"
+					onAddToPlaylist={handleAddAlbumToPlaylist}
+				/>
+				<AlbumSection
+					title="Favorites"
+					label="Saved Albums"
+					description="Starred records held for repeat sessions."
+					type="starred"
+					onAddToPlaylist={handleAddAlbumToPlaylist}
+				/>
+				<AlbumSection
+					title="Quick Picks"
+					label="Shuffle Deck"
+					description="A lighter lane for exploration and instant queueing."
+					type="random"
+					onAddToPlaylist={handleAddAlbumToPlaylist}
+				/>
+			</div>
 			<GenreSection />
 
 			<AddToPlaylistDialog

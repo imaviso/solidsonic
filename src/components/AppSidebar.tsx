@@ -103,30 +103,34 @@ const AppSidebar: Component = () => {
 	return (
 		<Sidebar collapsible="icon">
 			<SidebarHeader class="gap-0 p-0">
-				<div class="hidden items-center gap-2 px-3 pt-3 pb-2 text-sidebar-foreground group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:justify-center">
-					<SidebarTrigger class="size-8 text-sidebar-foreground/70 hover:text-sidebar-foreground" />
+				<div class="hidden items-center justify-center px-3 py-3 text-sidebar-foreground group-data-[collapsible=icon]:flex">
+					<SidebarTrigger class="size-9 border border-border bg-background text-sidebar-foreground/70 hover:text-sidebar-foreground" />
 				</div>
-				<div class="flex items-center gap-2 px-3 pt-3 pb-2 text-sidebar-foreground group-data-[collapsible=icon]:hidden">
-					<div class="flex aspect-square size-8 items-center justify-center rounded-xl bg-sidebar-primary text-sidebar-primary-foreground shadow-[0_1px_3px_0_rgba(0,0,0,0.1),_0_1px_2px_-1px_rgba(0,0,0,0.1)]">
-						<IconMusic class="size-4" />
+				<div class="group-data-[collapsible=icon]:hidden">
+					<div class="shell-divider px-4 py-4 text-sidebar-foreground">
+						<div class="flex items-start gap-3">
+							<div class="flex aspect-square size-11 items-center justify-center rounded-none border border-border bg-sidebar-primary text-sidebar-primary-foreground">
+								<IconMusic class="size-4" />
+							</div>
+							<div class="min-w-0 flex-1">
+								<div class="panel-heading mb-1">Music Control</div>
+								<div class="text-base font-semibold tracking-[-0.04em] text-sidebar-foreground">
+									SOLIDSONIC.
+								</div>
+							</div>
+							<SidebarTrigger class="size-9 border border-border bg-background text-sidebar-foreground/70 hover:text-sidebar-foreground" />
+						</div>
 					</div>
-					<div class="grid flex-1 text-left text-sm leading-tight">
-						<span class="truncate font-semibold">SolidSonic</span>
-						<span class="truncate text-xs text-sidebar-foreground/70">
-							Music Player
-						</span>
-					</div>
-					<SidebarTrigger class="size-8 text-sidebar-foreground/70 hover:text-sidebar-foreground" />
 				</div>
-				<div class="px-3 pb-3 group-data-[collapsible=icon]:hidden">
-					<SearchCommand triggerClass="w-full" showShortcut={false} />
+				<div class="px-4 py-4 group-data-[collapsible=icon]:hidden">
+					<SearchCommand triggerClass="w-full" showShortcut={true} />
 				</div>
-				<SidebarSeparator class="mx-3" />
+				<SidebarSeparator class="mx-0" />
 			</SidebarHeader>
-			<SidebarContent class="pt-1">
-				<SidebarGroup>
+			<SidebarContent class="gap-4 px-4 py-4 group-data-[collapsible=icon]:px-2 group-data-[collapsible=icon]:py-3">
+				<SidebarGroup class="p-0 group-data-[collapsible=icon]:items-center">
 					<SidebarGroupLabel>Library</SidebarGroupLabel>
-					<SidebarGroupContent>
+					<SidebarGroupContent class="panel-surface border border-border bg-sidebar p-1 group-data-[collapsible=icon]:border-none group-data-[collapsible=icon]:bg-transparent group-data-[collapsible=icon]:p-0 group-data-[collapsible=icon]:shadow-none">
 						<SidebarMenu>
 							<For each={navMain}>
 								{(item) => (
@@ -148,9 +152,9 @@ const AppSidebar: Component = () => {
 					</SidebarGroupContent>
 				</SidebarGroup>
 
-				<SidebarGroup>
+				<SidebarGroup class="p-0 group-data-[collapsible=icon]:items-center">
 					<SidebarGroupLabel>Playlists</SidebarGroupLabel>
-					<SidebarGroupContent>
+					<SidebarGroupContent class="panel-surface border border-border bg-sidebar p-1 group-data-[collapsible=icon]:border-none group-data-[collapsible=icon]:bg-transparent group-data-[collapsible=icon]:p-0 group-data-[collapsible=icon]:shadow-none">
 						<SidebarMenu>
 							<SidebarMenuItem>
 								<SidebarMenuButton
@@ -162,9 +166,16 @@ const AppSidebar: Component = () => {
 									<span>All Playlists</span>
 								</SidebarMenuButton>
 							</SidebarMenuItem>
+							<Show
+								when={!playlistsQuery.isLoading && !playlistsQuery.data?.length}
+							>
+								<li class="px-3 py-3 text-sm text-muted-foreground">
+									No playlists yet.
+								</li>
+							</Show>
 							<For each={playlistsQuery.data?.slice(0, 5)}>
 								{(playlist) => (
-									<SidebarMenuItem>
+									<SidebarMenuItem class="group-data-[collapsible=icon]:hidden">
 										<SidebarMenuButton
 											as={Link}
 											to={`/app/playlists/${playlist.id}`}
@@ -187,17 +198,17 @@ const AppSidebar: Component = () => {
 					</SidebarGroupContent>
 				</SidebarGroup>
 			</SidebarContent>
-			<SidebarFooter class="h-20 border-t-2 border-border p-2">
+			<SidebarFooter class="border-t border-border p-4 group-data-[collapsible=icon]:p-2">
 				<SidebarMenu class="my-auto">
 					<SidebarMenuItem>
 						<DropdownMenu>
 							<DropdownMenuTrigger
 								as={SidebarMenuButton<"button">}
-								class="h-10"
+								class="panel-surface h-auto border border-border bg-sidebar px-3 py-3"
 								tooltip="Account"
 							>
-								<Avatar class="size-6 rounded-full">
-									<AvatarFallback class="rounded-full bg-sidebar-primary text-sidebar-primary-foreground text-[11px] font-semibold">
+								<Avatar class="size-8 rounded-none border border-border">
+									<AvatarFallback class="rounded-none bg-sidebar-primary text-sidebar-primary-foreground text-xs font-semibold">
 										{userInitials()}
 									</AvatarFallback>
 								</Avatar>
@@ -205,8 +216,8 @@ const AppSidebar: Component = () => {
 									<p class="truncate text-sm font-medium leading-tight">
 										{username()}
 									</p>
-									<p class="truncate text-xs text-sidebar-foreground/70 leading-tight">
-										{serverHost()}
+									<p class="mt-1 text-xs text-sidebar-foreground/60 leading-tight">
+										{serverHost() || "Local session"}
 									</p>
 								</div>
 							</DropdownMenuTrigger>

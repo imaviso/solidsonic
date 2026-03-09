@@ -17,7 +17,7 @@ const Table: Component<ComponentProps<"table">> = (props) => {
 
 const TableHeader: Component<ComponentProps<"thead">> = (props) => {
 	const [local, others] = splitProps(props, ["class"]);
-	return <thead class={cn("[&_tr]:border-b-2 [&_tr]:border-muted/50", local.class)} {...others} />;
+	return <thead class={cn("[&_tr]:border-b [&_tr]:border-border/50", local.class)} {...others} />;
 };
 
 const TableBody: Component<ComponentProps<"tbody">> = (props) => {
@@ -42,7 +42,7 @@ const TableRow: Component<ComponentProps<"tr">> = (props) => {
 	return (
 		<tr
 			class={cn(
-				"border-b-2 border-muted/50 transition-colors hover:bg-primary/5 data-[state=selected]:bg-muted",
+				"border-b border-border/50 transition-colors hover:bg-primary/5 data-[state=selected]:bg-muted",
 				local.class,
 			)}
 			{...others}

@@ -8,7 +8,7 @@ const Card: Component<ComponentProps<"div">> = (props) => {
 	return (
 		<div
 			class={cn(
-				"rounded-2xl border-none bg-card text-card-foreground shadow-[0_1px_3px_0_rgba(0,0,0,0.1),_0_1px_2px_-1px_rgba(0,0,0,0.1)] transition-shadow hover:shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),_0_2px_4px_-2px_rgba(0,0,0,0.1)]",
+				"panel-surface rounded-none border border-border bg-card text-card-foreground",
 				local.class,
 			)}
 			{...others}
@@ -19,7 +19,7 @@ const Card: Component<ComponentProps<"div">> = (props) => {
 const CardHeader: Component<ComponentProps<"div">> = (props) => {
 	const [local, others] = splitProps(props, ["class"]);
 	return (
-		<div class={cn("flex flex-col space-y-1.5 p-6", local.class)} {...others} />
+		<div class={cn("shell-divider flex flex-col space-y-2 p-6", local.class)} {...others} />
 	);
 };
 
@@ -28,7 +28,7 @@ const CardTitle: Component<ComponentProps<"h3">> = (props) => {
 	return (
 		<h3
 			class={cn(
-				"text-lg font-semibold leading-none tracking-tight",
+				"text-xl font-semibold leading-none tracking-[-0.04em]",
 				local.class,
 			)}
 			{...others}

@@ -21,7 +21,7 @@ const ComboboxItem = <T extends ValidComponent = "li">(
 	return (
 		<ComboboxPrimitive.Item
 			class={cn(
-				"relative flex cursor-default select-none items-center justify-between rounded-full px-4 py-2.5 text-sm outline-none data-[disabled]:pointer-events-none data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground data-[disabled]:opacity-50",
+				"relative flex cursor-default select-none items-center justify-between rounded-none px-4 py-2.5 text-sm outline-none data-[disabled]:pointer-events-none data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground data-[disabled]:opacity-50",
 				local.class,
 			)}
 			{...others}
@@ -98,7 +98,7 @@ const ComboboxControl = <T, U extends ValidComponent = "div">(
 	]);
 	return (
 		<ComboboxPrimitive.Control
-			class={cn("flex h-12 items-center rounded-t-xl border-b-2 border-b-input bg-muted/50 px-4 transition-[border-color,background-color] focus-within:border-b-primary focus-within:bg-muted", local.class)}
+			class={cn("flex h-12 items-center rounded-t-none border-b-2 border-b-input bg-muted/50 px-4 transition-[border-color,background-color] focus-within:border-b-primary focus-within:bg-muted", local.class)}
 			{...others}
 		/>
 	);
@@ -114,7 +114,7 @@ const ComboboxInput = <T extends ValidComponent = "input">(
 	return (
 		<ComboboxPrimitive.Input
 			class={cn(
-				"flex size-full rounded-xl bg-transparent py-3 text-base outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50",
+				"flex size-full rounded-none bg-transparent py-3 text-base outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50",
 				local.class,
 			)}
 			{...others}
@@ -177,7 +177,7 @@ const ComboboxContent = <T extends ValidComponent = "div">(
 		<ComboboxPrimitive.Portal>
 			<ComboboxPrimitive.Content
 				class={cn(
-					"relative z-50 min-w-32 overflow-hidden rounded-xl bg-popover text-popover-foreground shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),_0_2px_4px_-2px_rgba(0,0,0,0.1)] animate-in fade-in-80",
+					"relative z-50 min-w-32 overflow-hidden rounded-none bg-popover text-popover-foreground shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),_0_2px_4px_-2px_rgba(0,0,0,0.1)] animate-in fade-in-80",
 					local.class,
 				)}
 				{...others}

@@ -18,8 +18,8 @@ export const Route = createFileRoute("/app/artists/")({
 	component: ArtistsPage,
 });
 
-const ITEM_HEIGHT = 220;
-const TEXT_HEIGHT = 60;
+const ITEM_HEIGHT = 252;
+const TEXT_HEIGHT = 84;
 
 function ArtistsPage() {
 	let scrollContainerRef!: HTMLDivElement;
@@ -61,9 +61,12 @@ function ArtistsPage() {
 
 	return (
 		<div class="flex flex-col gap-4 h-full">
-			<div>
-				<h2 class="text-2xl sm:text-3xl font-bold tracking-tight">Artists</h2>
-				<p class="text-muted-foreground">Your artist library</p>
+			<div class="panel-surface border border-border px-5 py-5 sm:px-6">
+				<div class="panel-heading mb-3">Index</div>
+				<h2 class="page-title">Artists</h2>
+				<p class="mt-2 text-muted-foreground">
+					Browse the full artist catalog in a compact operations grid.
+				</p>
 			</div>
 
 			<Show when={artists.isLoading}>
@@ -72,7 +75,7 @@ function ArtistsPage() {
 
 			<div
 				ref={scrollContainerRef}
-				class="flex-1 overflow-y-auto min-h-0"
+				class="panel-surface min-h-0 flex-1 overflow-y-auto border border-border p-4"
 				onScroll={() => {}} // Virtualizer handles scroll reading
 			>
 				<Show when={!artists.isLoading && allArtists().length > 0}>
@@ -114,20 +117,21 @@ function ArtistsPage() {
 														class="block group"
 													>
 														<div class="flex flex-col items-center text-center">
-															<div class="w-full max-w-[160px] aspect-square mx-auto">
+															<div class="mx-auto aspect-square w-full max-w-[160px]">
 																<CoverArt
 																	id={artist.coverArt}
-																	class="h-full w-full object-cover rounded-full shadow-[0_1px_3px_0_rgba(0,0,0,0.1),_0_1px_2px_-1px_rgba(0,0,0,0.1)]"
+																	class="h-full w-full object-cover rounded-none border border-border bg-muted/30 transition-all hover:-translate-y-1"
 																/>
 															</div>
 															<div
-																class="pt-2 w-full"
+																class="w-full pt-3"
 																style={{ height: `${TEXT_HEIGHT}px` }}
 															>
-																<h3 class="font-medium text-sm truncate group-hover:underline">
+																<div class="panel-heading mb-1">Artist</div>
+																<h3 class="line-clamp-2 text-sm font-medium leading-snug group-hover:underline">
 																	{artist.name}
 																</h3>
-																<p class="text-xs text-muted-foreground truncate">
+																<p class="mt-1 text-xs text-muted-foreground truncate">
 																	{artist.albumCount} albums
 																</p>
 															</div>

@@ -32,7 +32,7 @@ const ContextMenuContent = <T extends ValidComponent = "div">(
 		<ContextMenuPrimitive.Portal>
 			<ContextMenuPrimitive.Content
 				class={cn(
-					"z-50 min-w-32 origin-[var(--kb-menu-content-transform-origin)] overflow-hidden rounded-xl bg-popover p-1 text-popover-foreground shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),_0_2px_4px_-2px_rgba(0,0,0,0.1)] animate-in",
+					"panel-surface z-50 min-w-48 origin-[var(--kb-menu-content-transform-origin)] overflow-hidden rounded-none border border-border bg-popover p-1 text-popover-foreground shadow-[8px_8px_0_0_hsl(var(--border)/0.45)] animate-in",
 					local.class,
 				)}
 				{...others}
@@ -53,7 +53,7 @@ const ContextMenuItem = <T extends ValidComponent = "div">(
 	return (
 		<ContextMenuPrimitive.Item
 			class={cn(
-				"relative flex cursor-default select-none items-center rounded-full px-4 py-2 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+				"relative flex cursor-default select-none items-center rounded-none border-b border-border/50 px-4 py-3 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 last:border-b-0",
 				local.class,
 			)}
 			{...others}
@@ -65,7 +65,7 @@ const ContextMenuShortcut: Component<ComponentProps<"span">> = (props) => {
 	const [local, others] = splitProps(props, ["class"]);
 	return (
 		<span
-			class={cn("ml-auto text-xs tracking-widest opacity-60", local.class)}
+			class={cn("mono-meta ml-auto opacity-60", local.class)}
 			{...others}
 		/>
 	);
@@ -84,7 +84,7 @@ const ContextMenuSeparator = <T extends ValidComponent = "hr">(
 	]);
 	return (
 		<ContextMenuPrimitive.Separator
-			class={cn("-mx-1 my-1 h-px bg-muted", local.class)}
+			class={cn("-mx-1 my-1 h-px bg-border", local.class)}
 			{...others}
 		/>
 	);
@@ -106,7 +106,7 @@ const ContextMenuSubTrigger = <T extends ValidComponent = "div">(
 	return (
 		<ContextMenuPrimitive.SubTrigger
 			class={cn(
-				"flex cursor-default select-none items-center rounded-full px-4 py-2 text-sm outline-none focus:bg-accent data-[state=open]:bg-accent",
+				"flex cursor-default select-none items-center rounded-none border-b border-border/50 px-4 py-3 text-sm outline-none focus:bg-accent data-[state=open]:bg-accent",
 				local.class,
 			)}
 			{...others}
@@ -142,7 +142,7 @@ const ContextMenuSubContent = <T extends ValidComponent = "div">(
 	return (
 		<ContextMenuPrimitive.SubContent
 			class={cn(
-				"z-50 min-w-32 origin-[var(--kb-menu-content-transform-origin)] overflow-hidden rounded-xl bg-popover p-1 text-popover-foreground shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),_0_2px_4px_-2px_rgba(0,0,0,0.1)] animate-in",
+				"panel-surface z-50 min-w-48 overflow-hidden rounded-none border border-border bg-popover p-1 text-popover-foreground shadow-[8px_8px_0_0_hsl(var(--border)/0.45)] data-[expanded]:animate-in data-[closed]:animate-out data-[closed]:fade-out-0 data-[expanded]:fade-in-0 data-[closed]:zoom-out-95 data-[expanded]:zoom-in-95",
 				local.class,
 			)}
 			{...others}
@@ -166,7 +166,7 @@ const ContextMenuCheckboxItem = <T extends ValidComponent = "div">(
 	return (
 		<ContextMenuPrimitive.CheckboxItem
 			class={cn(
-				"relative flex cursor-default select-none items-center rounded-full py-2 pl-10 pr-4 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+				"relative flex cursor-default select-none items-center rounded-none border-b border-border/50 py-3 pl-10 pr-4 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 last:border-b-0",
 				local.class,
 			)}
 			{...others}
@@ -205,7 +205,7 @@ const ContextMenuGroupLabel = <T extends ValidComponent = "span">(
 	]);
 	return (
 		<ContextMenuPrimitive.GroupLabel
-			class={cn("px-2 py-1.5 text-sm font-semibold", local.class)}
+			class={cn("panel-heading px-3 py-2 text-muted-foreground", local.class)}
 			{...others}
 		/>
 	);
@@ -227,7 +227,7 @@ const ContextMenuRadioItem = <T extends ValidComponent = "div">(
 	return (
 		<ContextMenuPrimitive.RadioItem
 			class={cn(
-				"relative flex cursor-default select-none items-center rounded-full py-2 pl-10 pr-4 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+				"relative flex cursor-default select-none items-center rounded-none border-b border-border/50 py-3 pl-10 pr-4 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 last:border-b-0",
 				local.class,
 			)}
 			{...others}

@@ -6,13 +6,13 @@ export function NotFound() {
 	return (
 		<div class="h-screen w-screen fixed inset-0 z-50 flex flex-col items-center justify-center overflow-hidden bg-background">
 			{/* Background Ambience */}
-			<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/5 rounded-full blur-3xl pointer-events-none" />
+			<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/5 rounded-none blur-3xl pointer-events-none" />
 
 			{/* Content */}
 			<div class="relative z-10 flex flex-col items-center text-center space-y-8 px-4 animate-in fade-in zoom-in duration-500">
 				{/* Icon/Visual */}
 				<div class="relative">
-					<div class="absolute inset-0 bg-primary/20 blur-xl rounded-full" />
+					<div class="absolute inset-0 bg-primary/20 blur-xl rounded-none" />
 					<IconGhost
 						class="h-24 w-24 text-primary/80 relative z-10"
 						stroke-width={1}
@@ -21,7 +21,7 @@ export function NotFound() {
 
 				{/* Typography */}
 				<div class="space-y-2">
-					<h1 class="text-7xl font-thin tracking-tight text-foreground select-none">
+					<h1 class="text-3xl font-thin tracking-tight text-foreground select-none sm:text-4xl">
 						404
 					</h1>
 					<h2 class="text-xl font-medium tracking-wide text-foreground/80">

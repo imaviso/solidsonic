@@ -9,8 +9,8 @@
         "@corvu/drawer": "^0.2.4",
         "@corvu/otp-field": "^0.1.4",
         "@corvu/resizable": "^0.2.5",
-        "@fontsource-variable/google-sans": "^5.2.1",
-        "@fontsource-variable/google-sans-code": "^5.2.3",
+        "@fontsource-variable/geist": "^5.2.1",
+        "@fontsource-variable/geist-mono": "^5.2.3",
         "@kobalte/core": "^0.13.11",
         "@material/material-color-utilities": "^0.4.0",
         "@material/web": "^2.4.1",
@@ -200,9 +200,9 @@
 
     "@floating-ui/utils": ["@floating-ui/utils@0.2.10", "", {}, "sha512-aGTxbpbg8/b5JfU1HXSrbH3wXZuLPJcNEcZQFMxLs3oSzgtVu6nFPkbbGGUvBcUjKV2YyB9Wxxabo+HEH9tcRQ=="],
 
-    "@fontsource-variable/google-sans": ["@fontsource-variable/google-sans@5.2.1", "", {}, "sha512-dMyMlJVRJgQvvYlJLcrg2oiVzlKAuIMrbDxIMchEiMBGmpOA6VnVblj3cPfJyA0/fNPQS6krZaiJyJjHJZmkzw=="],
+    "@fontsource-variable/geist": ["@fontsource-variable/geist@5.2.8", "", {}, "sha512-cJ6m9e+8MQ5dCYJsLylfZrgBh6KkG4bOLckB35Tr9J/EqdkEM6QllH5PxqP1dhTvFup+HtMRPuz9xOjxXJggxw=="],
 
-    "@fontsource-variable/google-sans-code": ["@fontsource-variable/google-sans-code@5.2.3", "", {}, "sha512-2ZQ8UkMMxz/MXve9PY8o5FjTnRZh94Jn5ZfND5mUDWwVh/t0JDgFaIdPPONyNGzlJOgn1Qlyhs2YEMbv5yQpLQ=="],
+    "@fontsource-variable/geist-mono": ["@fontsource-variable/geist-mono@5.2.7", "", {}, "sha512-ZKlZ5sjtalb2TwXKs400mAGDlt/+2ENLNySPx0wTz3bP3mWARCsUW+rpxzZc7e05d2qGch70pItt3K4qttbIYA=="],
 
     "@internationalized/date": ["@internationalized/date@3.10.0", "", { "dependencies": { "@swc/helpers": "^0.5.0" } }, "sha512-oxDR/NTEJ1k+UFVQElaNIk65E/Z83HK1z1WI3lQyhTtnNg4R5oVXaPzK3jcpKG8UHKDVuDQHzn+wsxSz8RP3aw=="],
 

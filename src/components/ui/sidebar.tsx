@@ -200,7 +200,7 @@ const Sidebar: Component<SidebarProps> = (rawProps) => {
 	const { isMobile, state, openMobile, setOpenMobile } = useSidebar();
 
 	return (
-				<Switch>
+		<Switch>
 			<Match when={local.collapsible === "none"}>
 				<div
 					class={cn(
@@ -217,7 +217,7 @@ const Sidebar: Component<SidebarProps> = (rawProps) => {
 					<SheetContent
 						data-sidebar="sidebar"
 						data-mobile="true"
-						class="w-[var(--sidebar-width)] bg-background p-0 text-sidebar-foreground [&>button]:hidden rounded-r-2xl"
+						class="w-[var(--sidebar-width)] border-r border-border bg-background p-0 text-sidebar-foreground [&>button]:hidden rounded-r-none"
 						style={{
 							"--sidebar-width": SIDEBAR_WIDTH_MOBILE,
 						}}
@@ -262,7 +262,7 @@ const Sidebar: Component<SidebarProps> = (rawProps) => {
 					>
 						<div
 							data-sidebar="sidebar"
-							class="flex size-full flex-col bg-background group-data-[variant=floating]:rounded-2xl group-data-[variant=floating]:shadow-[0_8px_10px_-5px_rgba(0,0,0,0.2),_0_16px_24px_2px_rgba(0,0,0,0.14),_0_6px_30px_5px_rgba(0,0,0,0.12)]"
+							class="panel-surface flex size-full flex-col border-r border-border bg-background group-data-[variant=floating]:rounded-none group-data-[variant=floating]:shadow-[10px_10px_0_0_hsl(var(--border)/0.45)]"
 						>
 							{local.children}
 						</div>
@@ -335,8 +335,8 @@ const SidebarInset: Component<ComponentProps<"main">> = (props) => {
 	return (
 		<main
 			class={cn(
-				"relative flex min-h-svh flex-1 flex-col bg-background",
-				"peer-data-[variant=inset]:min-h-[calc(100svh-theme(spacing.4))] md:peer-data-[variant=inset]:m-2 md:peer-data-[state=collapsed]:peer-data-[variant=inset]:ml-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow",
+				"relative flex min-h-svh flex-1 flex-col bg-transparent",
+				"peer-data-[variant=inset]:min-h-[calc(100svh-theme(spacing.4))] md:peer-data-[variant=inset]:m-2 md:peer-data-[state=collapsed]:peer-data-[variant=inset]:ml-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-none md:peer-data-[variant=inset]:shadow",
 				local.class,
 			)}
 			{...others}
@@ -371,7 +371,7 @@ const SidebarHeader: Component<ComponentProps<"div">> = (props) => {
 	return (
 		<div
 			data-sidebar="header"
-			class={cn("flex flex-col gap-2 p-2", local.class)}
+			class={cn("flex flex-col gap-0 p-0", local.class)}
 			{...others}
 		/>
 	);
@@ -382,7 +382,7 @@ const SidebarFooter: Component<ComponentProps<"div">> = (props) => {
 	return (
 		<div
 			data-sidebar="footer"
-			class={cn("flex flex-col gap-2 p-2", local.class)}
+			class={cn("flex flex-col gap-0 p-0", local.class)}
 			{...others}
 		/>
 	);
@@ -445,7 +445,7 @@ const SidebarGroupLabel = <T extends ValidComponent = "div">(
 			as="div"
 			data-sidebar="group-label"
 			class={cn(
-				"flex h-12 shrink-0 items-center rounded-full px-4 text-xs font-medium text-sidebar-foreground/70 outline-none ring-sidebar-ring transition-[margin,opa] duration-200 ease-linear focus-visible:ring-2 [&>svg]:size-5 [&>svg]:shrink-0",
+				"panel-heading flex h-8 shrink-0 items-center rounded-none px-1 text-sidebar-foreground/55 outline-none ring-sidebar-ring transition-[margin,opa] duration-200 ease-linear focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0",
 				"group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-0",
 				local.class,
 			)}
@@ -468,7 +468,7 @@ const SidebarGroupAction = <T extends ValidComponent = "button">(
 			as="button"
 			data-sidebar="group-action"
 			class={cn(
-				"absolute right-3 top-3.5 flex aspect-square w-5 items-center justify-center rounded-full p-0 text-sidebar-foreground outline-none ring-sidebar-ring transition-transform hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0",				// Increases the hit area of the button on mobile.
+				"absolute right-3 top-3.5 flex aspect-square w-5 items-center justify-center rounded-none p-0 text-sidebar-foreground outline-none ring-sidebar-ring transition-transform hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0",				// Increases the hit area of the button on mobile.
 				"after:absolute after:-inset-2 after:md:hidden",
 				"group-data-[collapsible=icon]:hidden",
 				local.class,
@@ -512,7 +512,7 @@ const SidebarMenuItem: Component<ComponentProps<"li">> = (props) => {
 };
 
 const sidebarMenuButtonVariants = cva(
-	"peer/menu-button flex w-full items-center gap-2 overflow-hidden rounded-full p-2 px-4 text-left text-sm font-medium outline-none ring-sidebar-ring transition-[width,height,padding,background-color,color] hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 group-has-[[data-sidebar=menu-action]]/menu-item:pr-8 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-secondary data-[active=true]:font-bold data-[active=true]:text-secondary-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground group-data-[collapsible=icon]:!size-12 group-data-[collapsible=icon]:!p-0 group-data-[collapsible=icon]:mx-auto group-data-[collapsible=icon]:justify-center [&>span:last-child]:truncate group-data-[collapsible=icon]:[&>span:last-child]:hidden [&>svg]:size-5 [&>svg]:shrink-0 data-[active=true]:[&>svg]:text-primary",
+	"peer/menu-button flex w-full items-center gap-3 overflow-hidden rounded-none border border-transparent px-3 text-left text-sm font-medium outline-none ring-sidebar-ring transition-[width,height,padding,background-color,color,border-color,transform] hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 group-has-[[data-sidebar=menu-action]]/menu-item:pr-8 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-accent data-[active=true]:text-accent-foreground data-[active=true]:border-border data-[active=true]:shadow-[inset_0_1px_0_hsl(var(--foreground)/0.06)] data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground group-data-[collapsible=icon]:!size-11 group-data-[collapsible=icon]:!border-transparent group-data-[collapsible=icon]:!p-0 group-data-[collapsible=icon]:mx-auto group-data-[collapsible=icon]:justify-center [&>span:last-child]:truncate group-data-[collapsible=icon]:[&>span:last-child]:hidden [&>svg]:size-4 [&>svg]:shrink-0 data-[active=true]:[&>svg]:text-primary",
 	{
 		variants: {
 			variant: {
@@ -521,9 +521,9 @@ const sidebarMenuButtonVariants = cva(
 					"bg-background shadow-[0_0_0_1px_hsl(var(--sidebar-border))] hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-[0_0_0_1px_hsl(var(--sidebar-accent))]",
 			},
 			size: {
-				default: "h-12 text-sm", // M3 uses taller list items (48px or 56px)
+				default: "h-11 text-sm",
 				sm: "h-9 text-xs",
-				lg: "h-14 text-base group-data-[collapsible=icon]:!p-0",
+				lg: "h-12 text-base group-data-[collapsible=icon]:!p-0",
 			},
 		},
 		defaultVariants: {
@@ -534,10 +534,10 @@ const sidebarMenuButtonVariants = cva(
 );
 type SidebarMenuButtonProps<T extends ValidComponent = "button"> =
 	ComponentProps<T> &
-		VariantProps<typeof sidebarMenuButtonVariants> & {
-			isActive?: boolean;
-			tooltip?: string;
-		};
+	VariantProps<typeof sidebarMenuButtonVariants> & {
+		isActive?: boolean;
+		tooltip?: string;
+	};
 
 const SidebarMenuButton = <T extends ValidComponent = "button">(
 	rawProps: PolymorphicProps<T, SidebarMenuButtonProps<T>>,
@@ -600,14 +600,14 @@ const SidebarMenuAction = <T extends ValidComponent = "button">(
 			as="button"
 			data-sidebar="menu-action"
 			class={cn(
-				"absolute right-1 top-1.5 flex aspect-square w-5 items-center justify-center rounded-full p-0 text-sidebar-foreground outline-none ring-sidebar-ring transition-transform hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 peer-hover/menu-button:text-sidebar-accent-foreground [&>svg]:size-4 [&>svg]:shrink-0",				// Increases the hit area of the button on mobile.
+				"absolute right-1 top-1.5 flex aspect-square w-5 items-center justify-center rounded-none p-0 text-sidebar-foreground outline-none ring-sidebar-ring transition-transform hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 peer-hover/menu-button:text-sidebar-accent-foreground [&>svg]:size-4 [&>svg]:shrink-0",				// Increases the hit area of the button on mobile.
 				"after:absolute after:-inset-2 after:md:hidden",
 				"peer-data-[size=sm]/menu-button:top-1",
 				"peer-data-[size=default]/menu-button:top-1.5",
 				"peer-data-[size=lg]/menu-button:top-2.5",
 				"group-data-[collapsible=icon]:hidden",
 				local.showOnHover &&
-					"group-focus-within/menu-item:opacity-100 group-hover/menu-item:opacity-100 data-[state=open]:opacity-100 peer-data-[active=true]/menu-button:text-sidebar-accent-foreground md:opacity-0",
+				"group-focus-within/menu-item:opacity-100 group-hover/menu-item:opacity-100 data-[state=open]:opacity-100 peer-data-[active=true]/menu-button:text-sidebar-accent-foreground md:opacity-0",
 				local.class,
 			)}
 			{...others}
@@ -621,7 +621,7 @@ const SidebarMenuBadge: Component<ComponentProps<"div">> = (props) => {
 		<div
 			data-sidebar="menu-badge"
 			class={cn(
-				"pointer-events-none absolute right-1 flex h-5 min-w-5 select-none items-center justify-center rounded-full px-1 text-xs font-medium tabular-nums text-sidebar-foreground",				"peer-hover/menu-button:text-sidebar-accent-foreground peer-data-[active=true]/menu-button:text-sidebar-accent-foreground",
+				"pointer-events-none absolute right-1 flex h-5 min-w-5 select-none items-center justify-center rounded-none px-1 text-xs font-medium tabular-nums text-sidebar-foreground", "peer-hover/menu-button:text-sidebar-accent-foreground peer-data-[active=true]/menu-button:text-sidebar-accent-foreground",
 				"peer-data-[size=sm]/menu-button:top-1",
 				"peer-data-[size=default]/menu-button:top-1.5",
 				"peer-data-[size=lg]/menu-button:top-2.5",
@@ -647,11 +647,11 @@ const SidebarMenuSkeleton: Component<SidebarMenuSkeletonProps> = (rawProps) => {
 	return (
 		<div
 			data-sidebar="menu-skeleton"
-			class={cn("flex h-12 items-center gap-2 rounded-full px-4", local.class)}
+			class={cn("flex h-12 items-center gap-2 rounded-none px-4", local.class)}
 			{...others}
 		>
 			{local.showIcon && (
-				<Skeleton class="size-4 rounded-full" data-sidebar="menu-skeleton-icon" />			)}
+				<Skeleton class="size-4 rounded-none" data-sidebar="menu-skeleton-icon" />)}
 			<Skeleton
 				class="max-w-[var(--skeleton-width)] h-4 flex-1"
 				data-sidebar="menu-skeleton-text"
@@ -705,7 +705,7 @@ const SidebarMenuSubButton = <T extends ValidComponent = "a">(
 			data-size={local.size}
 			data-active={local.isActive}
 			class={cn(
-				"flex h-9 min-w-0 -translate-x-px items-center gap-2 overflow-hidden rounded-full px-4 text-sidebar-foreground outline-none ring-sidebar-ring hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 [&>svg]:text-sidebar-accent-foreground",
+				"flex h-9 min-w-0 -translate-x-px items-center gap-2 overflow-hidden rounded-none px-4 text-sidebar-foreground outline-none ring-sidebar-ring hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 [&>svg]:text-sidebar-accent-foreground",
 				"data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground",
 				local.size === "sm" && "text-xs",
 				local.size === "md" && "text-sm",

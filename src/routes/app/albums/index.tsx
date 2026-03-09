@@ -28,27 +28,79 @@ import {
 	ContextMenuSeparator,
 	ContextMenuTrigger,
 } from "~/components/ui/context-menu";
-import { type Album, getAlbum, getAlbumList, star, unstar } from "~/lib/api";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "~/components/ui/select";
+import {
+	type Album,
+	type AlbumListType,
+	getAlbum,
+	getAlbumList,
+	star,
+	unstar,
+} from "~/lib/api";
 import { usePlayer } from "~/lib/player";
 import { queryKeys } from "~/lib/query";
 
+const GAP = 16;
+const TEXT_HEIGHT = 52;
+const ALBUM_PAGE_SIZE = 50;
+const ALBUM_SERVER_FILTERS = [
+	"random",
+	"newest",
+	"highest",
+	"frequent",
+	"recent",
+] as const;
+type AlbumServerFilter = (typeof ALBUM_SERVER_FILTERS)[number];
+const DEFAULT_ALBUM_FILTER: AlbumServerFilter = "newest";
+
 export const Route = createFileRoute("/app/albums/")({
-	loader: ({ context: { queryClient } }) =>
+	validateSearch: (
+		search: Record<string, unknown>,
+	): { filter?: AlbumServerFilter } => {
+		const rawFilter = search.filter;
+		if (typeof rawFilter !== "string") {
+			return {};
+		}
+
+		const normalizedFilter = ALBUM_SERVER_FILTERS.find(
+			(filter) => filter === rawFilter,
+		);
+		if (!normalizedFilter || normalizedFilter === DEFAULT_ALBUM_FILTER) {
+			return {};
+		}
+
+		return { filter: normalizedFilter };
+	},
+	loaderDeps: ({ search }) => ({
+		filter: search.filter ?? DEFAULT_ALBUM_FILTER,
+	}),
+	loader: ({ context: { queryClient }, deps }) =>
 		queryClient.prefetchInfiniteQuery({
-			queryKey: queryKeys.albums.infiniteNewest(50),
+			queryKey: queryKeys.albums.infiniteByType(deps.filter, ALBUM_PAGE_SIZE),
 			queryFn: ({ pageParam, signal }) =>
-				getAlbumList("newest", 50, pageParam as number, signal),
+				getAlbumList(deps.filter, ALBUM_PAGE_SIZE, pageParam as number, signal),
 			initialPageParam: 0,
 			getNextPageParam: (lastPage: Album[], allPages: Album[][]) => {
-				if (lastPage.length < 50) return undefined;
-				return allPages.length * 50;
+				if (lastPage.length < ALBUM_PAGE_SIZE) return undefined;
+				return allPages.length * ALBUM_PAGE_SIZE;
 			},
 		}),
 	component: AlbumsPage,
 });
 
-const GAP = 16; // gap-4
-const TEXT_HEIGHT = 52;
+function formatAlbumFilterLabel(value: AlbumServerFilter): string {
+	if (value === "highest") return "Highest Rated";
+	if (value === "frequent") return "Most Played";
+	if (value === "recent") return "Recently Played";
+	if (value === "newest") return "Newest";
+	return "Random";
+}
 
 function AlbumsPage() {
 	let scrollContainerRef: HTMLDivElement | undefined;
@@ -64,16 +116,24 @@ function AlbumsPage() {
 
 	const player = usePlayer();
 	const navigate = useNavigate();
+	const search = Route.useSearch();
+	const albumListType = createMemo<AlbumServerFilter>(
+		() => search().filter ?? DEFAULT_ALBUM_FILTER,
+	);
 
-	// Stable Infinite Query
 	const albums = useInfiniteQuery(() => ({
-		queryKey: queryKeys.albums.infiniteNewest(50),
+		queryKey: queryKeys.albums.infiniteByType(albumListType(), ALBUM_PAGE_SIZE),
 		queryFn: ({ pageParam, signal }) =>
-			getAlbumList("newest", 50, pageParam as number, signal),
+			getAlbumList(
+				albumListType() as AlbumListType,
+				ALBUM_PAGE_SIZE,
+				pageParam as number,
+				signal,
+			),
 		initialPageParam: 0,
 		getNextPageParam: (lastPage, allPages) => {
-			if (lastPage.length < 50) return undefined;
-			return allPages.length * 50;
+			if (lastPage.length < ALBUM_PAGE_SIZE) return undefined;
+			return allPages.length * ALBUM_PAGE_SIZE;
 		},
 		staleTime: 5 * 60 * 1000,
 		gcTime: 30 * 60 * 1000,
@@ -81,7 +141,6 @@ function AlbumsPage() {
 
 	const allAlbums = createMemo(() => albums.data?.pages.flat() ?? []);
 
-	// Memoize rows to ensure stability
 	const rows = createMemo(() => {
 		const list = allAlbums();
 		const cols = columns();
@@ -92,20 +151,16 @@ function AlbumsPage() {
 		return result;
 	});
 
-	// Calculate row height based on width
 	const rowHeight = createMemo(() => {
 		const width = containerWidth();
 		const cols = columns();
 		if (width === 0) return 300;
 
-		// Width = container width (clientWidth includes padding if set, but we removed padding from container)
-		// We will add padding to the INNER grid content if needed, or just assume full width.
 		const totalGaps = (cols - 1) * GAP;
 		const colWidth = (width - totalGaps) / cols;
 		return Math.floor(colWidth + TEXT_HEIGHT + GAP);
 	});
 
-	// Track container size
 	onMount(() => {
 		if (!scrollContainerRef) return;
 
@@ -122,6 +177,7 @@ function AlbumsPage() {
 
 			setColumns(newCols);
 		};
+
 		updateSize();
 
 		const resizeObserver = new ResizeObserver(updateSize);
@@ -136,16 +192,21 @@ function AlbumsPage() {
 		},
 		getScrollElement: () => scrollContainerRef ?? null,
 		estimateSize: () => rowHeight(),
-		overscan: 5, // Reduced overscan now that structure is stable
+		overscan: 5,
 	});
 
-	// Re-measure when row height changes
 	createEffect(() => {
 		rowHeight();
 		virtualizer.measure();
 	});
 
-	// Fetch more when scrolling
+	createEffect(() => {
+		albumListType();
+		if (scrollContainerRef) {
+			scrollContainerRef.scrollTop = 0;
+		}
+	});
+
 	createEffect(() => {
 		const items = virtualizer.getVirtualItems();
 		if (items.length === 0) return;
@@ -163,13 +224,76 @@ function AlbumsPage() {
 
 	return (
 		<div class="flex flex-col gap-4 h-full">
-			<div class="flex-none">
-				<h2 class="text-2xl sm:text-3xl font-bold tracking-tight">Albums</h2>
-				<p class="text-muted-foreground">Your music library</p>
+			<div class="flex-none space-y-3">
+				<div class="panel-surface mb-2 flex flex-col gap-4 border border-border px-5 py-5 sm:flex-row sm:items-end sm:justify-between sm:px-6">
+					<div>
+						<div class="panel-heading mb-3">Library Surface</div>
+						<h2 class="page-title">Albums</h2>
+						<p class="mt-2 text-muted-foreground">
+							Browse the full album catalog with quick playback and queue
+							actions.
+						</p>
+					</div>
+					<div class="w-full sm:w-[220px]">
+						<div class="font-mono text-xs tracking-widest text-muted-foreground uppercase mb-2 block">
+							Album View
+						</div>
+						<Select
+							value={albumListType()}
+							onChange={(value) => {
+								if (!value) return;
+								const nextFilter = value as AlbumServerFilter;
+								navigate({
+									to: "/app/albums",
+									search:
+										nextFilter === DEFAULT_ALBUM_FILTER
+											? {}
+											: { filter: nextFilter },
+									replace: true,
+								});
+							}}
+							options={[...ALBUM_SERVER_FILTERS]}
+							itemComponent={(props) => (
+								<SelectItem
+									item={props.item}
+									class="focus:bg-primary/10 focus:text-primary rounded-none"
+								>
+									{formatAlbumFilterLabel(props.item.rawValue)}
+								</SelectItem>
+							)}
+						>
+							<SelectTrigger class="h-11 sm:h-10 w-full rounded-none bg-transparent shadow-none hover:bg-muted/50 transition-colors">
+								<SelectValue<AlbumServerFilter>>
+									{(state) =>
+										formatAlbumFilterLabel(
+											state.selectedOption() ?? DEFAULT_ALBUM_FILTER,
+										)
+									}
+								</SelectValue>
+							</SelectTrigger>
+							<SelectContent class="rounded-none shadow-lg bg-background/95 backdrop-blur"></SelectContent>
+						</Select>
+					</div>
+				</div>
+				<p class="mt-4 text-xs text-muted-foreground">
+					Showing {allAlbums().length} loaded albums
+				</p>
 			</div>
 
-			<div ref={scrollContainerRef} class="flex-1 overflow-y-auto min-h-0">
-				<Show when={rows().length > 0}>
+			<div
+				ref={scrollContainerRef}
+				class="panel-surface flex-1 min-h-0 overflow-y-auto border border-border p-4"
+			>
+				<Show
+					when={rows().length > 0}
+					fallback={
+						<Show when={!albums.isLoading}>
+							<div class="py-10 text-center text-muted-foreground">
+								No albums found for this view.
+							</div>
+						</Show>
+					}
+				>
 					<div
 						style={{
 							height: `${virtualizer.getTotalSize()}px`,
@@ -205,20 +329,20 @@ function AlbumsPage() {
 														<Link
 															to="/app/albums/$id"
 															params={{ id: album.id }}
-															class="block group h-full"
+															class="block group h-full border border-transparent bg-background hover:border-foreground transition-colors"
 														>
 															<div class="flex flex-col">
-																<div class="aspect-square w-full relative overflow-hidden rounded-2xl shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),_0_2px_4px_-2px_rgba(0,0,0,0.1)] transition-transform hover:-translate-y-1 hover:shadow-[0_8px_10px_-5px_rgba(0,0,0,0.2),_0_16px_24px_2px_rgba(0,0,0,0.14)] bg-muted/30">
+																<div class="aspect-square w-full relative overflow-hidden rounded-none border-b border-border bg-muted/30">
 																	<CoverArt
 																		id={album.coverArt}
-																		class="h-full w-full object-cover"
+																		class="h-full w-full object-cover grayscale-[0.2] group-hover:grayscale-0 transition-all"
 																	/>
 																</div>
-																<div class="pt-3 px-1">
-																	<h3 class="font-bold text-base truncate group-hover:text-primary transition-colors">
+																<div class="pt-3 pb-2 px-1 border-t-2 border-transparent group-hover:border-foreground transition-colors">
+																	<h3 class="truncate text-lg font-semibold tracking-tight group-hover:text-foreground transition-colors">
 																		{album.name}
 																	</h3>
-																	<p class="text-sm font-medium text-muted-foreground truncate opacity-80">
+																	<p class="truncate text-sm text-muted-foreground opacity-80">
 																		{album.artist}
 																	</p>
 																</div>

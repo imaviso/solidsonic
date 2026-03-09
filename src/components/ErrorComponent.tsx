@@ -13,13 +13,13 @@ export function ErrorComponent(props: ErrorComponentProps) {
 	return (
 		<div class="h-full w-full flex flex-col items-center justify-center relative overflow-hidden bg-background min-h-[400px]">
 			{/* Background Ambience */}
-			<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-destructive/5 rounded-full blur-3xl pointer-events-none" />
+			<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-destructive/5 rounded-none blur-3xl pointer-events-none" />
 
 			{/* Content */}
 			<div class="relative z-10 flex flex-col items-center text-center space-y-8 px-4 animate-in fade-in zoom-in duration-500">
 				{/* Icon/Visual */}
 				<div class="relative">
-					<div class="absolute inset-0 bg-destructive/10 blur-xl rounded-full" />
+					<div class="absolute inset-0 bg-destructive/10 blur-xl rounded-none" />
 					<IconAlertTriangle
 						class="h-24 w-24 text-destructive/80 relative z-10"
 						stroke-width={1}
@@ -28,10 +28,10 @@ export function ErrorComponent(props: ErrorComponentProps) {
 
 				{/* Typography */}
 				<div class="space-y-2">
-					<h1 class="text-4xl font-thin tracking-tight text-foreground select-none">
+					<h1 class="text-3xl font-thin tracking-tight text-foreground select-none">
 						Something went wrong
 					</h1>
-					<p class="text-sm text-muted-foreground max-w-[500px] mx-auto leading-relaxed font-mono bg-destructive/10 p-4 rounded-xl border-none break-all">
+					<p class="text-sm text-muted-foreground max-w-[500px] mx-auto leading-relaxed font-mono bg-destructive/10 p-4 rounded-none border-none break-all">
 						{props.error.message}
 					</p>
 				</div>

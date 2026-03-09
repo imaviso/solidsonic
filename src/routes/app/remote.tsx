@@ -15,10 +15,9 @@ export const Route = createFileRoute("/app/remote")({
 function RemotePage() {
 	return (
 		<div class="mx-auto w-full max-w-4xl space-y-4 p-3 pb-24 sm:space-y-6 sm:p-4 md:p-6 md:pb-6">
-			<div>
-				<h1 class="text-2xl font-bold text-foreground sm:text-3xl">
-					Remote Control
-				</h1>
+			<div class="panel-surface border border-border px-5 py-5 sm:px-6">
+				<div class="panel-heading mb-3">Pairing</div>
+				<h1 class="page-title text-foreground">Remote Control</h1>
 				<p class="mt-1 max-w-prose text-sm text-muted-foreground sm:text-base">
 					Host this player or join another session from your phone.
 				</p>

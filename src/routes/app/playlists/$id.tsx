@@ -198,18 +198,19 @@ function PlaylistDetailPage() {
 				when={!playlist.isLoading && playlist.data}
 				fallback={<div>Loading...</div>}
 			>
-				<div class="flex flex-col md:flex-row items-center md:items-end gap-6 pb-6 border-b-2 border-muted/50 text-center md:text-left">
-					<div class="size-40 md:size-32 bg-muted rounded-[1.5rem] shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),_0_2px_4px_-2px_rgba(0,0,0,0.1)] flex shrink-0 items-center justify-center overflow-hidden">
-						<CoverArt id={playlist.data?.coverArt} class="size-full" />
+				<div class="panel-surface flex flex-col items-center gap-6 border border-border px-5 py-5 text-center md:flex-row md:items-end md:gap-8 md:px-6 md:text-left">
+					<div class="size-48 md:size-56 bg-muted rounded-none border border-border flex shrink-0 items-center justify-center overflow-hidden">
+						<CoverArt
+							id={playlist.data?.coverArt}
+							class="size-full grayscale-[0.2]"
+						/>
 					</div>
 					<div class="flex flex-col gap-2 flex-1">
-						<span class="text-sm font-medium text-muted-foreground uppercase">
-							Playlist
-						</span>
-						<h1 class="text-3xl md:text-4xl font-bold break-words">
+						<span class="panel-heading text-muted-foreground">Playlist</span>
+						<h1 class="page-title break-words text-foreground">
 							{playlist.data?.name}
 						</h1>
-						<p class="text-muted-foreground">
+						<p class="mt-2 text-muted-foreground md:mt-3">
 							{playlist.data?.songCount} songs •{" "}
 							{Math.floor((playlist.data?.duration || 0) / 60)} mins
 						</p>
@@ -234,15 +235,23 @@ function PlaylistDetailPage() {
 					</div>
 				</div>
 
-				<div class="overflow-x-auto">
+				<div class="overflow-x-auto mt-6">
 					<Table>
 						<TableHeader>
-							<TableRow>
-								<TableHead class="w-[50px]">#</TableHead>
+							<TableRow class="border-b-4 border-muted hover:bg-transparent">
+								<TableHead class="w-[50px] panel-heading text-muted-foreground">
+									#
+								</TableHead>
 								<TableHead class="w-[48px]"></TableHead>
-								<TableHead>Title</TableHead>
-								<TableHead class="hidden md:table-cell">Artist</TableHead>
-								<TableHead class="hidden md:table-cell">Album</TableHead>
+								<TableHead class="panel-heading text-muted-foreground">
+									Title
+								</TableHead>
+								<TableHead class="hidden md:table-cell panel-heading text-muted-foreground">
+									Artist
+								</TableHead>
+								<TableHead class="hidden md:table-cell panel-heading text-muted-foreground">
+									Album
+								</TableHead>
 								<TableHead class="text-right">
 									<IconClock class="size-4 ml-auto" />
 								</TableHead>
@@ -253,54 +262,56 @@ function PlaylistDetailPage() {
 							<For each={playlist.data?.entry}>
 								{(song, i) => (
 									<TableRow
-										class="group cursor-pointer hover:bg-muted/50"
+										class="group cursor-pointer hover:bg-foreground hover:text-background transition-colors border-b-2 border-border/50"
 										onClick={() => handlePlaySong(song, i())}
 									>
-										<TableCell class="font-medium text-muted-foreground group-hover:text-foreground">
+										<TableCell class="font-bold text-muted-foreground group-hover:text-background flex-col justify-center">
 											<span class="group-hover:hidden text-xs">{i() + 1}</span>
-											<IconPlayerPlayFilled class="size-3 hidden group-hover:block text-primary" />
+											<IconPlayerPlayFilled class="size-4 hidden group-hover:block" />
 										</TableCell>
 										<TableCell>
 											<CoverArt
 												id={song.coverArt}
 												size={80}
-												class="size-10 rounded-md shadow-[0_1px_3px_0_rgba(0,0,0,0.1),_0_1px_2px_-1px_rgba(0,0,0,0.1)]"
+												class="size-10 rounded-none border border-border/50 object-cover grayscale-[0.2] group-hover:grayscale-0 transition-all group-hover:border-background"
 											/>
 										</TableCell>
-										<TableCell class="font-medium">
+										<TableCell class="text-lg font-semibold tracking-tight">
 											<span
 												class={
-													currentTrack?.id === song.id ? "text-primary" : ""
+													currentTrack?.id === song.id
+														? "text-primary group-hover:text-background"
+														: ""
 												}
 											>
 												{song.title}
 											</span>
 										</TableCell>
-										<TableCell class="hidden md:table-cell">
+										<TableCell class="hidden md:table-cell text-muted-foreground group-hover:text-background/80">
 											<Show when={song.artistId} fallback={song.artist}>
 												<Link
 													to="/app/artists/$id"
 													params={{ id: song.artistId ?? "" }}
-													class="hover:text-foreground hover:underline"
+													class="hover:text-background hover:underline"
 													onClick={(e) => e.stopPropagation()}
 												>
 													{song.artist}
 												</Link>
 											</Show>
 										</TableCell>
-										<TableCell class="hidden md:table-cell">
+										<TableCell class="hidden md:table-cell text-muted-foreground group-hover:text-background/80">
 											<Show when={song.albumId} fallback={song.album}>
 												<Link
 													to="/app/albums/$id"
 													params={{ id: song.albumId ?? "" }}
-													class="hover:text-foreground hover:underline"
+													class="hover:text-background hover:underline"
 													onClick={(e) => e.stopPropagation()}
 												>
 													{song.album}
 												</Link>
 											</Show>
 										</TableCell>
-										<TableCell class="text-right font-mono text-xs text-muted-foreground">
+										<TableCell class="text-right font-mono font-bold text-xs text-muted-foreground group-hover:text-background/80">
 											{formatDuration(song.duration)}
 										</TableCell>
 										<TableCell>

@@ -154,7 +154,7 @@ const LyricsView: Component = () => {
 	return (
 		<div
 			ref={scrollRef}
-			class="h-full w-full overflow-y-auto no-scrollbar flex flex-col items-center py-[50%] space-y-8 text-center"
+			class="flex h-full w-full flex-col items-center overflow-y-auto px-6 py-24 text-center no-scrollbar sm:px-10"
 			style={{
 				"mask-image":
 					"linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%)",
@@ -162,10 +162,10 @@ const LyricsView: Component = () => {
 			onScroll={handleScroll}
 		>
 			<Show when={lyricsQuery.isLoading}>
-				<div class="animate-pulse flex flex-col gap-6 items-center opacity-50">
-					<div class="h-8 w-64 bg-muted/40 rounded-full" />
-					<div class="h-8 w-96 bg-muted/40 rounded-full" />
-					<div class="h-8 w-80 bg-muted/40 rounded-full" />
+				<div class="flex animate-pulse flex-col items-center gap-5 opacity-50">
+					<div class="h-8 w-64 bg-muted/40 rounded-none" />
+					<div class="h-8 w-96 bg-muted/40 rounded-none" />
+					<div class="h-8 w-80 bg-muted/40 rounded-none" />
 				</div>
 			</Show>
 
@@ -173,9 +173,9 @@ const LyricsView: Component = () => {
 				when={lyricsQuery.data}
 				fallback={
 					!lyricsQuery.isLoading && (
-						<div class="flex flex-col items-center justify-center gap-4 text-muted-foreground/50">
-							<IconQuote class="size-12 opacity-50" />
-							<div class="text-2xl font-semibold">No lyrics available</div>
+						<div class="flex flex-col items-center justify-center gap-3 text-muted-foreground/55">
+							<IconQuote class="size-10 opacity-50" />
+							<div class="section-title">No lyrics available</div>
 						</div>
 					)
 				}
@@ -184,7 +184,7 @@ const LyricsView: Component = () => {
 					<Show
 						when={lyrics().type === "synced"}
 						fallback={
-							<div class="whitespace-pre-wrap text-base sm:text-xl md:text-2xl lg:text-3xl font-bold leading-loose text-foreground/90 max-w-3xl px-4 sm:px-8">
+							<div class="max-w-3xl whitespace-pre-wrap px-4 text-base font-medium leading-relaxed text-foreground/90 sm:px-8 sm:text-lg md:text-xl">
 								{lyrics().type === "unsynced"
 									? (lyrics().data as StructuredLyrics).line
 											.map((l) => l.value)
@@ -201,7 +201,7 @@ const LyricsView: Component = () => {
 								<button
 									type="button"
 									class={cn(
-										"text-lg sm:text-2xl md:text-3xl lg:text-5xl font-bold transition-[color,transform,opacity,filter] duration-700 cursor-pointer px-4 sm:px-8 py-2 outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-lg w-full text-center bg-transparent border-0 select-none",
+										"w-full max-w-3xl cursor-pointer select-none rounded-none border-0 bg-transparent px-4 py-2 text-center text-base font-medium transition-[color,transform,opacity,filter] duration-700 outline-none focus-visible:ring-2 focus-visible:ring-ring sm:px-8 md:text-lg",
 										i() === currentLineIndex()
 											? "text-primary scale-100 opacity-100 blur-0"
 											: "text-muted-foreground/40 scale-95 opacity-40 blur-[2px] hover:opacity-70 hover:blur-0",
@@ -235,7 +235,7 @@ const QueueView: Component = () => {
 
 	return (
 		<div
-			class="h-full w-full overflow-y-auto p-4 space-y-1 no-scrollbar"
+			class="h-full w-full overflow-y-auto p-4 no-scrollbar"
 			style={{
 				"mask-image":
 					"linear-gradient(to bottom, transparent 0%, black 5%, black 95%, transparent 100%)",
@@ -248,8 +248,8 @@ const QueueView: Component = () => {
 							if (i() === player.queueIndex) activeRef = el;
 						}}
 						class={cn(
-							"group flex items-center gap-3 p-2 rounded-lg transition-colors hover:bg-primary/5",
-							i() === player.queueIndex && "bg-muted/30",
+							"group flex items-center gap-3 border-b border-border/50 px-2 py-3 transition-colors hover:bg-accent/50",
+							i() === player.queueIndex && "bg-accent/60",
 						)}
 					>
 						<button
@@ -257,7 +257,7 @@ const QueueView: Component = () => {
 							class="flex-1 flex items-center gap-3 text-left min-w-0 cursor-pointer outline-none"
 							onClick={() => player.playSong(song, player.queue, i())}
 						>
-							<div class="relative size-12 flex-none rounded-md overflow-hidden shadow-[0_1px_3px_0_rgba(0,0,0,0.1),_0_1px_2px_-1px_rgba(0,0,0,0.1)]">
+							<div class="relative size-12 flex-none overflow-hidden border border-border bg-muted">
 								<CoverArt
 									id={song.coverArt}
 									class="w-full h-full object-cover"
@@ -272,10 +272,10 @@ const QueueView: Component = () => {
 									</div>
 								</Show>
 							</div>
-							<div class="flex-1 min-w-0">
+							<div class="min-w-0 flex-1">
 								<div
 									class={cn(
-										"font-medium truncate text-base",
+										"truncate text-sm font-semibold md:text-base",
 										i() === player.queueIndex && "text-primary",
 									)}
 								>
@@ -299,8 +299,8 @@ const QueueView: Component = () => {
 							</div>
 						</button>
 
-						<div class="flex items-center gap-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity focus-within:opacity-100">
-							<div class="text-xs text-muted-foreground font-mono mr-2">
+						<div class="ml-2 flex items-center gap-1 opacity-100 transition-opacity focus-within:opacity-100 md:opacity-0 md:group-hover:opacity-100">
+							<div class="mono-meta mr-2 text-muted-foreground">
 								{formatTime(song.duration || 0)}
 							</div>
 							<Tooltip>
@@ -308,7 +308,7 @@ const QueueView: Component = () => {
 									<Button
 										variant="ghost"
 										size="icon"
-										class="size-11 md:size-8 text-muted-foreground hover:text-foreground"
+										class="size-10 md:size-8 text-muted-foreground hover:text-foreground"
 										aria-label="Move Up"
 										onClick={(e) => {
 											e.stopPropagation();
@@ -326,7 +326,7 @@ const QueueView: Component = () => {
 									<Button
 										variant="ghost"
 										size="icon"
-										class="size-11 md:size-8 text-muted-foreground hover:text-foreground"
+										class="size-10 md:size-8 text-muted-foreground hover:text-foreground"
 										aria-label="Move Down"
 										onClick={(e) => {
 											e.stopPropagation();
@@ -344,7 +344,7 @@ const QueueView: Component = () => {
 									<Button
 										variant="ghost"
 										size="icon"
-										class="size-11 md:size-8 text-destructive/70 hover:text-destructive hover:bg-destructive/10"
+										class="size-10 md:size-8 text-destructive/70 hover:text-destructive hover:bg-destructive/10"
 										aria-label="Remove from Queue"
 										onClick={(e) => {
 											e.stopPropagation();
@@ -404,42 +404,48 @@ const FullScreenPlayer: Component<FullScreenPlayerProps> = (props) => {
 		<Portal>
 			<div
 				class={cn(
-					"fixed inset-0 z-[100] bg-background/95 backdrop-blur-xl transition-[transform,opacity] duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]",
+					"fixed inset-0 z-[100] bg-background/95 backdrop-blur-md transition-[transform,opacity] duration-500 [transition-timing-function:cubic-bezier(0.32,0.72,0,1)]",
 					props.isOpen
 						? "translate-y-0 opacity-100"
 						: "translate-y-full opacity-0 pointer-events-none",
 				)}
 			>
 				{/* Dynamic Background */}
-				<div class="absolute inset-0 z-0 overflow-hidden opacity-40 pointer-events-none transition-opacity duration-1000">
+				<div class="absolute inset-0 z-0 overflow-hidden opacity-20 pointer-events-none transition-opacity duration-1000">
 					<Show when={!!player.currentTrack}>
 						<CoverArt
 							id={player.currentTrack?.coverArt}
-							class="w-full h-full object-cover blur-[100px] scale-150 saturate-150 animate-pulse-slow"
+							class="w-full h-full object-cover blur-3xl scale-125 saturate-125"
 						/>
 					</Show>
-					<div class="absolute inset-0 bg-background/60" />
-					<div class="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent" />
+					<div class="absolute inset-0 bg-[linear-gradient(180deg,hsl(var(--background)/0.84),hsl(var(--background)/0.96))]" />
 				</div>
 
 				{/* Content Container */}
-				<div class="relative z-10 flex flex-col h-full max-w-7xl mx-auto p-3 sm:p-4 lg:p-10">
+				<div class="relative z-10 mx-auto flex h-full w-full max-w-7xl flex-col p-3 sm:p-4 lg:p-6">
 					{/* Header */}
-					<div class="flex items-center justify-between flex-none">
+					<div class="panel-surface flex flex-none flex-wrap items-center justify-between gap-3 border border-border bg-background/80 px-3 py-3 sm:px-4">
 						<Button
 							variant="ghost"
 							size="icon"
-							class="size-11 sm:size-10 rounded-full"
+							class="size-11 sm:size-10 rounded-none border border-border"
 							aria-label="Close"
 							onClick={props.onClose}
 						>
 							<IconChevronDown class="size-6" />
 						</Button>
-						<div class="flex flex-wrap justify-center gap-1 bg-muted/20 rounded-full p-1 max-w-full">
+						<div class="min-w-0 flex-1 px-1 text-center sm:text-left">
+							<div class="panel-heading mb-1">Expanded Player</div>
+							<div class="text-sm text-muted-foreground">
+								Switch between artwork, lyrics, and queue without leaving
+								playback.
+							</div>
+						</div>
+						<div class="flex max-w-full flex-wrap justify-center gap-1 border border-border bg-background p-1">
 							<Button
 								variant={view() === "artwork" ? "secondary" : "ghost"}
 								size="sm"
-								class="rounded-full h-11 sm:h-8 px-2 sm:px-4 text-[11px] sm:text-xs font-medium"
+								class="h-10 rounded-none px-3 text-[0.68rem] sm:h-9 sm:px-4"
 								onClick={() => setView("artwork")}
 							>
 								Playing
@@ -447,7 +453,7 @@ const FullScreenPlayer: Component<FullScreenPlayerProps> = (props) => {
 							<Button
 								variant={view() === "lyrics" ? "secondary" : "ghost"}
 								size="sm"
-								class="rounded-full h-11 sm:h-8 px-2 sm:px-4 text-[11px] sm:text-xs font-medium"
+								class="h-10 rounded-none px-3 text-[0.68rem] sm:h-9 sm:px-4"
 								onClick={() => setView("lyrics")}
 							>
 								Lyrics
@@ -455,23 +461,21 @@ const FullScreenPlayer: Component<FullScreenPlayerProps> = (props) => {
 							<Button
 								variant={view() === "queue" ? "secondary" : "ghost"}
 								size="sm"
-								class="rounded-full h-11 sm:h-8 px-2 sm:px-4 text-[11px] sm:text-xs font-medium"
+								class="h-10 rounded-none px-3 text-[0.68rem] sm:h-9 sm:px-4"
 								onClick={() => setView("queue")}
 							>
 								Up Next
 							</Button>
 						</div>
-						<div class="w-10" /> {/* Spacer for centering */}
 					</div>
 
 					{/* Main Content Area */}
-					<div class="flex-1 flex flex-col lg:landscape:flex-row items-center justify-center gap-10 lg:gap-20 min-h-0 py-8">
+					<div class="grid min-h-0 flex-1 gap-4 py-4 lg:grid-cols-[minmax(0,1.1fr)_minmax(320px,420px)] lg:items-stretch lg:gap-5">
 						{/* Left Side: Artwork / Content */}
 						<div
 							class={cn(
-								"relative w-full max-w-[300px] md:max-w-[600px] lg:landscape:max-w-[500px] portrait:max-w-[80vw]",
-								"aspect-square md:aspect-auto md:h-[450px] lg:h-[500px]",
-								"transition-transform duration-500 flex items-center justify-center overflow-hidden rounded-2xl",
+								"relative flex min-h-[320px] w-full items-center justify-center overflow-hidden rounded-none border border-border bg-background/78 p-3 sm:min-h-[420px] lg:min-h-0",
+								"panel-surface transition-transform duration-500",
 								view() === "artwork" ? "scale-100" : "scale-100",
 							)}
 						>
@@ -485,7 +489,7 @@ const FullScreenPlayer: Component<FullScreenPlayerProps> = (props) => {
 										: "opacity-0 scale-90 translate-y-10 pointer-events-none",
 								)}
 							>
-								<div class="aspect-square w-full max-h-full rounded-xl overflow-hidden bg-muted shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
+								<div class="aspect-square h-full max-h-full w-full overflow-hidden border border-border/50 bg-muted lg:max-h-[calc(100vh-16rem)]">
 									<CoverArt
 										id={player.currentTrack?.coverArt}
 										class="w-full h-full object-cover"
@@ -521,13 +525,14 @@ const FullScreenPlayer: Component<FullScreenPlayerProps> = (props) => {
 						</div>
 
 						{/* Right Side: Controls (Desktop) or Below (Mobile) */}
-						<div class="flex flex-col w-full max-w-md md:max-w-2xl lg:landscape:max-w-md gap-6 lg:gap-8">
+						<div class="panel-surface flex min-w-0 flex-col gap-5 border border-border bg-background/78 p-4 sm:p-5">
 							{/* Track Info */}
-							<div class="space-y-1 text-center lg:landscape:text-left">
-								<h2 class="text-3xl md:text-4xl lg:text-5xl font-black tracking-tight leading-none line-clamp-2 mb-2">
+							<div class="shell-divider space-y-1 pb-4 text-center lg:text-left">
+								<div class="panel-heading">Now Playing</div>
+								<h2 class="page-title line-clamp-2 text-foreground">
 									{player.currentTrack?.title ?? "Not Playing"}
 								</h2>
-								<h3 class="text-xl md:text-2xl text-primary font-bold line-clamp-1 opacity-90">
+								<h3 class="line-clamp-1 text-base font-semibold text-primary opacity-90 md:text-lg">
 									<Show
 										when={player.currentTrack?.artistId}
 										fallback={player.currentTrack?.artist ?? "Select a song"}
@@ -542,7 +547,7 @@ const FullScreenPlayer: Component<FullScreenPlayerProps> = (props) => {
 										</Link>
 									</Show>
 								</h3>
-								<p class="text-sm md:text-base font-medium text-muted-foreground uppercase tracking-widest line-clamp-1 mt-2 opacity-75">
+								<p class="mono-meta mt-2 line-clamp-1 text-muted-foreground opacity-75">
 									<Show
 										when={player.currentTrack?.albumId}
 										fallback={player.currentTrack?.album}
@@ -569,65 +574,64 @@ const FullScreenPlayer: Component<FullScreenPlayerProps> = (props) => {
 									onChangeEnd={handleSeekCommit}
 									class="w-full cursor-pointer"
 								>
-									<SliderTrack class="h-2 bg-primary/20 transition-colors rounded-full overflow-hidden flex items-center">
-										<SliderFill class="h-1.5 group-hover:h-2 bg-primary/80 group-hover:bg-primary transition-[height,background-color] rounded-full" />
+									<SliderTrack class="h-2 bg-primary/20 transition-colors rounded-none overflow-hidden flex items-center">
+										<SliderFill class="h-1.5 group-hover:h-2 bg-primary/80 group-hover:bg-primary transition-[height,background-color] rounded-none" />
 									</SliderTrack>
-									<SliderThumb class="size-3 group-hover:scale-125 transition-[transform,opacity] opacity-0 group-hover:opacity-100 border-2 border-primary bg-primary-foreground ring-offset-background top-[-2px]" />
+									<SliderThumb class="block size-4 group-hover:scale-125 transition-[transform,opacity] opacity-0 group-hover:opacity-100 border-2 border-primary bg-primary-foreground ring-offset-background" />
 								</Slider>
-								<div class="flex justify-between text-xs font-medium text-muted-foreground">
-									<span>{formatTime(seekValue())}</span>
-									<span>{formatTime(player.duration)}</span>
+								<div class="flex justify-between text-xs text-muted-foreground">
+									<span class="mono-meta">{formatTime(seekValue())}</span>
+									<span class="mono-meta">{formatTime(player.duration)}</span>
 								</div>
 							</div>
 
 							{/* Playback Controls */}
-							<div class="flex items-center justify-center lg:landscape:justify-between gap-6">
+							<div class="panel-surface flex items-center justify-center gap-3 border border-border bg-background/70 px-2 py-2">
 								<Button
 									variant="ghost"
 									size="icon"
 									class={cn(
-										"size-11 sm:size-10 text-muted-foreground hover:text-foreground",
-										player.shuffle && "text-primary",
+										"size-10 text-muted-foreground hover:text-foreground",
+										player.shuffle &&
+											"border border-border bg-accent text-primary",
 									)}
 									aria-label="Toggle Shuffle"
 									onClick={player.toggleShuffle}
 								>
-									<IconArrowsShuffle class="size-5" />
+									<IconArrowsShuffle class="size-4" />
 								</Button>
 
-								<div class="flex items-center gap-3 sm:gap-6">
+								<div class="flex items-center gap-2 sm:gap-3">
 									<Button
 										variant="ghost"
 										size="icon"
-										class="size-11 sm:size-12 hover:scale-110 transition-transform"
+										class="size-10"
 										aria-label="Previous Track"
 										onClick={player.playPrevious}
 									>
-										<IconPlayerSkipBackFilled class="size-6 sm:size-8" />
+										<IconPlayerSkipBackFilled class="size-5" />
 									</Button>
 									<Button
 										size="icon"
-										class="size-12 sm:size-16 rounded-full hover:scale-105 transition-transform shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),_0_2px_4px_-2px_rgba(0,0,0,0.1)]"
+										class="size-14 rounded-none border border-border"
 										aria-label={player.isPlaying ? "Pause" : "Play"}
 										onClick={player.togglePlayPause}
 									>
 										<Show
 											when={player.isPlaying}
-											fallback={
-												<IconPlayerPlayFilled class="size-6 sm:size-8" />
-											}
+											fallback={<IconPlayerPlayFilled class="size-5" />}
 										>
-											<IconPlayerPauseFilled class="size-6 sm:size-8" />
+											<IconPlayerPauseFilled class="size-5" />
 										</Show>
 									</Button>
 									<Button
 										variant="ghost"
 										size="icon"
-										class="size-11 sm:size-12 hover:scale-110 transition-transform"
+										class="size-10"
 										aria-label="Next Track"
 										onClick={player.playNext}
 									>
-										<IconPlayerSkipForwardFilled class="size-6 sm:size-8" />
+										<IconPlayerSkipForwardFilled class="size-5" />
 									</Button>
 								</div>
 
@@ -635,31 +639,35 @@ const FullScreenPlayer: Component<FullScreenPlayerProps> = (props) => {
 									variant="ghost"
 									size="icon"
 									class={cn(
-										"size-11 sm:size-10 text-muted-foreground hover:text-foreground",
-										player.repeat !== "off" && "text-primary",
+										"size-10 text-muted-foreground hover:text-foreground",
+										player.repeat !== "off" &&
+											"border border-border bg-accent text-primary",
 									)}
 									aria-label="Toggle Repeat"
 									onClick={player.toggleRepeat}
 								>
 									<Show
 										when={player.repeat === "one"}
-										fallback={<IconRepeat class="size-5" />}
+										fallback={<IconRepeat class="size-4" />}
 									>
-										<IconRepeatOnce class="size-5" />
+										<IconRepeatOnce class="size-4" />
 									</Show>
 								</Button>
 							</div>
 
 							{/* Bottom Actions (Volume/Queue) */}
-							<div class="flex items-center justify-between pt-4">
+							<div class="grid gap-3 border-t border-border pt-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
 								<div
-									class="flex items-center gap-3 w-full max-w-[140px]"
+									class="flex w-full items-center gap-3"
 									onWheel={handleVolumeWheel}
 								>
+									<div class="panel-heading hidden text-muted-foreground/70 sm:block">
+										Output
+									</div>
 									<Button
 										variant="ghost"
 										size="icon"
-										class="size-11 sm:size-8 p-0"
+										class="size-10 border border-border p-0"
 										aria-label={player.volume === 0 ? "Unmute" : "Mute"}
 										onClick={() =>
 											player.setVolume(player.volume === 0 ? 1 : 0)
@@ -687,19 +695,20 @@ const FullScreenPlayer: Component<FullScreenPlayerProps> = (props) => {
 										class="flex-1 cursor-pointer"
 										onChange={(val) => player.setVolume(val[0])}
 									>
-										<SliderTrack class="h-1 bg-primary/20 rounded-full overflow-hidden">
+										<SliderTrack class="h-1 bg-primary/20 rounded-none overflow-hidden">
 											<SliderFill class="bg-primary" />
 										</SliderTrack>
-										<SliderThumb class="size-4 bg-primary-foreground border-2 border-primary transition-transform hover:scale-110 shadow-[0_1px_3px_0_rgba(0,0,0,0.1),_0_1px_2px_-1px_rgba(0,0,0,0.1)] top-[-6px]" />
+										<SliderThumb class="block size-4 bg-primary-foreground border-2 border-primary transition-transform hover:scale-110" />
 									</Slider>
 								</div>
-								<div class="flex items-center gap-2">
+								<div class="flex items-center justify-end gap-2">
 									<Button
 										variant="ghost"
 										size="icon"
 										class={cn(
-											"size-11 sm:size-10 text-muted-foreground",
-											view() === "lyrics" && "text-primary bg-muted",
+											"size-10 text-muted-foreground",
+											view() === "lyrics" &&
+												"border border-border bg-accent text-primary",
 										)}
 										aria-label="Toggle Lyrics View"
 										onClick={() =>
@@ -712,8 +721,9 @@ const FullScreenPlayer: Component<FullScreenPlayerProps> = (props) => {
 										variant="ghost"
 										size="icon"
 										class={cn(
-											"size-11 sm:size-10 text-muted-foreground",
-											view() === "queue" && "text-primary bg-muted",
+											"size-10 text-muted-foreground",
+											view() === "queue" &&
+												"border border-border bg-accent text-primary",
 										)}
 										aria-label="Toggle Queue View"
 										onClick={() =>

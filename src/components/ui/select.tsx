@@ -26,7 +26,7 @@ const SelectTrigger = <T extends ValidComponent = "button">(
 	return (
 		<SelectPrimitive.Trigger
 			class={cn(
-				"flex h-12 w-full items-center justify-between rounded-t-xl border-b-2 border-b-input bg-muted/50 px-4 py-2 text-base transition-[border-color,background-color] placeholder:text-muted-foreground focus:outline-none focus:border-b-primary focus:bg-muted disabled:cursor-not-allowed disabled:opacity-50",
+				"flex h-12 w-full items-center justify-between rounded-none border border-input bg-background/80 px-4 py-2 text-sm transition-[border-color,background-color,box-shadow] placeholder:text-muted-foreground focus:outline-none focus:border-foreground focus:ring-2 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50",
 				local.class,
 			)}
 			{...others}
@@ -61,7 +61,7 @@ const SelectContent = <T extends ValidComponent = "div">(
 		<SelectPrimitive.Portal>
 			<SelectPrimitive.Content
 				class={cn(
-					"relative z-50 min-w-32 overflow-hidden rounded-xl bg-popover text-popover-foreground shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),_0_2px_4px_-2px_rgba(0,0,0,0.1)] animate-in fade-in-80",
+					"panel-surface relative z-50 min-w-[12rem] overflow-hidden rounded-none border border-border bg-popover text-popover-foreground shadow-[8px_8px_0_0_hsl(var(--border)/0.45)] data-[expanded]:animate-in data-[closed]:animate-out data-[closed]:fade-out-0 data-[expanded]:fade-in-0 data-[closed]:zoom-out-95 data-[expanded]:zoom-in-95",
 					local.class,
 				)}
 				{...others}
@@ -88,7 +88,7 @@ const SelectItem = <T extends ValidComponent = "li">(
 	return (
 		<SelectPrimitive.Item
 			class={cn(
-				"relative mt-0 flex w-full cursor-default select-none items-center rounded-full py-2.5 pl-4 pr-8 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+				"relative mt-0 flex w-full cursor-default select-none items-center rounded-none border-b border-border/50 py-3 pl-4 pr-8 font-mono text-[0.72rem] uppercase tracking-[0.14em] outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 last:border-b-0",
 				local.class,
 			)}
 			{...others}
@@ -114,7 +114,7 @@ const SelectItem = <T extends ValidComponent = "li">(
 };
 
 const labelVariants = cva(
-	"text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
+	"font-mono text-[0.72rem] font-medium uppercase tracking-[0.16em] leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
 	{
 		variants: {
 			variant: {

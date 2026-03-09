@@ -22,7 +22,7 @@ const Menubar = <T extends ValidComponent = "div">(
 	return (
 		<MenubarPrimitive.Root
 			class={cn(
-				"flex h-12 items-center space-x-1 rounded-full bg-muted/50 p-1",
+				"flex h-12 items-center space-x-1 rounded-none bg-muted/50 p-1",
 				local.class,
 			)}
 			{...others}
@@ -44,7 +44,7 @@ const MenubarTrigger = <T extends ValidComponent = "button">(
 	return (
 		<MenubarPrimitive.Trigger
 			class={cn(
-				"flex cursor-default select-none items-center rounded-full px-4 py-2 text-sm font-medium outline-none focus:bg-accent focus:text-accent-foreground data-[state=open]:bg-accent data-[state=open]:text-accent-foreground",
+				"flex cursor-default select-none items-center rounded-none px-4 py-2 text-sm font-medium outline-none focus:bg-accent focus:text-accent-foreground data-[state=open]:bg-accent data-[state=open]:text-accent-foreground",
 				local.class,
 			)}
 			{...others}
@@ -63,7 +63,7 @@ const MenubarContent = <T extends ValidComponent = "div">(
 		<MenubarPrimitive.Portal>
 			<MenubarPrimitive.Content
 				class={cn(
-					"z-50 min-w-48 origin-[var(--kb-menu-content-transform-origin)] animate-content-hide overflow-hidden rounded-xl bg-popover p-1 text-popover-foreground shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),_0_2px_4px_-2px_rgba(0,0,0,0.1)] data-[expanded]:animate-content-show",
+					"z-50 min-w-48 origin-[var(--kb-menu-content-transform-origin)] animate-content-hide overflow-hidden rounded-none bg-popover p-1 text-popover-foreground shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),_0_2px_4px_-2px_rgba(0,0,0,0.1)] data-[expanded]:animate-content-show",
 					local.class,
 				)}
 				{...others}
@@ -90,7 +90,7 @@ const MenubarSubTrigger = <T extends ValidComponent = "div">(
 	return (
 		<MenubarPrimitive.SubTrigger
 			class={cn(
-				"flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[state=open]:bg-accent data-[state=open]:text-accent-foreground",
+				"flex cursor-default select-none items-center rounded-none px-2 py-1.5 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[state=open]:bg-accent data-[state=open]:text-accent-foreground",
 				local.inset && "pl-8",
 				local.class,
 			)}
@@ -128,7 +128,7 @@ const MenubarSubContent = <T extends ValidComponent = "div">(
 		<MenubarPrimitive.Portal>
 			<MenubarPrimitive.SubContent
 				class={cn(
-					"z-50 min-w-32 origin-[var(--kb-menu-content-transform-origin)] overflow-hidden rounded-xl bg-popover p-1 text-popover-foreground shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),_0_2px_4px_-2px_rgba(0,0,0,0.1)] animate-in",
+					"z-50 min-w-32 origin-[var(--kb-menu-content-transform-origin)] overflow-hidden rounded-none bg-popover p-1 text-popover-foreground shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),_0_2px_4px_-2px_rgba(0,0,0,0.1)] animate-in",
 					local.class,
 				)}
 				{...others}
@@ -153,7 +153,7 @@ const MenubarItem = <T extends ValidComponent = "div">(
 	return (
 		<MenubarPrimitive.Item
 			class={cn(
-				"relative flex cursor-default select-none items-center rounded-full px-4 py-2 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+				"relative flex cursor-default select-none items-center rounded-none px-4 py-2 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
 				local.inset && "pl-8",
 				local.class,
 			)}
@@ -178,7 +178,7 @@ const MenubarCheckboxItem = <T extends ValidComponent = "div">(
 	return (
 		<MenubarPrimitive.CheckboxItem
 			class={cn(
-				"relative flex cursor-default select-none items-center rounded-full py-2 pl-10 pr-4 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+				"relative flex cursor-default select-none items-center rounded-none py-2 pl-10 pr-4 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
 				local.class,
 			)}
 			{...others}
@@ -220,7 +220,7 @@ const MenubarRadioItem = <T extends ValidComponent = "div">(
 	return (
 		<MenubarPrimitive.RadioItem
 			class={cn(
-				"relative flex cursor-default select-none items-center rounded-full py-2 pl-10 pr-4 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+				"relative flex cursor-default select-none items-center rounded-none py-2 pl-10 pr-4 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
 				local.class,
 			)}
 			{...others}

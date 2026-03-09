@@ -41,8 +41,9 @@ function GenresPage() {
 
 	return (
 		<div class="flex flex-col gap-6 h-full overflow-y-auto">
-			<div>
-				<h2 class="text-2xl sm:text-3xl font-bold tracking-tight">Genres</h2>
+			<div class="panel-surface border border-border px-5 py-5 sm:px-6">
+				<div class="panel-heading mb-3">Taxonomy</div>
+				<h2 class="page-title">Genres</h2>
 				<p class="text-muted-foreground">Browse by genre</p>
 			</div>
 
@@ -62,7 +63,7 @@ function GenresPage() {
 										}}
 										class="block group"
 									>
-										<div class="flex flex-col items-center justify-center text-center gap-2 h-full aspect-[2/1] bg-muted/30 hover:bg-muted/50 rounded-2xl transition-[transform,box-shadow,background-color] hover:-translate-y-1 shadow-[0_1px_3px_0_rgba(0,0,0,0.1),_0_1px_2px_-1px_rgba(0,0,0,0.1)] hover:shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),_0_2px_4px_-2px_rgba(0,0,0,0.1)] p-4 sm:p-6">
+										<div class="flex flex-col items-center justify-center text-center gap-2 h-full aspect-[2/1] bg-muted/30 hover:bg-muted/50 rounded-none transition-all hover:-translate-y-1 border border-border shadow-sm hover:shadow-md p-4 sm:p-6">
 											<span class="font-bold text-base sm:text-lg group-hover:text-primary transition-colors">
 												{genre.value}
 											</span>

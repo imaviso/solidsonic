@@ -163,7 +163,7 @@ function showTooltip(context: ChartContext) {
 		return;
 	}
 
-	el.className = `p-3 bg-popover text-popover-foreground rounded-xl border-none shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),_0_2px_4px_-2px_rgba(0,0,0,0.1)] text-sm ${
+	el.className = `p-3 bg-popover text-popover-foreground rounded-none border-none shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),_0_2px_4px_-2px_rgba(0,0,0,0.1)] text-sm ${
 		model.yAlign ?? `no-transform`
 	}`;
 
@@ -179,7 +179,7 @@ function showTooltip(context: ChartContext) {
 		const colors = model.labelColors[i];
 		content += `
         <div class="flex items-center">
-          <span class="inline-block h-2 w-2 mr-1 rounded-full border" style="background: ${colors.backgroundColor}; border-color: ${colors.borderColor}"></span>
+          <span class="inline-block h-2 w-2 mr-1 rounded-none border" style="background: ${colors.backgroundColor}; border-color: ${colors.borderColor}"></span>
           ${line}
         </div>`;
 	});

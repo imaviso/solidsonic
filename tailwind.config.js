@@ -14,8 +14,8 @@ export default {
 		},
 		extend: {
 			fontFamily: {
-				sans: ["Google Sans", ...defaultTheme.fontFamily.sans],
-				mono: ["Google Sans Code", ...defaultTheme.fontFamily.mono],
+				sans: ["Geist", ...defaultTheme.fontFamily.sans],
+				mono: ["Geist Mono", ...defaultTheme.fontFamily.mono],
 			},
 			colors: {
 				border: "hsl(var(--border))",
@@ -23,6 +23,9 @@ export default {
 				ring: "hsl(var(--ring))",
 				background: "hsl(var(--background))",
 				foreground: "hsl(var(--foreground))",
+				sidebar: "hsl(var(--sidebar))",
+				"main-content": "hsl(var(--main-content))",
+				cards: "hsl(var(--cards))",
 				primary: {
 					DEFAULT: "hsl(var(--primary))",
 					foreground: "hsl(var(--primary-foreground))",

@@ -9,7 +9,7 @@ import { Portal } from "solid-js/web";
 import { cn } from "~/lib/utils";
 
 const toastVariants = cva(
-	"group pointer-events-auto relative flex w-full items-center justify-between space-x-4 overflow-hidden rounded-2xl p-6 pr-8 shadow-[0_8px_10px_-5px_rgba(0,0,0,0.2),_0_16px_24px_2px_rgba(0,0,0,0.14),_0_6px_30px_5px_rgba(0,0,0,0.12)] transition data-[swipe=cancel]:translate-x-0 data-[swipe=end]:translate-x-[var(--kb-toast-swipe-end-x)] data-[swipe=move]:translate-x-[var(--kb-toast-swipe-move-x)] data-[swipe=move]:transition-none data-[opened]:animate-in data-[closed]:animate-out data-[swipe=end]:animate-out data-[closed]:fade-out-80 data-[closed]:slide-out-to-right-full data-[opened]:slide-in-from-top-full data-[opened]:sm:slide-in-from-bottom-full",
+	"group pointer-events-auto relative flex w-full items-center justify-between space-x-4 overflow-hidden rounded-none border border-border bg-background p-6 pr-8 dark:shadow-sm transition data-[swipe=cancel]:translate-x-0 data-[swipe=end]:translate-x-[var(--kb-toast-swipe-end-x)] data-[swipe=move]:translate-x-[var(--kb-toast-swipe-move-x)] data-[swipe=move]:transition-none data-[opened]:animate-in data-[closed]:animate-out data-[swipe=end]:animate-out data-[closed]:fade-out-80 data-[closed]:slide-out-to-right-full data-[opened]:slide-in-from-top-full data-[opened]:sm:slide-in-from-bottom-full",
 	{
 		variants: {
 			variant: {
@@ -54,7 +54,7 @@ const Toaster = <T extends ValidComponent = "ol">(
 
 type ToastRootProps<T extends ValidComponent = "li"> =
 	ToastPrimitive.ToastRootProps<T> &
-		VariantProps<typeof toastVariants> & { class?: string | undefined };
+	VariantProps<typeof toastVariants> & { class?: string | undefined };
 
 const Toast = <T extends ValidComponent = "li">(
 	props: PolymorphicProps<T, ToastRootProps<T>>,
@@ -81,7 +81,7 @@ const ToastClose = <T extends ValidComponent = "button">(
 	return (
 		<ToastPrimitive.CloseButton
 			class={cn(
-				"absolute right-2 top-2 rounded-full p-1 text-foreground/50 opacity-0 transition-opacity focus:opacity-100 focus:outline-none focus:ring-2 group-hover:opacity-100 group-[.destructive]:text-destructive-foreground group-[.error]:text-error-foreground group-[.success]:text-success-foreground group-[.warning]:text-warning-foreground",
+				"absolute right-2 top-2 rounded-none p-1 text-foreground/50 opacity-0 transition-opacity focus:opacity-100 focus:outline-none focus:ring-2 group-hover:opacity-100 group-[.destructive]:text-destructive-foreground group-[.error]:text-error-foreground group-[.success]:text-success-foreground group-[.warning]:text-warning-foreground",
 				local.class,
 			)}
 			{...others}

@@ -3,151 +3,241 @@
 @tailwind utilities;
 
 @layer base {
-  :root {
-    /* M3 Light Theme */
-    --background: 270 20% 99%;
-    --foreground: 270 10% 11%;
+	:root {
+		--background: 40 27% 96%;
+		--foreground: 220 22% 10%;
+		--sidebar: 40 22% 94%;
+		--main-content: 42 33% 98%;
+		--cards: 42 33% 98%;
+		--card: 42 33% 98%;
+		--card-foreground: 220 22% 10%;
+		--popover: 42 33% 98%;
+		--popover-foreground: 220 22% 10%;
+		--primary: 220 18% 10%;
+		--primary-foreground: 42 33% 98%;
+		--secondary: 38 18% 90%;
+		--secondary-foreground: 220 18% 12%;
+		--muted: 38 18% 92%;
+		--muted-foreground: 220 10% 38%;
+		--accent: 38 18% 92%;
+		--accent-foreground: 220 18% 12%;
+		--destructive: 0 72% 52%;
+		--destructive-foreground: 42 33% 98%;
+		--border: 220 10% 82%;
+		--input: 220 10% 78%;
+		--ring: 220 18% 12%;
+		--info: 204 94% 94%;
+		--info-foreground: 199 89% 48%;
+		--success: 142 55% 90%;
+		--success-foreground: 146 65% 30%;
+		--warning: 48 96% 89%;
+		--warning-foreground: 25 95% 43%;
+		--error: 0 93% 94%;
+		--error-foreground: 0 84% 50%;
+		--radius: 0px;
+	}
 
-    /* Surface Container Low */
-    --muted: 270 10% 96%;
-    --muted-foreground: 270 5% 35%;
-
-    --popover: 270 20% 99%;
-    --popover-foreground: 270 10% 11%;
-
-    --border: 270 10% 85%;
-    --input: 270 10% 85%;
-
-    --card: 270 20% 99%;
-    --card-foreground: 270 10% 11%;
-
-    /* M3 Primary */
-    --primary: 260 80% 60%;
-    --primary-foreground: 0 0% 100%;
-
-    /* M3 Secondary Container */
-    --secondary: 260 30% 90%;
-    --secondary-foreground: 260 30% 20%;
-
-    /* M3 Tertiary Container */
-    --accent: 310 30% 90%;
-    --accent-foreground: 310 30% 20%;
-
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-
-    --info: 204 94% 94%;
-    --info-foreground: 199 89% 48%;
-
-    --success: 149 80% 90%;
-    --success-foreground: 160 84% 39%;
-
-    --warning: 48 96% 89%;
-    --warning-foreground: 25 95% 53%;
-
-    --error: 0 93% 94%;
-    --error-foreground: 0 84% 60%;
-
-    --ring: 260 80% 60%;
-
-    --radius: 1rem;
-    /* M3 Medium shape */
-  }
-
-  .dark,
-  [data-kb-theme="dark"] {
-    /* M3 Dark Theme */
-    --background: 270 10% 8%;
-    --foreground: 270 10% 90%;
-
-    /* Surface Container Low */
-    --muted: 270 10% 12%;
-    --muted-foreground: 270 10% 75%;
-
-    --accent: 310 20% 15%;
-    --accent-foreground: 310 20% 90%;
-
-    --popover: 270 10% 8%;
-    --popover-foreground: 270 10% 90%;
-
-    --border: 270 10% 25%;
-    --input: 270 10% 25%;
-
-    --card: 270 10% 8%;
-    --card-foreground: 270 10% 90%;
-
-    /* M3 Primary Dark */
-    --primary: 260 85% 75%;
-    --primary-foreground: 260 85% 20%;
-
-    /* M3 Secondary Container Dark */
-    --secondary: 260 20% 20%;
-    --secondary-foreground: 260 20% 90%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-
-    --info: 204 60% 18%;
-    --info-foreground: 204 80% 70%;
-
-    --success: 149 40% 16%;
-    --success-foreground: 160 60% 65%;
-
-    --warning: 48 50% 18%;
-    --warning-foreground: 40 80% 65%;
-
-    --error: 0 50% 18%;
-    --error-foreground: 0 70% 70%;
-
-    --ring: 260 85% 75%;
-
-    --radius: 1rem;
-    /* M3 Medium shape */
-  }
+	.dark,
+	[data-kb-theme="dark"] {
+		--background: 220 24% 4%;
+		--foreground: 210 17% 92%;
+		--sidebar: 220 20% 5%;
+		--main-content: 220 18% 6%;
+		--cards: 220 18% 6%;
+		--card: 220 18% 6%;
+		--card-foreground: 210 17% 92%;
+		--popover: 220 18% 6%;
+		--popover-foreground: 210 17% 92%;
+		--primary: 210 18% 96%;
+		--primary-foreground: 220 24% 4%;
+		--secondary: 220 14% 12%;
+		--secondary-foreground: 210 17% 92%;
+		--muted: 220 14% 10%;
+		--muted-foreground: 220 9% 60%;
+		--accent: 220 14% 10%;
+		--accent-foreground: 210 17% 92%;
+		--destructive: 0 62% 38%;
+		--destructive-foreground: 210 17% 92%;
+		--border: 220 12% 15%;
+		--input: 220 12% 18%;
+		--ring: 210 17% 92%;
+		--info: 204 60% 18%;
+		--info-foreground: 204 80% 70%;
+		--success: 146 30% 14%;
+		--success-foreground: 142 52% 56%;
+		--warning: 48 50% 18%;
+		--warning-foreground: 40 80% 65%;
+		--error: 0 50% 18%;
+		--error-foreground: 0 70% 70%;
+		--radius: 0px;
+	}
 }
 
 @layer base {
-  * {
-    @apply border-border;
-  }
+	* {
+		@apply border-border;
+	}
 
-  body {
-    @apply bg-background text-foreground;
-    font-feature-settings:
-      "rlig" 1,
-      "calt" 1;
-  }
+	html,
+	body,
+	#app {
+		min-height: 100%;
+	}
+
+	body {
+		@apply bg-background text-foreground;
+		font-family: "Geist Variable", sans-serif;
+		font-feature-settings:
+			"rlig" 1,
+			"calt" 1;
+		background-image:
+			radial-gradient(circle at top left, hsl(var(--foreground) / 0.08), transparent 32%),
+			linear-gradient(hsl(var(--border) / 0.3) 1px, transparent 1px),
+			linear-gradient(90deg, hsl(var(--border) / 0.3) 1px, transparent 1px);
+		background-size: auto, 32px 32px, 32px 32px;
+		background-position: 0 0, -1px -1px, -1px -1px;
+	}
+
+	body::before {
+		content: "";
+		position: fixed;
+		inset: 0;
+		pointer-events: none;
+		background:
+			linear-gradient(180deg, hsl(var(--foreground) / 0.03), transparent 18%),
+			radial-gradient(circle at 20% 0%, hsl(var(--foreground) / 0.06), transparent 28%);
+		opacity: 0.9;
+	}
+
+	::selection {
+		background: hsl(var(--foreground) / 0.14);
+	}
 }
 
 @layer utilities {
-  .step {
-    counter-increment: step;
-  }
+	.step {
+		counter-increment: step;
+	}
 
-  .step:before {
-    @apply absolute w-9 h-9 bg-muted rounded-full font-mono font-medium text-center text-base inline-flex items-center justify-center -indent-px border-4 border-background;
-    @apply ml-[-50px] mt-[-4px];
-    content: counter(step);
-  }
+	.step:before {
+		@apply absolute inline-flex h-9 w-9 items-center justify-center bg-muted font-mono text-base font-medium -indent-px;
+		@apply ml-[-50px] mt-[-4px] border-4 border-background;
+		content: counter(step);
+	}
+
+	.panel-surface {
+		position: relative;
+		border: 1px solid hsl(var(--border));
+		background:
+			linear-gradient(180deg, hsl(var(--card) / 0.98), hsl(var(--background) / 0.96)),
+			radial-gradient(circle at top left, hsl(var(--foreground) / 0.05), transparent 35%);
+		box-shadow: inset 0 1px 0 hsl(var(--foreground) / 0.05);
+	}
+
+	.panel-heading {
+		font-family: "Geist Mono Variable", monospace;
+		font-size: 0.72rem;
+		font-weight: 500;
+		letter-spacing: 0.18em;
+		text-transform: uppercase;
+		color: hsl(var(--muted-foreground));
+	}
+
+	.panel-title {
+		font-size: clamp(1.2rem, 0.95rem + 1.2vw, 2rem);
+		font-weight: 600;
+		letter-spacing: -0.04em;
+		line-height: 0.95;
+	}
+
+	.page-title {
+		font-size: clamp(1.45rem, 1.25rem + 0.65vw, 1.95rem);
+		font-weight: 600;
+		letter-spacing: -0.05em;
+		line-height: 0.98;
+	}
+
+	.hero-title {
+		font-size: clamp(1.8rem, 1.45rem + 1vw, 2.35rem);
+		font-weight: 800;
+		letter-spacing: -0.04em;
+		line-height: 0.92;
+	}
+
+	.section-title {
+		font-size: clamp(1.15rem, 1rem + 0.55vw, 1.45rem);
+		font-weight: 700;
+		letter-spacing: -0.03em;
+		line-height: 1;
+	}
+
+	.mono-meta {
+		font-family: "Geist Mono Variable", monospace;
+		font-size: 0.72rem;
+		letter-spacing: 0.18em;
+		text-transform: uppercase;
+	}
+
+	.data-chip {
+		border: 1px solid hsl(var(--border));
+		background: hsl(var(--accent) / 0.5);
+		padding: 0.35rem 0.65rem;
+		font-family: "Geist Mono Variable", monospace;
+		font-size: 0.68rem;
+		letter-spacing: 0.14em;
+		text-transform: uppercase;
+		color: hsl(var(--muted-foreground));
+	}
+
+	.metric-panel {
+		position: relative;
+		overflow: hidden;
+		border: 1px solid hsl(var(--border));
+		background:
+			linear-gradient(125deg, transparent 0%, transparent 52%, hsl(var(--foreground) / 0.05) 100%),
+			linear-gradient(180deg, hsl(var(--card) / 0.96), hsl(var(--background) / 0.92));
+	}
+
+	.metric-panel::after {
+		content: "";
+		position: absolute;
+		inset: 0;
+		pointer-events: none;
+		background: linear-gradient(180deg, hsl(var(--foreground) / 0.03), transparent 36%);
+	}
+
+	.shell-divider {
+		position: relative;
+	}
+
+	.shell-divider::after {
+		content: "";
+		position: absolute;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		height: 1px;
+		background: linear-gradient(90deg, transparent, hsl(var(--border)), transparent);
+	}
 }
 
 @media (max-width: 640px) {
-  .container {
-    @apply px-4;
-  }
+	.container {
+		@apply px-4;
+	}
 }
 
 ::-webkit-scrollbar {
-  width: 16px;
+	width: 16px;
 }
 
 ::-webkit-scrollbar-thumb {
-  border-radius: 9999px;
-  border: 4px solid transparent;
-  background-clip: content-box;
-  @apply bg-accent;
+	border-radius: 9999px;
+	border: 4px solid transparent;
+	background-clip: content-box;
+	@apply bg-muted-foreground/20;
 }
 
 ::-webkit-scrollbar-corner {
-  display: none;
+	display: none;
 }

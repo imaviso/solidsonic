@@ -112,10 +112,11 @@ function SongsPage() {
 
 	return (
 		<div class="flex flex-col gap-6 h-full">
-			<div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+			<div class="panel-surface flex flex-col gap-4 border border-border px-5 py-5 sm:flex-row sm:items-end sm:justify-between sm:px-6">
 				<div>
-					<h2 class="text-2xl sm:text-3xl font-bold tracking-tight">Songs</h2>
-					<p class="text-muted-foreground">
+					<div class="panel-heading mb-3">Live Queue Source</div>
+					<h2 class="page-title">Songs</h2>
+					<p class="mt-2 text-muted-foreground">
 						Random selection from your library
 					</p>
 				</div>
@@ -129,9 +130,12 @@ function SongsPage() {
 				</Button>
 			</div>
 
-			<div ref={scrollContainerRef} class="flex-1 overflow-auto">
+			<div
+				ref={scrollContainerRef}
+				class="panel-surface flex-1 overflow-auto border border-border"
+			>
 				{/* Header */}
-				<div class="grid grid-cols-[28px_40px_minmax(0,1fr)_52px] sm:grid-cols-[40px_48px_minmax(0,1fr)_80px] md:grid-cols-[40px_48px_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_80px] gap-2 sm:gap-4 px-2 sm:px-4 py-3 text-xs uppercase tracking-wider font-bold text-muted-foreground border-b-2 sticky top-0 bg-background/95 backdrop-blur z-10">
+				<div class="grid grid-cols-[28px_40px_minmax(0,1fr)_52px] sm:grid-cols-[40px_48px_minmax(0,1fr)_80px] md:grid-cols-[40px_48px_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_80px] gap-2 sm:gap-4 px-2 sm:px-4 py-3 text-xs font-medium tracking-[0.08em] text-muted-foreground border-b border-border sticky top-0 bg-background/95 backdrop-blur z-10">
 					<div>#</div>
 					<div></div>
 					<div>Title</div>
@@ -168,7 +172,7 @@ function SongsPage() {
 									>
 										<button
 											type="button"
-											class="w-full h-full grid grid-cols-[28px_40px_minmax(0,1fr)_52px] sm:grid-cols-[40px_48px_minmax(0,1fr)_80px] md:grid-cols-[40px_48px_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_80px] gap-2 sm:gap-4 px-2 sm:px-4 items-center group cursor-pointer hover:bg-primary/5 transition-colors border-0 bg-transparent text-left rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+											class="w-full h-full grid grid-cols-[28px_40px_minmax(0,1fr)_52px] sm:grid-cols-[40px_48px_minmax(0,1fr)_80px] md:grid-cols-[40px_48px_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_80px] gap-2 sm:gap-4 px-2 sm:px-4 items-center group cursor-pointer hover:bg-primary/5 transition-colors border-b border-border/50 bg-transparent text-left rounded-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
 											onClick={() => handlePlaySong(virtualRow.index)}
 											onKeyDown={(e) => {
 												if (e.key === "Enter" || e.key === " ") {
@@ -185,7 +189,7 @@ function SongsPage() {
 											<CoverArt
 												id={song.coverArt}
 												size={80}
-												class="size-10 rounded-md shadow-[0_1px_3px_0_rgba(0,0,0,0.1),_0_1px_2px_-1px_rgba(0,0,0,0.1)]"
+												class="size-10 rounded-none border border-border"
 											/>
 											<div class="font-medium truncate">
 												<span
