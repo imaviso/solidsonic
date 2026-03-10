@@ -670,7 +670,7 @@ function DashboardPage() {
 	};
 
 	return (
-		<div class="flex h-full flex-col gap-4 overflow-y-auto">
+		<div class="flex h-full flex-col gap-3 overflow-y-auto">
 			<DashboardOverview />
 			<div class="grid gap-4 xl:grid-cols-[minmax(0,1.25fr)_minmax(0,0.9fr)]">
 				<NewArrivalsEditorial onAddToPlaylist={handleAddAlbumToPlaylist} />

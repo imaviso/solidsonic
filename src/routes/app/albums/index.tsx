@@ -280,7 +280,7 @@ function AlbumsPage() {
 
 			<div
 				ref={scrollContainerRef}
-				class="panel-surface flex-1 min-h-0 overflow-y-auto border border-border p-4"
+				class="panel-surface flex-1 min-h-0 overflow-y-auto border border-border p-3 md:p-4"
 			>
 				<Show
 					when={rows().length > 0}

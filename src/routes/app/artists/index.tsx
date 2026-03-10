@@ -77,7 +77,7 @@ function ArtistsPage() {
 
 			<div
 				ref={scrollContainerRef}
-				class="panel-surface min-h-0 flex-1 overflow-y-auto border border-border p-4"
+				class="panel-surface min-h-0 flex-1 overflow-y-auto border border-border p-3 md:p-4"
 				onScroll={() => {}} // Virtualizer handles scroll reading
 			>
 				<Show

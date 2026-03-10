@@ -53,12 +53,9 @@ function AppLayout() {
 								</span>
 							</div>
 
-							<div class="flex-1 overflow-hidden p-2 md:p-4">
-								<div class="panel-surface flex h-full flex-col overflow-hidden border border-border bg-main-content relative">
-									<div class="shell-divider hidden md:block px-6 py-3">
-										<div class="panel-heading">Library Surface</div>
-									</div>
-									<div class="flex min-h-0 flex-1 flex-col gap-3 overflow-hidden p-2 sm:p-6">
+							<div class="flex-1 overflow-hidden px-1 py-1 md:px-2 md:py-2">
+								<div class="flex h-full flex-col overflow-hidden bg-main-content">
+									<div class="flex min-h-0 flex-1 flex-col gap-3 overflow-hidden p-2 sm:p-4 md:p-5">
 										<Suspense
 											fallback={
 												<div class="flex-1 animate-pulse bg-muted/10 rounded-none" />
