@@ -1,16 +1,10 @@
-import {
-	IconClock,
-	IconEdit,
-	IconPlayerPlayFilled,
-	IconTrash,
-	IconX,
-} from "@tabler/icons-solidjs";
+import { IconClock, IconEdit, IconTrash, IconX } from "@tabler/icons-solidjs";
 import {
 	createMutation,
 	useQuery,
 	useQueryClient,
 } from "@tanstack/solid-query";
-import { createFileRoute, Link, useNavigate } from "@tanstack/solid-router";
+import { createFileRoute, useNavigate } from "@tanstack/solid-router";
 import { createSignal, For, Show } from "solid-js";
 import CoverArt from "~/components/CoverArt";
 import { PlaylistDialog } from "~/components/PlaylistDialog";
@@ -23,15 +17,7 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 } from "~/components/ui/alert-dialog";
-import { Button, buttonVariants } from "~/components/ui/button";
-import {
-	Table,
-	TableBody,
-	TableCell,
-	TableHead,
-	TableHeader,
-	TableRow,
-} from "~/components/ui/table";
+import { Button } from "~/components/ui/button";
 import { showToast } from "~/components/ui/toast";
 import {
 	Tooltip,
@@ -48,7 +34,6 @@ import {
 } from "~/lib/api";
 import { usePlayer } from "~/lib/player";
 import { queryKeys } from "~/lib/query";
-import { cn } from "~/lib/utils";
 
 export const Route = createFileRoute("/app/playlists/$id")({
 	loader: ({ context: { queryClient }, params }) =>
@@ -193,10 +178,14 @@ function PlaylistDetailPage() {
 	};
 
 	return (
-		<div class="flex flex-col gap-6 h-full overflow-y-auto">
+		<div class="flex h-full flex-col gap-4 overflow-y-auto">
 			<Show
 				when={!playlist.isLoading && playlist.data}
-				fallback={<div>Loading…</div>}
+				fallback={
+					<div class="state-panel">
+						<div class="state-copy">Loading playlist…</div>
+					</div>
+				}
 			>
 				<div class="panel-surface flex flex-col items-center gap-6 border border-border px-5 py-5 text-center md:flex-row md:items-end md:gap-8 md:px-6 md:text-left">
 					<div class="size-48 md:size-56 bg-muted rounded-none border border-border flex shrink-0 items-center justify-center overflow-hidden">
@@ -215,11 +204,11 @@ function PlaylistDetailPage() {
 							{Math.floor((playlist.data?.duration || 0) / 60)} mins
 						</p>
 					</div>
-					<div class="flex gap-2 w-full md:w-auto justify-center">
+					<div class="flex w-full justify-center gap-2 md:w-auto">
 						<Button
 							variant="outline"
 							size="icon"
-							class="size-11 md:size-10"
+							class="size-11 md:size-11"
 							onClick={() => setIsRenameDialogOpen(true)}
 						>
 							<IconEdit class="size-4" />
@@ -227,7 +216,7 @@ function PlaylistDetailPage() {
 						<Button
 							variant="destructive"
 							size="icon"
-							class="size-11 md:size-10"
+							class="size-11 md:size-11"
 							onClick={() => setIsDeleteDialogOpen(true)}
 						>
 							<IconTrash class="size-4" />
@@ -235,104 +224,85 @@ function PlaylistDetailPage() {
 					</div>
 				</div>
 
-				<div class="overflow-x-auto mt-6">
-					<Table>
-						<TableHeader>
-							<TableRow class="border-b-4 border-muted hover:bg-transparent">
-								<TableHead class="w-[50px] panel-heading text-muted-foreground">
-									#
-								</TableHead>
-								<TableHead class="w-[48px]"></TableHead>
-								<TableHead class="panel-heading text-muted-foreground">
-									Title
-								</TableHead>
-								<TableHead class="hidden md:table-cell panel-heading text-muted-foreground">
-									Artist
-								</TableHead>
-								<TableHead class="hidden md:table-cell panel-heading text-muted-foreground">
-									Album
-								</TableHead>
-								<TableHead class="text-right">
-									<IconClock class="size-4 ml-auto" />
-								</TableHead>
-								<TableHead class="w-[40px]"></TableHead>
-							</TableRow>
-						</TableHeader>
-						<TableBody>
-							<For each={playlist.data?.entry}>
-								{(song, i) => (
-									<TableRow
-										class="group cursor-pointer hover:bg-foreground hover:text-background transition-colors border-b-2 border-border/50"
+				<div class="panel-surface overflow-auto border border-border">
+					<div class="grid grid-cols-[minmax(0,1fr)_44px] items-center border-b border-border bg-background/95 px-2 py-3 text-xs font-medium tracking-[0.08em] text-muted-foreground backdrop-blur sticky top-0 z-10 sm:px-4">
+						<div class="grid grid-cols-[28px_40px_minmax(0,1fr)_52px] gap-2 sm:grid-cols-[40px_48px_minmax(0,1fr)_80px] sm:gap-4 md:grid-cols-[40px_48px_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_80px]">
+							<div>#</div>
+							<div></div>
+							<div>Title</div>
+							<div class="hidden md:block">Artist</div>
+							<div class="hidden md:block">Album</div>
+							<div class="text-right">
+								<IconClock class="ml-auto size-4" />
+							</div>
+						</div>
+						<div></div>
+					</div>
+
+					<Show
+						when={(playlist.data?.entry?.length ?? 0) > 0}
+						fallback={
+							<div class="state-panel">
+								<div class="state-copy">
+									This playlist is empty. Add songs to start playback from this
+									view.
+								</div>
+							</div>
+						}
+					>
+						<For each={playlist.data?.entry}>
+							{(song, i) => (
+								<div class="group grid grid-cols-[minmax(0,1fr)_44px] items-center border-b border-border/50 px-2 transition-colors hover:bg-primary/5 sm:px-4">
+									<button
+										type="button"
+										class="grid h-[60px] min-w-0 grid-cols-[28px_40px_minmax(0,1fr)_52px] items-center gap-2 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:grid-cols-[40px_48px_minmax(0,1fr)_80px] sm:gap-4 md:grid-cols-[40px_48px_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_80px]"
 										onClick={() => handlePlaySong(song, i())}
 									>
-										<TableCell class="font-bold text-muted-foreground group-hover:text-background flex-col justify-center">
-											<span class="group-hover:hidden text-xs">{i() + 1}</span>
-											<IconPlayerPlayFilled class="size-4 hidden group-hover:block" />
-										</TableCell>
-										<TableCell>
-											<CoverArt
-												id={song.coverArt}
-												size={80}
-												class="size-10 rounded-none border border-border/50 object-cover grayscale-[0.2] group-hover:grayscale-0 transition-all group-hover:border-background"
-											/>
-										</TableCell>
-										<TableCell class="text-lg font-semibold tracking-tight">
+										<div class="font-medium text-muted-foreground group-hover:text-foreground">
+											<span class="text-xs">{i() + 1}</span>
+										</div>
+										<CoverArt
+											id={song.coverArt}
+											size={80}
+											class="size-10 rounded-none border border-border object-cover"
+										/>
+										<div class="truncate font-medium">
 											<span
 												class={
-													currentTrack?.id === song.id
-														? "text-primary group-hover:text-background"
-														: ""
+													currentTrack?.id === song.id ? "text-primary" : ""
 												}
 											>
 												{song.title}
 											</span>
-										</TableCell>
-										<TableCell class="hidden md:table-cell text-muted-foreground group-hover:text-background/80">
-											<Show when={song.artistId} fallback={song.artist}>
-												<Link
-													to="/app/artists/$id"
-													params={{ id: song.artistId ?? "" }}
-													class="hover:text-background hover:underline"
-													onClick={(e) => e.stopPropagation()}
-												>
-													{song.artist}
-												</Link>
-											</Show>
-										</TableCell>
-										<TableCell class="hidden md:table-cell text-muted-foreground group-hover:text-background/80">
-											<Show when={song.albumId} fallback={song.album}>
-												<Link
-													to="/app/albums/$id"
-													params={{ id: song.albumId ?? "" }}
-													class="hover:text-background hover:underline"
-													onClick={(e) => e.stopPropagation()}
-												>
-													{song.album}
-												</Link>
-											</Show>
-										</TableCell>
-										<TableCell class="text-right font-mono font-bold text-xs text-muted-foreground group-hover:text-background/80">
+										</div>
+										<div class="hidden truncate text-muted-foreground md:block">
+											{song.artist}
+										</div>
+										<div class="hidden truncate text-muted-foreground md:block">
+											{song.album}
+										</div>
+										<div class="text-right font-mono text-xs text-muted-foreground">
 											{formatDuration(song.duration)}
-										</TableCell>
-										<TableCell>
-											<Tooltip>
-												<TooltipTrigger
-													class={cn(
-														buttonVariants({ variant: "ghost", size: "icon" }),
-														"size-11 md:size-8 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive",
-													)}
-													onClick={(e: MouseEvent) => handleRemoveSong(e, i())}
-												>
-													<IconX class="size-4" />
-												</TooltipTrigger>
-												<TooltipContent>Remove from playlist</TooltipContent>
-											</Tooltip>
-										</TableCell>
-									</TableRow>
-								)}
-							</For>
-						</TableBody>
-					</Table>
+										</div>
+									</button>
+									<div class="flex justify-end">
+										<Tooltip>
+											<TooltipTrigger
+												as={Button}
+												variant="ghost"
+												size="icon"
+												class="size-11 text-muted-foreground transition-opacity hover:text-destructive md:size-9 md:opacity-0 md:group-hover:opacity-100"
+												onClick={(e: MouseEvent) => handleRemoveSong(e, i())}
+											>
+												<IconX class="size-4" />
+											</TooltipTrigger>
+											<TooltipContent>Remove from playlist</TooltipContent>
+										</Tooltip>
+									</div>
+								</div>
+							)}
+						</For>
+					</Show>
 				</div>
 
 				<PlaylistDialog

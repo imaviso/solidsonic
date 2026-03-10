@@ -36,18 +36,22 @@ function ArtistDetailPage() {
 		if (!shouldTruncate() || isBioExpanded()) {
 			return biography();
 		}
-		return `${biography().slice(0, MAX_BIO_LENGTH).trim()}...`;
+		return `${biography().slice(0, MAX_BIO_LENGTH).trim()}…`;
 	};
 
 	return (
-		<div class="flex flex-col gap-6 h-full overflow-y-auto">
+		<div class="flex h-full flex-col gap-4 overflow-y-auto">
 			<Show
 				when={!artist.isLoading && artist.data}
-				fallback={<div>Loading…</div>}
+				fallback={
+					<div class="state-panel">
+						<div class="state-copy">Loading artist…</div>
+					</div>
+				}
 			>
 				{/* Header with artist info */}
-				<div class="flex flex-col items-center gap-6 pb-8 border-b-[6px] border-foreground text-center sm:flex-row sm:items-end sm:text-left sm:gap-10">
-					<div class="size-48 sm:size-56 bg-muted rounded-none border border-border flex items-center justify-center overflow-hidden">
+				<div class="panel-surface flex flex-col items-center gap-6 border border-border px-5 py-5 text-center sm:flex-row sm:items-end sm:gap-8 sm:px-6 sm:text-left">
+					<div class="flex size-48 items-center justify-center overflow-hidden border border-border bg-muted sm:size-56">
 						<Show
 							when={artistInfo.data?.info.largeImageUrl}
 							fallback={
@@ -60,6 +64,8 @@ function ArtistDetailPage() {
 							<img
 								src={artistInfo.data?.info.largeImageUrl}
 								alt={artist.data?.artist.name}
+								width={224}
+								height={224}
 								class="size-full object-cover grayscale-[0.2]"
 							/>
 						</Show>
@@ -77,14 +83,17 @@ function ArtistDetailPage() {
 
 				{/* Biography */}
 				<Show when={biography()}>
-					<div class="space-y-2">
-						<h2 class="section-title">About</h2>
-						<p class="text-muted-foreground leading-relaxed">{displayBio()}</p>
+					<div class="panel-surface border border-border px-5 py-5 sm:px-6">
+						<div class="panel-heading mb-3">About</div>
+						<h2 class="section-title">Biography</h2>
+						<p class="mt-3 max-w-3xl text-wrap text-muted-foreground leading-relaxed">
+							{displayBio()}
+						</p>
 						<Show when={shouldTruncate()}>
 							<Button
 								variant="link"
 								size="sm"
-								class="p-0 h-auto text-primary"
+								class="mt-3 h-auto p-0 text-primary"
 								onClick={() => setIsBioExpanded(!isBioExpanded())}
 							>
 								{isBioExpanded() ? "Show Less" : "More Info"}
@@ -95,18 +104,19 @@ function ArtistDetailPage() {
 
 				{/* Similar Artists */}
 				<Show when={artistInfo.data?.similarArtists.length}>
-					<div class="space-y-4">
+					<div class="panel-surface border border-border px-5 py-5 sm:px-6">
+						<div class="panel-heading mb-3">Related</div>
 						<h2 class="section-title">Similar Artists</h2>
-						<div class="flex gap-4 overflow-x-auto pb-2">
+						<div class="mt-4 flex gap-4 overflow-x-auto pb-2">
 							<For each={artistInfo.data?.similarArtists}>
 								{(similarArtist) => (
 									<Link
 										to="/app/artists/$id"
 										params={{ id: similarArtist.id }}
-										class="flex-shrink-0 group"
+										class="group block w-28 shrink-0 border border-transparent bg-background transition-[border-color,transform] hover:-translate-y-1 hover:border-foreground"
 									>
-										<div class="w-24 text-center">
-											<div class="size-24 bg-muted rounded-none border border-border shadow-sm flex items-center justify-center overflow-hidden mb-2">
+										<div class="text-center">
+											<div class="mb-0 flex size-28 items-center justify-center overflow-hidden border-b border-border bg-muted">
 												<Show
 													when={similarArtist.largeImageUrl}
 													fallback={
@@ -119,13 +129,18 @@ function ArtistDetailPage() {
 													<img
 														src={similarArtist.largeImageUrl}
 														alt={similarArtist.name}
+														width={112}
+														height={112}
 														class="size-full object-cover"
 													/>
 												</Show>
 											</div>
-											<p class="text-sm font-medium truncate group-hover:underline">
-												{similarArtist.name}
-											</p>
+											<div class="px-3 py-3">
+												<div class="panel-heading mb-2">Artist</div>
+												<p class="line-clamp-2 text-sm font-semibold group-hover:text-primary">
+													{similarArtist.name}
+												</p>
+											</div>
 										</div>
 									</Link>
 								)}
@@ -135,29 +150,31 @@ function ArtistDetailPage() {
 				</Show>
 
 				{/* Albums */}
-				<div class="mt-8">
-					<h2 class="section-title mb-6">Albums</h2>
-					<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6 lg:gap-8">
+				<div class="panel-surface border border-border px-5 py-5 sm:px-6">
+					<div class="panel-heading mb-3">Discography</div>
+					<h2 class="section-title">Albums</h2>
+					<div class="mt-4 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
 						<For each={artist.data?.albums}>
 							{(album) => (
 								<Link
 									to="/app/albums/$id"
 									params={{ id: album.id }}
-									class="block group border-2 border-transparent hover:border-foreground transition-colors"
+									class="block group h-full border border-transparent bg-background transition-[border-color,transform] hover:-translate-y-1 hover:border-foreground"
 								>
-									<div class="block">
-										<div class="aspect-square w-full relative overflow-hidden rounded-none bg-muted/30">
+									<div class="flex h-full flex-col">
+										<div class="relative aspect-square w-full overflow-hidden border-b border-border bg-muted/30">
 											<CoverArt
 												id={album.coverArt}
 												class="h-full w-full object-cover grayscale-[0.2] group-hover:grayscale-0 transition-all"
 											/>
 										</div>
-										<div class="pt-3 pb-2 px-1 border-t-2 border-transparent group-hover:border-foreground transition-colors">
-											<h3 class="truncate text-lg font-semibold tracking-tight group-hover:text-foreground transition-colors">
+										<div class="flex flex-1 flex-col justify-between px-3 py-3">
+											<div class="panel-heading mb-2">Album</div>
+											<h3 class="line-clamp-2 text-base font-semibold tracking-tight transition-colors group-hover:text-foreground">
 												{album.name}
 											</h3>
-											<p class="truncate text-sm text-muted-foreground opacity-80">
-												{album.year}
+											<p class="mt-1 truncate text-sm text-muted-foreground">
+												{album.year || "Unknown Year"}
 											</p>
 										</div>
 									</div>

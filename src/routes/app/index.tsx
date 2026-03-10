@@ -11,7 +11,7 @@ import {
 } from "@tabler/icons-solidjs";
 import { useQuery } from "@tanstack/solid-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/solid-router";
-import { For, Show } from "solid-js";
+import { createMemo, For, Show } from "solid-js";
 import { createStore } from "solid-js/store";
 import { AddToPlaylistDialog } from "~/components/AddToPlaylistDialog";
 import CoverArt from "~/components/CoverArt";
@@ -30,6 +30,7 @@ import {
 	ContextMenuTrigger,
 } from "~/components/ui/context-menu";
 import {
+	type Album,
 	type AlbumListType,
 	albumListQueryOptions,
 	genreListQueryOptions,
@@ -112,9 +113,12 @@ function NewArrivalsEditorial(props: {
 	const albums = useQuery(() => albumListQueryOptions("newest", 5));
 	const player = usePlayer();
 	const navigate = useNavigate();
+	const featuredAlbum = createMemo(() => albums.data?.[0]);
+	const secondaryAlbum = createMemo(() => albums.data?.[1]);
+	const tertiaryAlbum = createMemo(() => albums.data?.[2]);
 
 	const AlbumCard = (p: {
-		album: any;
+		album: Album;
 		class?: string;
 		featured?: boolean;
 		hideArtist?: boolean;
@@ -236,17 +240,19 @@ function NewArrivalsEditorial(props: {
 				<Show when={albums.data && albums.data.length > 0}>
 					<div class="grid flex-1 grid-cols-1 gap-4 p-4 md:grid-cols-12 md:gap-5 sm:p-6">
 						<div class="md:col-span-7 xl:col-span-8">
-							<Show when={albums.data?.[0]}>
-								<AlbumCard album={albums.data![0]} featured class="h-full" />
+							<Show when={featuredAlbum()}>
+								{(album) => (
+									<AlbumCard album={album()} featured class="h-full" />
+								)}
 							</Show>
 						</div>
 
 						<div class="grid content-start grid-cols-2 gap-4 md:col-span-5 md:grid-cols-1 xl:col-span-4">
-							<Show when={albums.data?.[1]}>
-								<AlbumCard album={albums.data![1]} />
+							<Show when={secondaryAlbum()}>
+								{(album) => <AlbumCard album={album()} />}
 							</Show>
-							<Show when={albums.data?.[2]}>
-								<AlbumCard album={albums.data![2]} />
+							<Show when={tertiaryAlbum()}>
+								{(album) => <AlbumCard album={album()} />}
 							</Show>
 						</div>
 					</div>
