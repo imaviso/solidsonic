@@ -18,8 +18,8 @@ export const Route = createFileRoute("/app/artists/")({
 	component: ArtistsPage,
 });
 
-const ITEM_HEIGHT = 252;
-const TEXT_HEIGHT = 84;
+const ITEM_HEIGHT = 292;
+const TEXT_HEIGHT = 112;
 
 function ArtistsPage() {
 	let scrollContainerRef!: HTMLDivElement;
@@ -70,7 +70,9 @@ function ArtistsPage() {
 			</div>
 
 			<Show when={artists.isLoading}>
-				<div class="py-10 text-center">Loading...</div>
+				<div class="state-panel">
+					<div class="state-copy">Loading artists…</div>
+				</div>
 			</Show>
 
 			<div
@@ -78,7 +80,16 @@ function ArtistsPage() {
 				class="panel-surface min-h-0 flex-1 overflow-y-auto border border-border p-4"
 				onScroll={() => {}} // Virtualizer handles scroll reading
 			>
-				<Show when={!artists.isLoading && allArtists().length > 0}>
+				<Show
+					when={!artists.isLoading && allArtists().length > 0}
+					fallback={
+						<Show when={!artists.isLoading}>
+							<div class="state-panel">
+								<div class="state-copy">No artists found in this library.</div>
+							</div>
+						</Show>
+					}
+				>
 					<div
 						style={{
 							height: `${virtualizer.getTotalSize()}px`,
@@ -114,24 +125,24 @@ function ArtistsPage() {
 													<Link
 														to="/app/artists/$id"
 														params={{ id: artist.id }}
-														class="block group"
+														class="block group h-full border border-transparent bg-background transition-[border-color,transform] hover:-translate-y-1 hover:border-foreground"
 													>
-														<div class="flex flex-col items-center text-center">
-															<div class="mx-auto aspect-square w-full max-w-[160px]">
+														<div class="flex h-full flex-col text-center">
+															<div class="mx-auto aspect-square w-full max-w-[160px] overflow-hidden border-b border-border bg-muted/30">
 																<CoverArt
 																	id={artist.coverArt}
-																	class="h-full w-full object-cover rounded-none border border-border bg-muted/30 transition-all hover:-translate-y-1"
+																	class="h-full w-full object-cover rounded-none transition-transform duration-200 group-hover:scale-[1.02]"
 																/>
 															</div>
 															<div
-																class="w-full pt-3"
+																class="flex w-full flex-1 flex-col justify-between px-3 py-3"
 																style={{ height: `${TEXT_HEIGHT}px` }}
 															>
-																<div class="panel-heading mb-1">Artist</div>
-																<h3 class="line-clamp-2 text-sm font-medium leading-snug group-hover:underline">
+																<div class="panel-heading mb-2">Artist</div>
+																<h3 class="line-clamp-2 text-base font-semibold leading-snug transition-colors group-hover:text-primary">
 																	{artist.name}
 																</h3>
-																<p class="mt-1 text-xs text-muted-foreground truncate">
+																<p class="mt-2 text-sm text-muted-foreground truncate">
 																	{artist.albumCount} albums
 																</p>
 															</div>

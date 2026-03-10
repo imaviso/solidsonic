@@ -69,7 +69,7 @@ function AlbumDetailPage() {
 		<div class="flex flex-col gap-4 h-full overflow-y-auto">
 			<Show
 				when={!album.isLoading && album.data}
-				fallback={<div>Loading...</div>}
+				fallback={<div>Loading…</div>}
 			>
 				<ContextMenu>
 					<ContextMenuTrigger>
@@ -125,7 +125,7 @@ function AlbumDetailPage() {
 							}}
 						>
 							<IconPlaylistAdd class="mr-2 size-4" />
-							Add to Playlist...
+							Add to Playlist…
 						</ContextMenuItem>
 						<ContextMenuSeparator />
 						<ContextMenuItem
@@ -239,7 +239,7 @@ function AlbumDetailPage() {
 										}}
 									>
 										<IconPlaylistAdd class="mr-2 size-4" />
-										Add to Playlist...
+										Add to Playlist…
 									</ContextMenuItem>
 									<ContextMenuSeparator />
 									<ContextMenuItem

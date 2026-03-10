@@ -4,12 +4,12 @@ import { Button } from "~/components/ui/button";
 
 export function NotFound() {
 	return (
-		<div class="h-screen w-screen fixed inset-0 z-50 flex flex-col items-center justify-center overflow-hidden bg-background">
+		<div class="fixed inset-0 z-50 flex h-screen w-screen flex-col items-center justify-center overflow-hidden bg-background">
 			{/* Background Ambience */}
 			<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/5 rounded-none blur-3xl pointer-events-none" />
 
 			{/* Content */}
-			<div class="relative z-10 flex flex-col items-center text-center space-y-8 px-4 animate-in fade-in zoom-in duration-500">
+			<div class="panel-surface relative z-10 flex max-w-xl flex-col items-center space-y-6 border border-border px-6 py-8 text-center animate-in fade-in zoom-in duration-500 sm:px-8">
 				{/* Icon/Visual */}
 				<div class="relative">
 					<div class="absolute inset-0 bg-primary/20 blur-xl rounded-none" />
@@ -20,14 +20,15 @@ export function NotFound() {
 				</div>
 
 				{/* Typography */}
-				<div class="space-y-2">
+				<div class="space-y-3">
+					<div class="panel-heading">Missing Route</div>
 					<h1 class="text-3xl font-thin tracking-tight text-foreground select-none sm:text-4xl">
 						404
 					</h1>
 					<h2 class="text-xl font-medium tracking-wide text-foreground/80">
 						Page not found
 					</h2>
-					<p class="text-sm text-muted-foreground max-w-[400px] mx-auto leading-relaxed">
+					<p class="state-copy">
 						The page you are looking for does not exist or has been moved.
 						Please check the URL or navigate back home.
 					</p>

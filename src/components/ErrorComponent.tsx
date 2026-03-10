@@ -11,12 +11,12 @@ export function ErrorComponent(props: ErrorComponentProps) {
 	const router = useRouter();
 
 	return (
-		<div class="h-full w-full flex flex-col items-center justify-center relative overflow-hidden bg-background min-h-[400px]">
+		<div class="relative flex min-h-[400px] h-full w-full flex-col items-center justify-center overflow-hidden bg-background">
 			{/* Background Ambience */}
 			<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-destructive/5 rounded-none blur-3xl pointer-events-none" />
 
 			{/* Content */}
-			<div class="relative z-10 flex flex-col items-center text-center space-y-8 px-4 animate-in fade-in zoom-in duration-500">
+			<div class="panel-surface relative z-10 flex max-w-2xl flex-col items-center space-y-6 border border-border px-6 py-8 text-center animate-in fade-in zoom-in duration-500 sm:px-8">
 				{/* Icon/Visual */}
 				<div class="relative">
 					<div class="absolute inset-0 bg-destructive/10 blur-xl rounded-none" />
@@ -27,12 +27,17 @@ export function ErrorComponent(props: ErrorComponentProps) {
 				</div>
 
 				{/* Typography */}
-				<div class="space-y-2">
+				<div class="space-y-3">
+					<div class="panel-heading">System Error</div>
 					<h1 class="text-3xl font-thin tracking-tight text-foreground select-none">
 						Something went wrong
 					</h1>
-					<p class="text-sm text-muted-foreground max-w-[500px] mx-auto leading-relaxed font-mono bg-destructive/10 p-4 rounded-none border-none break-all">
+					<p class="mx-auto max-w-[500px] border border-destructive/20 bg-destructive/10 p-4 text-sm leading-relaxed text-muted-foreground break-all">
 						{props.error.message}
+					</p>
+					<p class="state-copy">
+						Try the request again. If the problem keeps happening, reload the
+						page or return to the previous view.
 					</p>
 				</div>
 

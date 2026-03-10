@@ -47,7 +47,7 @@ import { usePlayer } from "~/lib/player";
 import { queryKeys } from "~/lib/query";
 
 const GAP = 16;
-const TEXT_HEIGHT = 52;
+const TEXT_HEIGHT = 112;
 const ALBUM_PAGE_SIZE = 50;
 const ALBUM_SERVER_FILTERS = [
 	"random",
@@ -235,9 +235,7 @@ function AlbumsPage() {
 						</p>
 					</div>
 					<div class="w-full sm:w-[220px]">
-						<div class="font-mono text-xs tracking-widest text-muted-foreground uppercase mb-2 block">
-							Album View
-						</div>
+						<div class="panel-heading mb-2 block">Album View</div>
 						<Select
 							value={albumListType()}
 							onChange={(value) => {
@@ -275,7 +273,7 @@ function AlbumsPage() {
 						</Select>
 					</div>
 				</div>
-				<p class="mt-4 text-xs text-muted-foreground">
+				<p class="mt-2 text-sm text-muted-foreground">
 					Showing {allAlbums().length} loaded albums
 				</p>
 			</div>
@@ -288,8 +286,8 @@ function AlbumsPage() {
 					when={rows().length > 0}
 					fallback={
 						<Show when={!albums.isLoading}>
-							<div class="py-10 text-center text-muted-foreground">
-								No albums found for this view.
+							<div class="state-panel">
+								<div class="state-copy">No albums found for this view.</div>
 							</div>
 						</Show>
 					}
@@ -329,20 +327,21 @@ function AlbumsPage() {
 														<Link
 															to="/app/albums/$id"
 															params={{ id: album.id }}
-															class="block group h-full border border-transparent bg-background hover:border-foreground transition-colors"
+															class="block group h-full border border-transparent bg-background transition-[border-color,transform] hover:-translate-y-1 hover:border-foreground"
 														>
-															<div class="flex flex-col">
+															<div class="flex h-full flex-col">
 																<div class="aspect-square w-full relative overflow-hidden rounded-none border-b border-border bg-muted/30">
 																	<CoverArt
 																		id={album.coverArt}
 																		class="h-full w-full object-cover grayscale-[0.2] group-hover:grayscale-0 transition-all"
 																	/>
 																</div>
-																<div class="pt-3 pb-2 px-1 border-t-2 border-transparent group-hover:border-foreground transition-colors">
-																	<h3 class="truncate text-lg font-semibold tracking-tight group-hover:text-foreground transition-colors">
+																<div class="flex flex-1 flex-col justify-between px-3 py-3">
+																	<div class="panel-heading mb-2">Album</div>
+																	<h3 class="line-clamp-2 text-base font-semibold tracking-tight transition-colors group-hover:text-foreground">
 																		{album.name}
 																	</h3>
-																	<p class="truncate text-sm text-muted-foreground opacity-80">
+																	<p class="mt-1 truncate text-sm text-muted-foreground">
 																		{album.artist}
 																	</p>
 																</div>
@@ -396,7 +395,7 @@ function AlbumsPage() {
 															}}
 														>
 															<IconPlaylistAdd class="mr-2 size-4" />
-															Add to Playlist...
+															Add to Playlist…
 														</ContextMenuItem>
 														<ContextMenuSeparator />
 														<ContextMenuItem
@@ -443,12 +442,14 @@ function AlbumsPage() {
 				</Show>
 
 				<Show when={albums.isLoading}>
-					<div class="py-10 text-center">Loading...</div>
+					<div class="state-panel">
+						<div class="state-copy">Loading albums…</div>
+					</div>
 				</Show>
 
 				<Show when={albums.isFetchingNextPage}>
 					<div class="py-4 text-center text-muted-foreground text-sm">
-						Loading more...
+						Loading more…
 					</div>
 				</Show>
 			</div>

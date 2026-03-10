@@ -173,7 +173,7 @@ export function SearchCommand(props: SearchCommandProps = {}) {
 				<div class="min-w-0 flex-1">
 					<div class="panel-heading mb-1">Command Search</div>
 					<span class="block truncate text-sm text-foreground/90 transition-colors group-hover:text-foreground">
-						Search library...
+						Search library…
 					</span>
 				</div>
 				<Show when={props.showShortcut !== false}>
@@ -185,7 +185,7 @@ export function SearchCommand(props: SearchCommandProps = {}) {
 
 			<CommandDialog open={open()} onOpenChange={setOpen} shouldFilter={false}>
 				<CommandInput
-					placeholder="Search for songs, albums, artists..."
+					placeholder="Search for songs, albums, artists…"
 					value={query()}
 					onValueChange={setQuery}
 				/>

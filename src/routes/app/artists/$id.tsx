@@ -43,7 +43,7 @@ function ArtistDetailPage() {
 		<div class="flex flex-col gap-6 h-full overflow-y-auto">
 			<Show
 				when={!artist.isLoading && artist.data}
-				fallback={<div>Loading...</div>}
+				fallback={<div>Loading…</div>}
 			>
 				{/* Header with artist info */}
 				<div class="flex flex-col items-center gap-6 pb-8 border-b-[6px] border-foreground text-center sm:flex-row sm:items-end sm:text-left sm:gap-10">

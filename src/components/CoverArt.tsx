@@ -59,6 +59,8 @@ const CoverArt: Component<CoverArtProps> = (props) => {
 				<img
 					src={url()}
 					alt=""
+					width={props.size ?? 512}
+					height={props.size ?? 512}
 					class={cn(
 						"h-full w-full object-cover transition-opacity duration-300",
 						isLoaded() ? "opacity-100" : "opacity-0",

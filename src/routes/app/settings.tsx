@@ -50,8 +50,8 @@ function SettingsPage() {
 							Customize how the application looks
 						</CardDescription>
 					</CardHeader>
-					<CardContent class="space-y-6">
-						<div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+					<CardContent class="space-y-0">
+						<div class="flex flex-col gap-4 py-1 sm:flex-row sm:items-center sm:justify-between">
 							<div class="space-y-0.5">
 								<Label>Theme</Label>
 								<p class="text-sm text-muted-foreground">
@@ -64,7 +64,7 @@ function SettingsPage() {
 									value && setTheme(value as "light" | "dark" | "system")
 								}
 								options={["light", "dark", "system"]}
-								placeholder="Select theme"
+								placeholder="Select theme…"
 								itemComponent={(props) => (
 									<SelectItem item={props.item}>
 										{props.item.rawValue.charAt(0).toUpperCase() +
@@ -72,7 +72,7 @@ function SettingsPage() {
 									</SelectItem>
 								)}
 							>
-								<SelectTrigger class="h-11 sm:h-10 w-full sm:w-[180px]">
+								<SelectTrigger class="h-11 w-full sm:w-[220px]">
 									<SelectValue<string>>
 										{(state) => {
 											const val = state.selectedOption();
@@ -86,7 +86,9 @@ function SettingsPage() {
 							</Select>
 						</div>
 
-						<div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+						<div class="my-6 h-px bg-border" />
+
+						<div class="flex flex-col gap-4 py-1 sm:flex-row sm:items-center sm:justify-between">
 							<div class="space-y-0.5">
 								<Label>Dynamic Colors</Label>
 								<p class="text-sm text-muted-foreground">
@@ -112,8 +114,8 @@ function SettingsPage() {
 						<CardTitle>Audio Playback</CardTitle>
 						<CardDescription>Configure how music is played</CardDescription>
 					</CardHeader>
-					<CardContent class="space-y-6">
-						<div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+					<CardContent class="space-y-0">
+						<div class="flex flex-col gap-4 py-1 sm:flex-row sm:items-center sm:justify-between">
 							<div class="space-y-0.5">
 								<Label>Max Bitrate</Label>
 								<p class="text-sm text-muted-foreground">
@@ -124,7 +126,7 @@ function SettingsPage() {
 								value={settings.maxBitRate}
 								onChange={(value) => setMaxBitRate(value as number)}
 								options={[0, 320, 256, 192, 128]}
-								placeholder="Select bitrate"
+								placeholder="Select bitrate…"
 								itemComponent={(props) => (
 									<SelectItem item={props.item}>
 										{props.item.rawValue === 0
@@ -133,7 +135,7 @@ function SettingsPage() {
 									</SelectItem>
 								)}
 							>
-								<SelectTrigger class="h-11 sm:h-10 w-full sm:w-[180px]">
+								<SelectTrigger class="h-11 w-full sm:w-[220px]">
 									<SelectValue<number>>
 										{(state) =>
 											state.selectedOption() === 0
@@ -146,7 +148,9 @@ function SettingsPage() {
 							</Select>
 						</div>
 
-						<div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+						<div class="my-6 h-px bg-border" />
+
+						<div class="flex flex-col gap-4 py-1 sm:flex-row sm:items-center sm:justify-between">
 							<div class="space-y-0.5">
 								<Label>Scrobbling</Label>
 								<p class="text-sm text-muted-foreground">

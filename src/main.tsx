@@ -28,7 +28,7 @@ const router = createRouter({
 	defaultPreload: "intent",
 	scrollRestoration: true,
 	defaultStructuralSharing: true,
-	defaultViewTransition: false,
+	defaultViewTransition: true,
 	defaultPreloadStaleTime: 0,
 	context: {
 		queryClient,

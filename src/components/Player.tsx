@@ -11,7 +11,6 @@ import {
 	IconVolume2,
 	IconVolume3,
 } from "@tabler/icons-solidjs";
-import { Link } from "@tanstack/solid-router";
 import {
 	type Component,
 	createEffect,
@@ -132,63 +131,44 @@ const Player: Component = () => {
 			<div class="shell-divider border-t border-border bg-background px-2 py-2 md:px-4 md:py-3">
 				<div class="panel-surface grid min-h-[92px] gap-3 border border-border bg-background/90 p-3 md:grid-cols-[minmax(0,1.1fr)_minmax(320px,1fr)_minmax(220px,0.72fr)] md:items-center md:px-4">
 					{/* Track Info */}
-					{/* biome-ignore lint/a11y: content contains interactive elements (links) */}
-					<div
-						role="button"
-						tabIndex={0}
-						class="group flex min-w-0 items-center gap-3 border-b border-border/60 pb-3 text-left focus:outline-none md:border-b-0 md:border-r md:pb-0 md:pr-4"
-						onClick={() => setIsFullScreen(true)}
-						onKeyDown={(e) => {
-							if (e.key === "Enter" || e.key === " ") {
-								setIsFullScreen(true);
-							}
-						}}
-					>
-						<div class="relative shrink-0">
-							<div class="flex aspect-square size-12 items-center justify-center overflow-hidden border border-border bg-muted transition-transform group-hover:scale-[1.03] md:size-14">
-								<Show
-									when={!!player.currentTrack}
-									fallback={
-										<IconMusic class="size-5 text-muted-foreground md:size-6" />
-									}
-								>
-									<CoverArt
-										id={player.currentTrack?.coverArt}
-										class="h-full w-full"
-									/>
-								</Show>
-							</div>
-						</div>
-						<div class="min-w-0 flex-1">
-							<p class="panel-heading mb-1 text-muted-foreground/70">
-								Now Playing
-							</p>
-							<p class="truncate text-sm font-semibold text-foreground group-hover:underline md:text-base">
-								{player.currentTrack?.title ?? "Not Playing"}
-							</p>
-							<p class="truncate text-sm text-muted-foreground">
-								<Show
-									when={player.currentTrack?.artistId}
-									fallback={
-										player.currentTrack?.artist ??
-										"Select a song to start playback"
-									}
-								>
-									<Link
-										to="/app/artists/$id"
-										params={{ id: player.currentTrack?.artistId ?? "" }}
-										class="relative z-10 hover:text-foreground hover:underline"
-										onClick={(e) => e.stopPropagation()}
+					<div class="group flex min-w-0 items-center gap-3 border-b border-border/60 pb-3 text-left md:border-b-0 md:border-r md:pb-0 md:pr-4">
+						<button
+							type="button"
+							class="flex min-w-0 flex-1 items-center gap-3 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+							onClick={() => setIsFullScreen(true)}
+						>
+							<div class="relative shrink-0">
+								<div class="flex aspect-square size-12 items-center justify-center overflow-hidden border border-border bg-muted transition-transform group-hover:scale-[1.03] md:size-14">
+									<Show
+										when={!!player.currentTrack}
+										fallback={
+											<IconMusic class="size-5 text-muted-foreground md:size-6" />
+										}
 									>
-										{player.currentTrack?.artist}
-									</Link>
-								</Show>
-								<Show when={player.currentTrack?.album}>
-									<span class="mx-1 text-muted-foreground/55">-</span>
-									<span class="truncate">{player.currentTrack?.album}</span>
-								</Show>
-							</p>
-						</div>
+										<CoverArt
+											id={player.currentTrack?.coverArt}
+											class="h-full w-full"
+										/>
+									</Show>
+								</div>
+							</div>
+							<div class="min-w-0 flex-1">
+								<p class="panel-heading mb-1 text-muted-foreground/80">
+									Now Playing
+								</p>
+								<p class="truncate text-sm font-semibold text-foreground group-hover:underline md:text-base">
+									{player.currentTrack?.title ?? "Not Playing"}
+								</p>
+								<p class="truncate text-sm text-muted-foreground">
+									{player.currentTrack?.artist ??
+										"Select a song to start playback"}
+									<Show when={player.currentTrack?.album}>
+										<span class="mx-1 text-muted-foreground/70">-</span>
+										<span class="truncate">{player.currentTrack?.album}</span>
+									</Show>
+								</p>
+							</div>
+						</button>
 						<Button
 							variant="ghost"
 							size="icon"
@@ -215,7 +195,7 @@ const Player: Component = () => {
 								variant="ghost"
 								size="icon"
 								class={cn(
-									"size-10",
+									"size-11",
 									player.shuffle &&
 										"border border-border bg-accent text-primary",
 								)}
@@ -227,7 +207,7 @@ const Player: Component = () => {
 							<Button
 								variant="ghost"
 								size="icon"
-								class="size-10"
+								class="size-11"
 								aria-label="Previous Track"
 								onClick={player.playPrevious}
 							>
@@ -250,7 +230,7 @@ const Player: Component = () => {
 							<Button
 								variant="ghost"
 								size="icon"
-								class="size-10"
+								class="size-11"
 								aria-label="Next Track"
 								onClick={player.playNext}
 							>
@@ -260,7 +240,7 @@ const Player: Component = () => {
 								variant="ghost"
 								size="icon"
 								class={cn(
-									"size-10",
+									"size-11",
 									player.repeat !== "off" &&
 										"border border-border bg-accent text-primary",
 								)}
@@ -308,12 +288,12 @@ const Player: Component = () => {
 							handleVolumeScroll(e, player.volume, player.setVolume);
 						}}
 					>
-						<div class="panel-heading text-muted-foreground/70">Output</div>
+						<div class="panel-heading text-muted-foreground/80">Output</div>
 						<div class="flex items-center gap-3">
 							<Button
 								variant="ghost"
 								size="icon"
-								class="size-10 border border-border"
+								class="size-11 border border-border"
 								aria-label={player.volume === 0 ? "Unmute" : "Mute"}
 								onClick={() => player.setVolume(player.volume === 0 ? 1 : 0)}
 							>
@@ -348,7 +328,7 @@ const Player: Component = () => {
 						</div>
 						<div class="flex items-center justify-between text-xs text-muted-foreground">
 							<span>{Math.round(volumeValue() * 100)}% volume</span>
-							<span class="mono-meta text-muted-foreground/70">
+							<span class="mono-meta text-muted-foreground/80">
 								Space play/pause
 							</span>
 						</div>

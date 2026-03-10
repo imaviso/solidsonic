@@ -20,7 +20,7 @@ function PlaylistsPage() {
 	const playlists = useQuery(() => playlistListQueryOptions());
 
 	return (
-		<div class="flex flex-col gap-6 h-full overflow-y-auto">
+		<div class="flex flex-col gap-4 h-full overflow-y-auto">
 			<div class="panel-surface flex flex-col gap-4 border border-border px-5 py-5 sm:flex-row sm:items-end sm:justify-between sm:px-6">
 				<div>
 					<div class="panel-heading mb-3">Collections</div>
@@ -50,32 +50,47 @@ function PlaylistsPage() {
 			<div class="grid grid-cols-1 gap-px border border-border bg-border sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
 				<Show
 					when={!playlists.isLoading}
-					fallback={<div class="col-span-full text-center">Loading...</div>}
+					fallback={
+						<div class="state-panel col-span-full">
+							<div class="state-copy">Loading playlists…</div>
+						</div>
+					}
 				>
-					<For each={playlists.data}>
-						{(playlist) => (
-							<Link
-								to="/app/playlists/$id"
-								params={{ id: playlist.id }}
-								class="block group"
-							>
-								<div class="metric-panel flex h-full aspect-square flex-col items-center justify-center gap-4 border border-transparent bg-background p-4 text-center transition-all group-hover:bg-accent/40 sm:p-6">
-									<div class="flex size-16 items-center justify-center border border-border bg-main-content text-primary transition-transform group-hover:-translate-y-1">
-										<IconPlaylist class="size-8" />
-									</div>
-									<div class="w-full">
-										<div class="panel-heading mb-2">Playlist</div>
-										<h3 class="mx-auto w-full max-w-[150px] truncate text-base font-bold transition-colors group-hover:text-primary">
-											{playlist.name}
-										</h3>
-										<p class="text-sm font-medium text-muted-foreground opacity-80">
-											{playlist.songCount} songs
-										</p>
-									</div>
+					<Show
+						when={(playlists.data?.length ?? 0) > 0}
+						fallback={
+							<div class="state-panel col-span-full">
+								<div class="state-copy">
+									No playlists yet. Create one to save queue-ready collections.
 								</div>
-							</Link>
-						)}
-					</For>
+							</div>
+						}
+					>
+						<For each={playlists.data}>
+							{(playlist) => (
+								<Link
+									to="/app/playlists/$id"
+									params={{ id: playlist.id }}
+									class="block group"
+								>
+									<div class="metric-panel flex h-full aspect-square flex-col items-center justify-center gap-4 border border-transparent bg-background p-4 text-center transition-[background-color,transform,border-color] group-hover:-translate-y-1 group-hover:border-foreground/40 group-hover:bg-accent/30 sm:p-6">
+										<div class="flex size-16 items-center justify-center border border-border bg-main-content text-primary transition-transform group-hover:-translate-y-1">
+											<IconPlaylist class="size-8" />
+										</div>
+										<div class="w-full">
+											<div class="panel-heading mb-2">Playlist</div>
+											<h3 class="mx-auto w-full max-w-[150px] line-clamp-2 text-base font-semibold transition-colors group-hover:text-primary">
+												{playlist.name}
+											</h3>
+											<p class="mt-1 text-sm text-muted-foreground">
+												{playlist.songCount} songs
+											</p>
+										</div>
+									</div>
+								</Link>
+							)}
+						</For>
+					</Show>
 				</Show>
 			</div>
 		</div>

@@ -103,11 +103,11 @@ function GenreDetailPage() {
 					<h1 class="page-title break-words">{params().genre}</h1>
 				</div>
 				<Show when={songs.isFetching && !songs.isLoading}>
-					<span class="text-xs text-muted-foreground">Refreshing...</span>
+					<span class="text-xs text-muted-foreground">Refreshing…</span>
 				</Show>
 			</div>
 
-			<Show when={!songs.isLoading} fallback={<div>Loading...</div>}>
+			<Show when={!songs.isLoading} fallback={<div>Loading…</div>}>
 				<div class="panel-surface overflow-auto border border-border">
 					<div class="grid grid-cols-[28px_40px_minmax(0,1fr)_52px] gap-2 border-b border-border bg-background/95 px-2 py-3 text-xs font-medium tracking-[0.08em] text-muted-foreground backdrop-blur sm:grid-cols-[40px_48px_minmax(0,1fr)_80px] sm:gap-4 sm:px-4 md:grid-cols-[40px_48px_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_80px] sticky top-0 z-10">
 						<div>#</div>
@@ -208,7 +208,7 @@ function GenreDetailPage() {
 										}}
 									>
 										<IconPlaylistAdd class="mr-2 size-4" />
-										Add to Playlist...
+										Add to Playlist…
 									</ContextMenuItem>
 									<ContextMenuSeparator />
 									<ContextMenuItem

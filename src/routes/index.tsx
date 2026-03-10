@@ -317,7 +317,7 @@ function LoginPage() {
 														}
 													>
 														<p class="text-xs text-muted-foreground mt-1">
-															Checking server authentication capabilities...
+															Checking server authentication capabilities…
 														</p>
 													</Show>
 												</Show>
@@ -415,7 +415,7 @@ function LoginPage() {
 											>
 												<Show when={isSubmitting()} fallback="Connect">
 													<IconLoader2 class="w-4 h-4 animate-spin mr-2" />
-													Connecting...
+													Connecting…
 												</Show>
 											</Button>
 										)}

@@ -125,7 +125,7 @@ function NewArrivalsEditorial(props: {
 					<Link
 						to="/app/albums/$id"
 						params={{ id: p.album.id }}
-						class={`block group border-2 border-transparent hover:border-foreground transition-colors ${p.class || ""}`}
+						class={`block group border border-transparent bg-background transition-[border-color,transform] hover:-translate-y-1 hover:border-foreground ${p.class || ""}`}
 					>
 						<div class="relative overflow-hidden bg-muted/30">
 							<CoverArt
@@ -133,14 +133,15 @@ function NewArrivalsEditorial(props: {
 								class="w-full h-full object-cover aspect-square grayscale-[0.2] group-hover:grayscale-0 transition-all"
 							/>
 						</div>
-						<div class="pt-3 pb-2 px-1 border-t-2 border-transparent group-hover:border-foreground transition-colors">
+						<div class="px-3 py-3">
+							<div class="panel-heading mb-2">Album</div>
 							<h3
-								class={`truncate font-semibold tracking-tight ${p.featured ? "text-xl sm:text-2xl" : "text-base sm:text-lg"}`}
+								class={`line-clamp-2 font-semibold tracking-tight ${p.featured ? "text-xl sm:text-2xl" : "text-base sm:text-lg"}`}
 							>
 								{p.album.name}
 							</h3>
 							<Show when={!p.hideArtist}>
-								<p class="truncate text-sm text-muted-foreground">
+								<p class="mt-1 truncate text-sm text-muted-foreground">
 									{p.album.artist}
 								</p>
 							</Show>
@@ -176,7 +177,7 @@ function NewArrivalsEditorial(props: {
 					</ContextMenuItem>
 					<ContextMenuItem onSelect={() => props.onAddToPlaylist(p.album.id)}>
 						<IconPlaylistAdd class="mr-2 size-4" />
-						Add to Playlist...
+						Add to Playlist…
 					</ContextMenuItem>
 					<ContextMenuSeparator />
 					<ContextMenuItem
@@ -383,7 +384,7 @@ function AlbumSection(props: {
 														onSelect={() => props.onAddToPlaylist(album.id)}
 													>
 														<IconPlaylistAdd class="mr-2 size-4" />
-														Add to Playlist...
+														Add to Playlist…
 													</ContextMenuItem>
 													<ContextMenuSeparator />
 													<ContextMenuItem
@@ -476,10 +477,10 @@ function StarredSongsSection(props: {
 								<ContextMenuTrigger>
 									<button
 										type="button"
-										class="grid grid-cols-[24px_36px_minmax(0,1fr)_52px] sm:grid-cols-[30px_40px_minmax(0,1fr)_60px] md:grid-cols-[30px_40px_minmax(0,1fr)_minmax(0,1fr)_60px] gap-2 sm:gap-3 px-2 sm:px-3 py-2 items-center rounded-none transition-colors hover:bg-foreground hover:text-background group cursor-pointer text-sm w-full text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring border-b border-border/50"
+										class="grid w-full grid-cols-[24px_36px_minmax(0,1fr)_52px] items-center gap-2 border-b border-border/50 px-2 py-2 text-left text-sm transition-colors hover:bg-foreground hover:text-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:grid-cols-[30px_40px_minmax(0,1fr)_60px] sm:gap-3 sm:px-3 md:grid-cols-[30px_40px_minmax(0,1fr)_minmax(0,1fr)_60px]"
 										onClick={() => handlePlaySong(song, i())}
 									>
-										<div class="text-muted-foreground text-xs group-hover:text-background flex justify-center font-bold">
+										<div class="flex justify-center text-xs text-muted-foreground group-hover:text-background">
 											<span class="group-hover:hidden">{i() + 1}</span>
 											<IconPlayerPlayFilled class="size-3 hidden group-hover:block" />
 										</div>
@@ -488,7 +489,7 @@ function StarredSongsSection(props: {
 											size={80}
 											class="size-10 rounded-none border-2 border-transparent group-hover:border-background object-cover grayscale-[0.2] group-hover:grayscale-0 transition-all"
 										/>
-										<div class="truncate text-base font-semibold tracking-tight">
+										<div class="truncate text-sm font-semibold tracking-tight sm:text-base">
 											<span
 												class={
 													currentTrack?.id === song.id
@@ -502,7 +503,7 @@ function StarredSongsSection(props: {
 										<div class="hidden truncate text-muted-foreground group-hover:text-background/80 md:block">
 											{song.artist}
 										</div>
-										<div class="text-right font-mono font-bold text-xs text-muted-foreground group-hover:text-background/80">
+										<div class="text-right font-mono text-xs text-muted-foreground group-hover:text-background/80">
 											{formatDuration(song.duration)}
 										</div>
 									</button>
@@ -524,7 +525,7 @@ function StarredSongsSection(props: {
 										onSelect={() => props.onAddToPlaylist(song.id)}
 									>
 										<IconPlaylistAdd class="mr-2 size-4" />
-										Add to Playlist...
+										Add to Playlist…
 									</ContextMenuItem>
 									<ContextMenuSeparator />
 									<ContextMenuItem
@@ -619,10 +620,12 @@ function GenreSection() {
 				<div class="flex flex-wrap gap-3 p-4 sm:p-5">
 					<For each={genres.data?.slice(0, 20) ?? []}>
 						{(genre) => (
-							<Link to="/app/genres/$genre" params={{ genre: genre.value }}>
-								<div class="cursor-pointer rounded-none border-2 border-border px-4 py-2 text-sm font-medium tracking-[0.04em] transition-colors hover:border-foreground hover:bg-foreground hover:text-background">
-									{genre.value}
-								</div>
+							<Link
+								to="/app/genres/$genre"
+								params={{ genre: genre.value }}
+								class="inline-flex min-h-11 items-center rounded-none border-2 border-border px-4 py-2 text-sm font-medium tracking-[0.04em] transition-colors hover:border-foreground hover:bg-foreground hover:text-background"
+							>
+								{genre.value}
 							</Link>
 						)}
 					</For>
@@ -661,7 +664,7 @@ function DashboardPage() {
 	};
 
 	return (
-		<div class="flex h-full flex-col gap-4 overflow-y-auto px-2 py-3 md:px-6 md:py-6">
+		<div class="flex h-full flex-col gap-4 overflow-y-auto">
 			<DashboardOverview />
 			<div class="grid gap-4 xl:grid-cols-[minmax(0,1.25fr)_minmax(0,0.9fr)]">
 				<NewArrivalsEditorial onAddToPlaylist={handleAddAlbumToPlaylist} />

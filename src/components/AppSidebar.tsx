@@ -1,5 +1,4 @@
 import {
-	IconDeviceRemote,
 	IconDisc,
 	IconHome,
 	IconLayoutGrid,
@@ -75,11 +74,6 @@ const AppSidebar: Component = () => {
 			url: "/app/genres",
 			icon: IconLayoutGrid,
 		},
-		{
-			title: "Remote",
-			url: "/app/remote",
-			icon: IconDeviceRemote,
-		},
 	];
 
 	const username = () => auth.credentials?.username ?? "User";
@@ -104,7 +98,7 @@ const AppSidebar: Component = () => {
 		<Sidebar collapsible="icon">
 			<SidebarHeader class="gap-0 p-0">
 				<div class="hidden items-center justify-center px-3 py-3 text-sidebar-foreground group-data-[collapsible=icon]:flex">
-					<SidebarTrigger class="size-9 border border-border bg-background text-sidebar-foreground/70 hover:text-sidebar-foreground" />
+					<SidebarTrigger class="size-9 border border-border bg-background text-sidebar-foreground/80 hover:text-sidebar-foreground" />
 				</div>
 				<div class="group-data-[collapsible=icon]:hidden">
 					<div class="shell-divider px-4 py-4 text-sidebar-foreground">
@@ -118,7 +112,7 @@ const AppSidebar: Component = () => {
 									SOLIDSONIC.
 								</div>
 							</div>
-							<SidebarTrigger class="size-9 border border-border bg-background text-sidebar-foreground/70 hover:text-sidebar-foreground" />
+							<SidebarTrigger class="size-9 border border-border bg-background text-sidebar-foreground/80 hover:text-sidebar-foreground" />
 						</div>
 					</div>
 				</div>
@@ -216,7 +210,7 @@ const AppSidebar: Component = () => {
 									<p class="truncate text-sm font-medium leading-tight">
 										{username()}
 									</p>
-									<p class="mt-1 text-xs text-sidebar-foreground/60 leading-tight">
+									<p class="mt-1 text-xs text-sidebar-foreground/72 leading-tight">
 										{serverHost() || "Local session"}
 									</p>
 								</div>

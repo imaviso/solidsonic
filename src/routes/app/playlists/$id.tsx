@@ -196,7 +196,7 @@ function PlaylistDetailPage() {
 		<div class="flex flex-col gap-6 h-full overflow-y-auto">
 			<Show
 				when={!playlist.isLoading && playlist.data}
-				fallback={<div>Loading...</div>}
+				fallback={<div>Loading…</div>}
 			>
 				<div class="panel-surface flex flex-col items-center gap-6 border border-border px-5 py-5 text-center md:flex-row md:items-end md:gap-8 md:px-6 md:text-left">
 					<div class="size-48 md:size-56 bg-muted rounded-none border border-border flex shrink-0 items-center justify-center overflow-hidden">

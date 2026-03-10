@@ -257,7 +257,7 @@ function SongsPage() {
 											}}
 										>
 											<IconPlaylistAdd class="mr-2 size-4" />
-											Add to Playlist...
+											Add to Playlist…
 										</ContextMenuItem>
 										<ContextMenuSeparator />
 										<ContextMenuItem
@@ -314,12 +314,12 @@ function SongsPage() {
 				</div>
 
 				<Show when={songs.isLoading}>
-					<div class="text-center py-4">Loading...</div>
+					<div class="text-center py-4">Loading…</div>
 				</Show>
 
 				<Show when={songs.isFetchingNextPage}>
 					<div class="py-4 text-center text-muted-foreground text-sm">
-						Loading more...
+						Loading more…
 					</div>
 				</Show>
 			</div>
