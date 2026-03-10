@@ -135,7 +135,7 @@ function SongsPage() {
 				class="panel-surface flex-1 overflow-auto border border-border"
 			>
 				{/* Header */}
-				<div class="grid grid-cols-[28px_40px_minmax(0,1fr)_52px] sm:grid-cols-[40px_48px_minmax(0,1fr)_80px] md:grid-cols-[40px_48px_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_80px] gap-2 sm:gap-4 px-2 sm:px-4 py-3 text-xs font-medium tracking-[0.08em] text-muted-foreground border-b border-border sticky top-0 bg-background/95 backdrop-blur z-10">
+				<div class="grid grid-cols-[28px_40px_minmax(0,1fr)_52px] sm:grid-cols-[40px_48px_minmax(0,1fr)_80px] md:grid-cols-[40px_48px_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_80px] gap-2 sm:gap-4 px-2 sm:px-4 py-3 text-xs font-medium tracking-[0.08em] text-muted-foreground border-b border-border sticky top-0 bg-background z-10">
 					<div>#</div>
 					<div></div>
 					<div>Title</div>

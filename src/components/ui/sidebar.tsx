@@ -262,7 +262,7 @@ const Sidebar: Component<SidebarProps> = (rawProps) => {
 					>
 						<div
 							data-sidebar="sidebar"
-							class="panel-surface flex size-full flex-col border-r border-border bg-background group-data-[variant=floating]:rounded-none group-data-[variant=floating]:shadow-[10px_10px_0_0_hsl(var(--border)/0.45)]"
+							class="panel-surface flex size-full flex-col border-r border-border bg-background group-data-[variant=floating]:rounded-none"
 						>
 							{local.children}
 						</div>

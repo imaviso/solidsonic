@@ -269,7 +269,7 @@ function AlbumsPage() {
 									}
 								</SelectValue>
 							</SelectTrigger>
-							<SelectContent class="rounded-none shadow-lg bg-background/95 backdrop-blur"></SelectContent>
+							<SelectContent class="rounded-none bg-background"></SelectContent>
 						</Select>
 					</div>
 				</div>

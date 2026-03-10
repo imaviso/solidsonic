@@ -700,7 +700,7 @@ export function RemoteControlPanel() {
 							</p>
 						</div>
 
-						<div class="sticky bottom-0 rounded-t-none border-t border-border bg-background/95 p-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] shadow-md backdrop-blur md:hidden">
+						<div class="sticky bottom-0 rounded-t-none border-t border-border bg-background p-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] md:hidden">
 							<div class="grid grid-cols-5 gap-1.5">
 								<Button
 									variant="outline"

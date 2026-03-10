@@ -26,7 +26,7 @@ const SelectTrigger = <T extends ValidComponent = "button">(
 	return (
 		<SelectPrimitive.Trigger
 			class={cn(
-				"flex h-12 w-full items-center justify-between rounded-none border border-input bg-background/80 px-4 py-2 text-sm transition-[border-color,background-color,box-shadow] placeholder:text-muted-foreground focus:outline-none focus:border-foreground focus:ring-2 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50",
+				"flex h-12 w-full items-center justify-between rounded-none border border-input bg-background px-4 py-2 text-sm transition-[border-color,background-color,box-shadow] placeholder:text-muted-foreground focus:outline-none focus:border-foreground focus:ring-2 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50",
 				local.class,
 			)}
 			{...others}

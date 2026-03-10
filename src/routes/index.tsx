@@ -233,7 +233,7 @@ function LoginPage() {
 							</p>
 						</div>
 
-						<Card class="shadow-[10px_10px_0_0_hsl(var(--border)/0.45)]">
+						<Card>
 							<CardHeader class="pb-4">
 								<div class="panel-heading mb-3">01 Server Login</div>
 								<CardTitle class="section-title tracking-[-0.04em]">

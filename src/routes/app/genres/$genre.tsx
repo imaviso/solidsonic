@@ -109,7 +109,7 @@ function GenreDetailPage() {
 
 			<Show when={!songs.isLoading} fallback={<div>Loading…</div>}>
 				<div class="panel-surface overflow-auto border border-border">
-					<div class="grid grid-cols-[28px_40px_minmax(0,1fr)_52px] gap-2 border-b border-border bg-background/95 px-2 py-3 text-xs font-medium tracking-[0.08em] text-muted-foreground backdrop-blur sm:grid-cols-[40px_48px_minmax(0,1fr)_80px] sm:gap-4 sm:px-4 md:grid-cols-[40px_48px_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_80px] sticky top-0 z-10">
+					<div class="grid grid-cols-[28px_40px_minmax(0,1fr)_52px] gap-2 border-b border-border bg-background px-2 py-3 text-xs font-medium tracking-[0.08em] text-muted-foreground sm:grid-cols-[40px_48px_minmax(0,1fr)_80px] sm:gap-4 sm:px-4 md:grid-cols-[40px_48px_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_80px] sticky top-0 z-10">
 						<div>#</div>
 						<div></div>
 						<div>Title</div>

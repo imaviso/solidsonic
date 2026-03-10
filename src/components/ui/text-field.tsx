@@ -66,7 +66,7 @@ const TextFieldInput = <T extends ValidComponent = "input">(
 		<TextFieldPrimitive.Input
 			type={local.type}
 			class={cn(
-				"flex h-12 w-full rounded-none border border-input bg-background/80 px-4 py-2 text-sm transition-[border-color,background-color,box-shadow] file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0 focus-visible:border-foreground disabled:cursor-not-allowed disabled:opacity-50 data-[invalid]:border-error data-[invalid]:text-error-foreground",
+				"flex h-12 w-full rounded-none border border-input bg-background px-4 py-2 text-sm transition-[border-color,background-color,box-shadow] file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0 focus-visible:border-foreground disabled:cursor-not-allowed disabled:opacity-50 data-[invalid]:border-error data-[invalid]:text-error-foreground",
 				local.class,
 			)}
 			{...others}
@@ -86,7 +86,7 @@ const TextFieldTextArea = <T extends ValidComponent = "textarea">(
 	return (
 		<TextFieldPrimitive.TextArea
 			class={cn(
-				"flex min-h-[120px] w-full rounded-none border border-input bg-background/80 px-4 py-3 text-sm transition-[border-color,background-color,box-shadow] placeholder:text-muted-foreground/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0 focus-visible:border-foreground disabled:cursor-not-allowed disabled:opacity-50",
+				"flex min-h-[120px] w-full rounded-none border border-input bg-background px-4 py-3 text-sm transition-[border-color,background-color,box-shadow] placeholder:text-muted-foreground/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0 focus-visible:border-foreground disabled:cursor-not-allowed disabled:opacity-50",
 				local.class,
 			)}
 			{...others}

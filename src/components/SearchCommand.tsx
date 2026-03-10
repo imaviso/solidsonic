@@ -165,7 +165,7 @@ export function SearchCommand(props: SearchCommandProps = {}) {
 				type="button"
 				onClick={() => setOpen(true)}
 				class={cn(
-					"metric-panel flex min-h-14 items-center gap-3 border border-border bg-background/80 px-4 py-3 text-left text-sm text-muted-foreground transition-[border-color,background-color,color,transform] group hover:-translate-y-px hover:border-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+					"panel-surface flex min-h-14 items-center gap-3 border border-border bg-background px-4 py-3 text-left text-sm text-muted-foreground transition-[border-color,background-color,color,transform] group hover:-translate-y-px hover:border-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
 					props.triggerClass ?? "w-40 md:w-64",
 				)}
 			>

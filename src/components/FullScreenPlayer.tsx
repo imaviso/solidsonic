@@ -392,27 +392,27 @@ const FullScreenPlayer: Component<FullScreenPlayerProps> = (props) => {
 		<Portal>
 			<div
 				class={cn(
-					"fixed inset-0 z-[100] bg-background/95 backdrop-blur-md transition-[transform,opacity] duration-500 [transition-timing-function:cubic-bezier(0.32,0.72,0,1)] motion-reduce:transition-none",
+					"fixed inset-0 z-[100] bg-background/95 transition-[transform,opacity] duration-500 [transition-timing-function:cubic-bezier(0.32,0.72,0,1)] motion-reduce:transition-none",
 					props.isOpen
 						? "translate-y-0 opacity-100"
 						: "translate-y-full opacity-0 pointer-events-none",
 				)}
 			>
 				{/* Dynamic Background */}
-				<div class="absolute inset-0 z-0 overflow-hidden opacity-20 pointer-events-none transition-opacity duration-1000">
+				<div class="absolute inset-0 z-0 overflow-hidden opacity-[0.08] pointer-events-none transition-opacity duration-700">
 					<Show when={!!player.currentTrack}>
 						<CoverArt
 							id={player.currentTrack?.coverArt}
-							class="w-full h-full object-cover blur-3xl scale-125 saturate-125"
+							class="w-full h-full object-cover blur-2xl scale-110 saturate-50"
 						/>
 					</Show>
-					<div class="absolute inset-0 bg-[linear-gradient(180deg,hsl(var(--background)/0.84),hsl(var(--background)/0.96))]" />
+					<div class="absolute inset-0 bg-[linear-gradient(180deg,hsl(var(--background)/0.9),hsl(var(--background)/0.98))]" />
 				</div>
 
 				{/* Content Container */}
 				<div class="relative z-10 mx-auto flex h-full w-full max-w-7xl flex-col p-3 sm:p-4 lg:p-6">
 					{/* Header */}
-					<div class="panel-surface flex flex-none flex-wrap items-center justify-between gap-3 border border-border bg-background/80 px-3 py-3 sm:px-4">
+					<div class="panel-surface flex flex-none flex-wrap items-center justify-between gap-3 border border-border bg-background px-3 py-3 sm:px-4">
 						<Button
 							variant="ghost"
 							size="icon"
@@ -462,7 +462,7 @@ const FullScreenPlayer: Component<FullScreenPlayerProps> = (props) => {
 						{/* Left Side: Artwork / Content */}
 						<div
 							class={cn(
-								"relative flex min-h-[320px] w-full items-center justify-center overflow-hidden rounded-none border border-border bg-background/78 p-3 sm:min-h-[420px] lg:min-h-0",
+								"relative flex min-h-[320px] w-full items-center justify-center overflow-hidden rounded-none border border-border bg-background p-3 sm:min-h-[420px] lg:min-h-0",
 								"panel-surface transition-transform duration-500 motion-reduce:transition-none",
 								view() === "artwork" ? "scale-100" : "scale-100",
 							)}
@@ -513,7 +513,7 @@ const FullScreenPlayer: Component<FullScreenPlayerProps> = (props) => {
 						</div>
 
 						{/* Right Side: Controls (Desktop) or Below (Mobile) */}
-						<div class="panel-surface flex min-w-0 flex-col gap-5 border border-border bg-background/78 p-4 sm:p-5">
+						<div class="panel-surface flex min-w-0 flex-col gap-5 border border-border bg-background p-4 sm:p-5">
 							{/* Track Info */}
 							<div class="shell-divider space-y-1 pb-4 text-center lg:text-left">
 								<div class="panel-heading">Now Playing</div>
@@ -574,7 +574,7 @@ const FullScreenPlayer: Component<FullScreenPlayerProps> = (props) => {
 							</div>
 
 							{/* Playback Controls */}
-							<div class="panel-surface flex items-center justify-center gap-3 border border-border bg-background/70 px-2 py-2">
+							<div class="panel-surface flex items-center justify-center gap-3 border border-border bg-background px-2 py-2">
 								<Button
 									variant="ghost"
 									size="icon"

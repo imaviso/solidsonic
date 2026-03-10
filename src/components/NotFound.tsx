@@ -6,15 +6,14 @@ export function NotFound() {
 	return (
 		<div class="fixed inset-0 z-50 flex h-screen w-screen flex-col items-center justify-center overflow-hidden bg-background">
 			{/* Background Ambience */}
-			<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/5 rounded-none blur-3xl pointer-events-none" />
+			<div class="absolute inset-0 bg-[linear-gradient(to_right,hsl(var(--border)/0.16)_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--border)/0.16)_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none" />
 
 			{/* Content */}
 			<div class="panel-surface relative z-10 flex max-w-xl flex-col items-center space-y-6 border border-border px-6 py-8 text-center animate-in fade-in zoom-in duration-500 sm:px-8">
 				{/* Icon/Visual */}
 				<div class="relative">
-					<div class="absolute inset-0 bg-primary/20 blur-xl rounded-none" />
 					<IconGhost
-						class="h-24 w-24 text-primary/80 relative z-10"
+						class="relative z-10 h-20 w-20 text-primary/80"
 						stroke-width={1}
 					/>
 				</div>
@@ -44,9 +43,6 @@ export function NotFound() {
 					</Link>
 				</div>
 			</div>
-
-			{/* Decorative grid pattern */}
-			<div class="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] pointer-events-none" />
 		</div>
 	);
 }
